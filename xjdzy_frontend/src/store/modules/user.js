@@ -1,5 +1,5 @@
 import { login, getUserInfo } from '@/api/auth/auth'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken } from '@/utils/js_cookie'
 
 //定义全局状态数据
 const state = {
@@ -61,4 +61,10 @@ const actions = {
   }
 }
 
+export default {
+  namespaced: true,
+  state,
+  mutations,
+  actions,
+};
 /* 疑问：登录接口的响应数据应该要增加头像，或者就是注册的时候选择头像，还是，先注册登录，然后在个人中心里再去修改头像 */
