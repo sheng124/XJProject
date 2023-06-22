@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 获取文章详细信息功能所需的数据传送对象
+ * 获取笔记详细信息功能所需的数据传送对象
  */
 
 @Data

@@ -26,5 +26,7 @@ public interface ArticlesService {
 
     List<Article>  getAllArticlesByCategoryId(Integer categoryId);
 
+    ArticleDetailDto getArticlesDataByArticleId(Integer articleId,ArticleDetailDto articleDetailDto);
+
     ArticleDetailDto getArticlesDetailByArticleId(Integer articleId);
 }

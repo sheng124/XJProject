@@ -7,6 +7,6 @@
     <select id="getAllByArticleIdTags" resultType="com.xjdzy.entity.Tag">
         select tag.tag_id,tag.tag_name from tag,rel_article_tag
         where tag.tag_id=rel_article_tag.tag_id
-        and rel_article_tag.article_id=#{articleId}
+        and rel_article_tag.article_id = #{articleId}
     </select>
 </mapper>

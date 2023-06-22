@@ -134,14 +134,13 @@ public class ArticlesServiceImplements implements ArticlesService {
     }
 
     /**
-     * 获取笔记详细信息
+     * 获取除评论以外的所有笔记详细信息
      * @param articleId 笔记ID
-     * @return 数据传送对象ArticleDetailDto
+     * @param articleDetailDto 空的数据传送对象ArticleDetailDto
+     * @return 含数据的数据传送对象ArticleDetailDto
      */
     @Override
-    public ArticleDetailDto getArticlesDetailByArticleId(Integer articleId) {
-        // 0.创建空的数据传送对象
-        ArticleDetailDto articleDetailDto=new ArticleDetailDto();
+    public ArticleDetailDto getArticlesDataByArticleId(Integer articleId,ArticleDetailDto articleDetailDto) {
         // 1.查询Article中的相关数据
         LambdaQueryWrapper<Article> lqw1=new LambdaQueryWrapper<>();
         lqw1.select(Article::getArticleTitle,
@@ -184,6 +183,20 @@ public class ArticlesServiceImplements implements ArticlesService {
         lqw6.eq(Comment::getArticleId,articleId);
         int tpmComCount= Math.toIntExact(commentMapper.selectCount(lqw6));
         articleDetailDto.setCommentNum(tpmComCount);
+
+        return articleDetailDto;
+    }
+
+    /**
+     * 获取笔记详细信息
+     * @param articleId 笔记ID
+     * @return 数据传送对象ArticleDetailDto
+     */
+    @Override
+    public ArticleDetailDto getArticlesDetailByArticleId(Integer articleId) {
+        // 0.创建空的数据传送对象
+        ArticleDetailDto articleDetailDto=new ArticleDetailDto();
+        getArticlesDataByArticleId(articleId,articleDetailDto);
         // 7.统计UserInfo和Comment中的相关数据
         List<CAndUDto> tmpCAU=commentMapper.getAllByArticleIdCAndUDtos(articleId);
         articleDetailDto.setCAndUDtoList(tmpCAU);

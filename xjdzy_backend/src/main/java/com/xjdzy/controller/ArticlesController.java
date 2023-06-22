@@ -24,7 +24,7 @@ public class ArticlesController {
     /**
      * 点赞
      * @param likes 点赞实体类
-     * @return Result
+     * @return Result：data为null
      */
     @PostMapping("/articles/like")
     public Result likesCon(@RequestBody Likes likes){
@@ -42,7 +42,7 @@ public class ArticlesController {
     /**
      * 取消点赞
      * @param likes 点赞实体类
-     * @return Result
+     * @return Result：data为null
      */
     @DeleteMapping("/articles/unlike")
     public Result unLikeCon(@RequestBody Likes likes){
@@ -60,7 +60,7 @@ public class ArticlesController {
     /**
      * 收藏
      * @param collection  收藏实体类
-     * @return Result
+     * @return Result：data为null
      */
     @PostMapping("/articles/collection")
     public Result collectionCon(@RequestBody Collection collection){
@@ -78,7 +78,7 @@ public class ArticlesController {
     /**
      * 取消收藏
      * @param collection  收藏实体类
-     * @return Result
+     * @return Result：data为null
      */
     @DeleteMapping("/articles/unCollection")
     public Result unCollectionCon(@RequestBody Collection collection){
@@ -114,7 +114,7 @@ public class ArticlesController {
     /**
      * 删除评论
      * @param comment 评论实体类
-     * @return Result
+     * @return Result：data为null
      */
     @DeleteMapping("/articles/unComment")
     public Result unCommentCon(@RequestBody Comment comment){

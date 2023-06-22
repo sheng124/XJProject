@@ -1,5 +1,8 @@
 package com.xjdzy;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.xjdzy.entity.RelArticleTag;
+import com.xjdzy.mapper.RelArticleTagMapper;
 import com.xjdzy.mapper.TesrMapper;
 
 import com.xjdzy.entity.Tesr;
@@ -19,6 +22,9 @@ class XjdzyApplicationTests {
 
     @Autowired(required = false)
     private TesrMapper tesrMapper;
+
+    @Autowired(required = false)
+    RelArticleTagMapper relArticleTagMapper;
 
     @Test
     void insertTest() {
@@ -43,5 +49,14 @@ class XjdzyApplicationTests {
         l.add("1");
         l.add("2");
         System.out.println(l.size());
+    }
+
+    @Test
+    void TestSelect(){
+
+        LambdaQueryWrapper<RelArticleTag> lqw=new LambdaQueryWrapper<>();
+        lqw.select(RelArticleTag::getTagId).eq(RelArticleTag::getArticleId,4);
+        List<Object> relArticleTags = relArticleTagMapper.selectObjs(lqw);
+        System.out.println(relArticleTags);
     }
 }
