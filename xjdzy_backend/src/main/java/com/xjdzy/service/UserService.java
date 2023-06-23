@@ -1,10 +1,10 @@
 package com.xjdzy.service;
 
-import com.xjdzy.dto.ArticleTypeDto;
-import com.xjdzy.dto.ArticleWriteAndUpdateDto;
-import com.xjdzy.dto.ArticlesDataDto;
-import com.xjdzy.dto.FoFoLiCoNumDto;
+import com.xjdzy.dto.*;
+import com.xjdzy.entity.Category;
 import com.xjdzy.entity.Follow;
+import com.xjdzy.entity.UserInfo;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -28,4 +28,12 @@ public interface UserService {
     ArticlesDataDto getAllArticleDataService(Integer userId);
 
     String updateUserAvatarService(MultipartFile imageFile,String userName);
+
+    List<Category> getCateGoriesService();
+
+    boolean updatePasswordService (UpdatePasswordDto updatePasswordDto);
+
+    boolean updateUserNameService(UpdateUserNameDto updateUserNameDto);
+
+    List<UserInfo> getUserInfoService(String userId);
 }

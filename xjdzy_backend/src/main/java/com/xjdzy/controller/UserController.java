@@ -1,7 +1,9 @@
 package com.xjdzy.controller;
 
 import com.xjdzy.dto.*;
+import com.xjdzy.entity.Category;
 import com.xjdzy.entity.Follow;
+import com.xjdzy.entity.UserInfo;
 import com.xjdzy.service.UserService;
 import com.xjdzy.utils.JwtAndLoginUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -193,4 +195,75 @@ public class UserController {
             return Result.success(res);
         }
     }
+    /**
+     * 获取所有类别
+     * @param
+     * @return
+     */
+    @GetMapping("/categories")
+    public Result getCateGoriesCon(){
+        List<Category> res=userService.getCateGoriesService();
+        log.info("Service处理的结果："+ res);
+        if(res != null){
+            return Result.success(res);
+        }
+        else{
+            return Result.error("获取失败!");
+        }
+    }
+
+    /**
+     * 修改密码
+     * @param
+     * @return
+     */
+    @PostMapping("/user/password")
+    public Result updatePasswordCon(@RequestBody UpdatePasswordDto updatePasswordDto){
+        log.info("获取到的数据："+ updatePasswordDto);
+        boolean res=userService.updatePasswordService(updatePasswordDto);
+        log.info("Service处理的结果："+ res);
+        if(res){
+            return Result.success();
+        }
+        else{
+            return Result.error("修改失败!");
+        }
+    }
+
+    /**
+     * 修改用户名
+     * @param
+     * @return
+     */
+    @PostMapping("/user/username")
+    public Result updateUserNameCon(@RequestBody UpdateUserNameDto updateUserNameDto){
+        log.info("获取到的数据："+ updateUserNameDto);
+        boolean res=userService.updateUserNameService(updateUserNameDto);
+        log.info("Service处理的结果："+ res);
+        if(res){
+            return Result.success();
+        }
+        else{
+            return Result.error("修改失败!");
+        }
+    }
+
+    /**
+     * 获取用户信息
+     * @param
+     * @return
+     */
+    @GetMapping("/user/info/{userId}")
+    public Result getUserInfoCon(@PathVariable String userId){
+        List<UserInfo> res=userService.getUserInfoService(userId);
+        log.info("Service处理的结果："+ res);
+        if(res != null){
+            return Result.success(res);
+        }
+        else{
+            return Result.error("获取失败!");
+        }
+    }
+
 }
+
