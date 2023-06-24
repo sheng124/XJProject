@@ -18,9 +18,16 @@ export function login(data) {
 }
 
 // 登录后获取前台用户信息
-export function getUserInfo() {
+export function getUserInfo(userId) {
   return request({
-    url: '/user/info',
+    url: `/user/info/${userId}`,
     method: 'get'
+  })
+}
+
+// 前台用户退出登录
+export function logout() {
+  return request({
+    url: '/user/logout'
   })
 }

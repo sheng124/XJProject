@@ -21,6 +21,10 @@ const mutations = {
     state.user.userName = user.userName
     state.user.userAvatar = user.userAvatar
   },
+  //退出登录
+  logout(state){
+    state.user=null
+  }
 }
 
 //actions解决异步请求（指请求数据后不等待数据返回，直接去做别的事，当数据返回时，再通过回调函数）
@@ -32,8 +36,9 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {//这里的login是'@/api/auth/auth'里的登录接口
         const { data } = response
+        console.log(data);
         commit('setTokenState', data)	//存到store.state里
-        setToken(data.token)		//存到cookie里
+        setToken(data)		//存到cookie里
         resolve()
       }).catch(error => {
         reject(error)
@@ -41,9 +46,9 @@ const actions = {
     })
   },
   // 获取用户信息
-  getInfo({ commit }) {
+  getInfo({ commit,state }) {
     return new Promise((resolve, reject) => {
-      getUserInfo().then(response => {
+      getUserInfo(state.user.userId).then(response => {
         const { data } = response
         if (!data) {
           commit('setTokenState', '')
@@ -58,7 +63,23 @@ const actions = {
         reject(error)
       })
     })
-  }
+  },
+  /* // 退出登录
+  logout({ commit, state }) {
+    return new Promise((resolve, reject) => {
+      logout(state.token)
+        .then((response) => {
+          console.log(response);
+          commit("setTokenState", "");
+          commit("setUserState", null);
+          removeToken();
+          resolve();
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }, */
 }
 
 export default {

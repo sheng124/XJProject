@@ -1,16 +1,15 @@
 import Cookies from 'js-cookie'
 
 const uToken = 'u_token'
-const darkMode = 'dark_mode';
 
 // 获取Token
 export function getToken() {
     return Cookies.get(uToken);
 }
 
-// 设置Token，1天,与后端同步
+// 设置Token，0.1天,与后端同步
 export function setToken(token) {
-    return Cookies.set(uToken, token, {expires: 1})
+    return Cookies.set(uToken, token, {expires: 0.1})
 }
 
 // 删除Token
