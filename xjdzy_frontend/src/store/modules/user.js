@@ -1,12 +1,13 @@
 import { login, getUserInfo } from '@/api/auth/auth'
-import { getToken, setToken, removeToken } from '@/utils/js_cookie'
+import { getToken, setToken, setId,getId,removeAll } from '@/utils/js_cookie'
 
 //定义全局状态数据
 const state = {
   token: getToken(), // token
   user:{
-    userId: 0, // 用户id
-    userName: '',  // 用户名
+    userId: getId(), // 用户id
+    username: '',  // 用户名
+    password: '', //密码
     userAvatar: ''  // 用户头像
   }
   
@@ -18,8 +19,12 @@ const mutations = {
   },
   setUserState(state, user) {
     state.user.userId = user.userId
-    state.user.userName = user.userName
+    state.user.username = user.username
+    state.user.password = user.password
     state.user.userAvatar = user.userAvatar
+  },
+  setUserIdState(state,userId){
+    state.user.userId=userId
   },
   //退出登录
   logout(state){
@@ -37,8 +42,10 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {//这里的login是'@/api/auth/auth'里的登录接口
         const { data } = response
         console.log(data);
-        commit('setTokenState', data)	//存到store.state里
-        setToken(data)		//存到cookie里
+        commit('setTokenState', data.token)	//存到store.state里
+        commit('setUserIdState', data.userId)
+        setToken(data.token)		//存到cookie里
+        setId(data.userId)
         resolve()
       }).catch(error => {
         reject(error)
@@ -53,11 +60,11 @@ const actions = {
         if (!data) {
           commit('setTokenState', '')
           commit('setUserState', null)
-          removeToken()
+          removeAll()
           resolve()
           reject('Verification failed, please Login again.')
         }
-        commit('setUserState', data)
+        commit('setUserState', data[0])
         resolve(data)
       }).catch(error => {
         reject(error)
