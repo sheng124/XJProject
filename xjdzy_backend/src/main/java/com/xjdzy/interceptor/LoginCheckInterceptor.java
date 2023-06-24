@@ -1,7 +1,11 @@
 package com.xjdzy.interceptor;
 
+import com.alibaba.fastjson.JSONObject;
+import com.xjdzy.dto.Result;
+import com.xjdzy.service.RedisService;
 import com.xjdzy.utils.JwtAndLoginUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -13,6 +17,10 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Component
 public class LoginCheckInterceptor implements HandlerInterceptor{
+
+    @Autowired
+    RedisService redisService;
+
     @Override//方法1：Controller运行前执行，true放行，false拦截
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("preHandle...");
@@ -29,11 +37,11 @@ public class LoginCheckInterceptor implements HandlerInterceptor{
             JwtAndLoginUtils.writeResponse(response);
             return false;
         }
-        //3.如果存在，对令牌进行解析，如果解析正确（不报错），则放行，否则不放行
-        try{
-            JwtAndLoginUtils.parseJWT(token);
+        //3.如果存在，判断令牌是否在Redis存储的白名单中，如果在，则放行，否则不放行
+        if(redisService.checkToken(token)){
             return true;
-        }catch (Exception e){
+        }
+        else{
             JwtAndLoginUtils.writeResponse(response);
             return false;
         }

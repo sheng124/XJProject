@@ -15,7 +15,7 @@ import java.util.Map;
 public class JwtAndLoginUtils {
 
     private static final String signKey = "XJProject";
-    private static final int expire = 3600000;
+    public static final int expire = 3600000;
 
     /**
      * 生成JWT令牌
