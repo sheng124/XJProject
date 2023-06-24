@@ -1,8 +1,11 @@
 package com.xjdzy.service;
 
+import com.xjdzy.dto.LoginDto;
 import com.xjdzy.entity.UserInfo;
 
 public interface LoginService {
 
-    UserInfo loginJudge(UserInfo userInfo);
+    LoginDto loginJudge(UserInfo userInfo);
+
+    boolean loginOut(String token);
 }

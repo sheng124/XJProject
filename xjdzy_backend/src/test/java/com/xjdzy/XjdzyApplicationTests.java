@@ -86,4 +86,9 @@ class XjdzyApplicationTests {
         System.out.println("uB = " + uB);
 
     }
+
+    @Test
+    void TestTime(){
+        System.out.println(System.currentTimeMillis());
+    }
 }
