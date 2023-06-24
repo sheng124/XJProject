@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.xjdzy.dto.*;
 import com.xjdzy.entity.*;
-import com.xjdzy.mapper.ArticleMapper;
-import com.xjdzy.mapper.FollowMapper;
-import com.xjdzy.mapper.RelArticleTagMapper;
-import com.xjdzy.mapper.UserMapper;
+import com.xjdzy.mapper.*;
 import com.xjdzy.service.ArticlesService;
 import com.xjdzy.service.UserService;
 import com.xjdzy.utils.ImageToBase64Utils;
@@ -40,8 +37,13 @@ public class UserServiceImplements implements UserService {
     @Autowired(required = false)
     UserMapper userMapper;
 
+    @Autowired(required = false)
+    CategoryMapper categoryMapper;
+
     @Autowired
     private ArticlesService articlesService;
+
+
 
     /**
      * 关注
@@ -270,4 +272,58 @@ public class UserServiceImplements implements UserService {
         }
         return imageBase64;
     }
+    /**
+     * 获取所有类别
+     * @param
+     * @param
+     * @return
+     */
+    @Override
+    public List<Category> getCateGoriesService() {
+        return categoryMapper.getCateGoriesCon();
+    }
+
+    /**
+     * 修改密码
+     * @param
+     * @param
+     * @return
+     */
+    @Override
+    public boolean updatePasswordService(UpdatePasswordDto updatePasswordDto) {
+       List<UserInfo> u=userMapper.CheckisR(updatePasswordDto.getUserId(),updatePasswordDto.getPassword());
+       if(u.size()==0)
+           return false;
+       userMapper.updatePasswordCon(updatePasswordDto.getUserId(),updatePasswordDto.getNewPassword());
+       return true;
+
+    }
+
+    /**
+     * 修改用户名
+     * @param
+     * @param
+     * @return
+     */
+    @Override
+    public boolean updateUserNameService(UpdateUserNameDto updateUserNameDto) {
+        List<UserInfo> a = userMapper.CheckisR2(updateUserNameDto.getNewUserName());
+        if(a.size()!=0)
+            return false;
+        userMapper.updateUserNameCon(updateUserNameDto.getUserId(),updateUserNameDto.getNewUserName());
+        return true;
+    }
+
+    /**
+     * 获取用户信息
+     * @param
+     * @param
+     * @return
+     */
+    @Override
+    public List<UserInfo> getUserInfoService(String userId) {
+        return userMapper.getUserInfoCon(userId);
+
+    }
+
 }
