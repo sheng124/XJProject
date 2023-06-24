@@ -258,16 +258,16 @@ public class UserServiceImplements implements UserService {
     /**
      * 上传用户头像
      * @param imageFile 头像文件
-     * @param userName 用户名
+     * @param userId 用户ID
      * @return 图片转换为base64格式的字符串编码
      */
     @Override
-    public String updateUserAvatarService(MultipartFile imageFile, String userName) {
+    public String updateUserAvatarService(MultipartFile imageFile, Integer userId) {
         String imageBase64 = ImageToBase64Utils.ImageToBase64(imageFile);
         if(imageBase64 != null && !imageBase64.equals("0") && !imageBase64.equals("1") && !imageBase64.equals("2")){
             LambdaUpdateWrapper<UserInfo> luw=new LambdaUpdateWrapper<>();
             luw.set(UserInfo::getUserAvatar,imageBase64)
-                    .eq(UserInfo::getUsername,userName);
+                    .eq(UserInfo::getUserId,userId);
             userMapper.update(null,luw);
         }
         return imageBase64;

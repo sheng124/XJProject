@@ -174,9 +174,9 @@ public class UserController {
      */
     @PostMapping("/user/avatar")
     public Result updateUserAvatarCon(MultipartFile imageFile, HttpServletRequest request){
-        String userName = (String) JwtAndLoginUtils.parseJWT(request.getHeader("token")).get("user_name");
-        log.info("上传用户头像，解析到的userName："+userName);
-        String res=userService.updateUserAvatarService(imageFile,userName);
+        Integer userId = (Integer) JwtAndLoginUtils.parseJWT(request.getHeader("token")).get("user_id");
+        log.info("上传用户头像，解析到的userName："+userId);
+        String res=userService.updateUserAvatarService(imageFile,userId);
         // 结果过长，不再输出
         // log.info("Service处理的结果："+ res);
         if(res == null){

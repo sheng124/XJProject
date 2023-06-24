@@ -21,6 +21,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+<!--        &lt;!&ndash;redis&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId></groupId>-->
+<!--            <artifactId>redis</artifactId>-->
+<!--        </dependency>-->
         <!--mybatis-->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>

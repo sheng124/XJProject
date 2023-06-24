@@ -27,7 +27,7 @@ public interface UserService {
 
     ArticlesDataDto getAllArticleDataService(Integer userId);
 
-    String updateUserAvatarService(MultipartFile imageFile,String userName);
+    String updateUserAvatarService(MultipartFile imageFile,Integer userId);
 
     List<Category> getCateGoriesService();
 
