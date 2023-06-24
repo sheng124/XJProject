@@ -13,18 +13,12 @@
       </template>
 
       <template slot="end">
-        <b-navbar-item tag="router-link" :to="{}" >
-        🔍搜索
-        </b-navbar-item>
+        <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item>
         <b-navbar-item tag="div">
-            <b-switch
-              v-model="darkMode"
-              passive-type="is-warning"
-              type="is-dark"
-            >
-              {{ darkMode ? "夜" : "日" }}
-            </b-switch>
-          </b-navbar-item>
+          <b-switch v-model="darkMode" passive-type="is-warning" type="is-dark">
+            {{ darkMode ? "夜" : "日" }}
+          </b-switch>
+        </b-navbar-item>
         <b-navbar-item v-if="token == null || token === ''" tag="div">
           <div class="buttons">
             <b-button
@@ -68,10 +62,7 @@
         <div v-else>
           <el-dropdown class="avatar-container" trigger="click">
             <div class="avatar-wrapper">
-              <img
-                :src="user.userAvatar"
-                class="user-avatar"
-              />
+              <img :src="user.userAvatar" class="user-avatar" />
               <i class="el-icon-caret-bottom" />
             </div>
             <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -111,24 +102,44 @@
 </template>
   
   <script>
-/*   import { disable as disableDarkMode, enable as enableDarkMode } from 'darkreader'
-  import { getDarkMode, setDarkMode } from '@/utils/js_cookie' */
+import {
+  disable as disableDarkMode,
+  enable as enableDarkMode,
+} from "darkreader";
 import { mapGetters } from "vuex";
-import { removeAll } from "@/utils/js_cookie";
+import { removeAll,getDarkMode,setDarkMode } from "@/utils/js_cookie";
 export default {
   name: "Header",
   data() {
     return {
       logoUrl: require("@/assets/logo.png"),
       doubaoImg: require("@/assets/image/doubao.png"),
-      /* dropdownVisible: false, */
+      darkMode: false
     };
   },
   computed: {
     ...mapGetters(["token", "user"]),
   },
+  watch: {
+      // 监听Theme模式
+      darkMode(val) {
+        if (val) {
+          enableDarkMode({})
+        } else {
+          disableDarkMode()
+        }
+        setDarkMode(this.darkMode)
+      }
+    },
   created() {
     console.log(this.user);
+    // 获取cookie中的夜间还是白天模式
+    this.darkMode = getDarkMode()
+      if (this.darkMode) {
+        enableDarkMode({})
+      } else {
+        disableDarkMode()
+      }
   },
   methods: {
     /* logout() {
@@ -143,13 +154,13 @@ export default {
       }, 500);
     }, */
     async logout() {
-        this.$store.dispatch('user/logout').then(() => {
-          this.$message.info('退出登录成功')
-          setTimeout(() => {
-            this.$router.push({ path: '/login' })
-          }, 500)
-        })
-      },
+      this.$store.dispatch("user/logout").then(() => {
+        this.$message.info("退出登录成功");
+        setTimeout(() => {
+          this.$router.push({ path: "/login" });
+        }, 500);
+      });
+    },
     search() {
       console.log(this.token);
       if (this.searchKey.trim() === null || this.searchKey.trim() === "") {
