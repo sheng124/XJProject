@@ -38,7 +38,7 @@ public class LoginController {
     }
 
     @DeleteMapping("/logout")
-    public Result loginOutCon(HttpServletRequest request){
+    public Result logOutCon(HttpServletRequest request){
         // 获取token
         String token = request.getHeader("token");
         log.info("获取到的数据："+ token);
