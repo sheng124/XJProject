@@ -7,26 +7,41 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: ()=>import('@/views/HomeView')
+    component: () => import('@/views/HomeView')
   },
-    // 登录
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/views/auth/Login'),
-      meta: { title: '登录' }
-    },
+  // 登录
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/auth/Login'),
+    meta: { title: '登录' }
+  },
+  //注册
   {
     path: '/register',
     name: 'register',
     component: () => import('@/views/auth/Register'),
     meta: { title: '注册' }
   },
+  //个人中心
+  {
+    path: '/user/info/:userId',
+    name: 'user_info',
+    component: () => import('@/views/user/UserInfo'),
+    meta: { title: '个人中心' }
+  },
+  //发布中心
+  {
+    path: '/user/publish',
+    name: 'publish_center',
+    component: () => import('@/views/user/PublishCenter'),
+    meta: { title: '发布中心' }
+  },
   {
     path: '/404',
     name: '404',
     component: () => import('@/views/error/404'),
-    meta: {title: '404-NotFound'}
+    meta: { title: '404-NotFound' }
   },
   {
     path: '*',	//如果用户输了除上面这几个url的路由，就重定向到404.vue

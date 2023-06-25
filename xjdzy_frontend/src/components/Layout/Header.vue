@@ -66,12 +66,19 @@
               <i class="el-icon-caret-bottom" />
             </div>
             <el-dropdown-menu slot="dropdown" class="user-dropdown">
-              <router-link to="/">
-                <el-dropdown-item> 个人信息 </el-dropdown-item>
+              <router-link :to="{
+                name:'user_info',
+                params:{
+                  userId:user.userId
+                }
+              }">
+                <el-dropdown-item> 个人中心 </el-dropdown-item>
               </router-link>
-              <a target="_blank" href="https://www.baidu.com">
-                <el-dropdown-item>发布中心</el-dropdown-item>
-              </a>
+              <router-link :to="{
+                name:'publish_center',
+              }">
+                <el-dropdown-item> 发布中心 </el-dropdown-item>
+              </router-link>
               <el-dropdown-item divided @click.native="logout">
                 <span style="display: block">退出登录</span>
               </el-dropdown-item>
@@ -114,7 +121,7 @@ export default {
     return {
       logoUrl: require("@/assets/logo.png"),
       doubaoImg: require("@/assets/image/doubao.png"),
-      darkMode: false
+      darkMode: false,
     };
   },
   computed: {
@@ -142,22 +149,11 @@ export default {
       }
   },
   methods: {
-    /* logout() {
-      removeAll();
-      this.$store.commit("user/logout", null);
-      this.$message.info("退出登录成功");
-      setTimeout(() => {
-        this.$router.push({ path: this.redirect}).catch((err) => {
-          console.log("输出报错", err);
-        });
-        this.$forceUpdate();
-      }, 500);
-    }, */
-    async logout() {
-      this.$store.dispatch("user/logout").then(() => {
+    logout() {
+      this.$store.dispatch("user/userLogout").then(() => {
         this.$message.info("退出登录成功");
         setTimeout(() => {
-          this.$router.push({ path: "/login" });
+          this.$router.push({ path: this.redirect || '/' });
         }, 500);
       });
     },

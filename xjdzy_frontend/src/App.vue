@@ -3,7 +3,7 @@
     <div class="mb-5">
       <Header></Header>
     </div>
-    <div class="container context">
+    <div class="container is-fluid context">
         <router-view :key="this.$route.fullPath"></router-view>
     </div>
   </div>

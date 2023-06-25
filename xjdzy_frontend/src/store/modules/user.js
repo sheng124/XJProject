@@ -1,5 +1,5 @@
-import { login, getUserInfo } from '@/api/auth/auth'
-import { getToken, setToken, setId,getId,removeAll } from '@/utils/js_cookie'
+import { login, getUserInfo,logout } from '@/api/auth/auth'
+import { getToken, setToken, setId,getId,removeToken,removeId,removeAll} from '@/utils/js_cookie'
 
 //定义全局状态数据
 const state = {
@@ -22,6 +22,9 @@ const mutations = {
     state.user.username = user.username
     state.user.password = user.password
     state.user.userAvatar = user.userAvatar
+  },
+  clearUserState(state){
+    state.user=null
   },
   setUserIdState(state,userId){
     state.user.userId=userId
@@ -71,22 +74,22 @@ const actions = {
       })
     })
   },
-  /* // 退出登录
-  logout({ commit, state }) {
+  // 退出登录
+  userLogout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token)
         .then((response) => {
           console.log(response);
           commit("setTokenState", "");
-          commit("setUserState", null);
+          commit("clearUserState");
           removeToken();
-          resolve();
+          removeId();
         })
         .catch((error) => {
           reject(error);
         });
     });
-  }, */
+  },
 }
 
 export default {
