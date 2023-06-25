@@ -91,4 +91,10 @@ class XjdzyApplicationTests {
     void TestTime(){
         System.out.println(System.currentTimeMillis());
     }
+
+    @Test
+    void TestVoid(){
+        String value = stringRedisTemplate.opsForValue().get("xxx");
+        System.out.println(value.equals(""));
+    }
 }

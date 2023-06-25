@@ -2,12 +2,17 @@ package com.xjdzy.service.Implement;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xjdzy.dto.*;
 import com.xjdzy.entity.*;
 import com.xjdzy.mapper.*;
 import com.xjdzy.service.ArticlesService;
+import com.xjdzy.service.RedisService;
 import com.xjdzy.service.UserService;
 import com.xjdzy.utils.ImageToBase64Utils;
+import com.xjdzy.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class UserServiceImplements implements UserService {
 
@@ -42,6 +48,9 @@ public class UserServiceImplements implements UserService {
 
     @Autowired
     private ArticlesService articlesService;
+
+    @Autowired
+    private RedisService redisService;
 
 
 
@@ -262,6 +271,7 @@ public class UserServiceImplements implements UserService {
      * @return 图片转换为base64格式的字符串编码
      */
     @Override
+    @Transactional
     public String updateUserAvatarService(MultipartFile imageFile, Integer userId) {
         String imageBase64 = ImageToBase64Utils.ImageToBase64(imageFile);
         if(imageBase64 != null && !imageBase64.equals("0") && !imageBase64.equals("1") && !imageBase64.equals("2")){
@@ -270,6 +280,7 @@ public class UserServiceImplements implements UserService {
                     .eq(UserInfo::getUserId,userId);
             userMapper.update(null,luw);
         }
+        redisService.deleteUserInfo(userId);
         return imageBase64;
     }
     /**
@@ -290,11 +301,13 @@ public class UserServiceImplements implements UserService {
      * @return
      */
     @Override
+    @Transactional
     public boolean updatePasswordService(UpdatePasswordDto updatePasswordDto) {
        List<UserInfo> u=userMapper.CheckisR(updatePasswordDto.getUserId(),updatePasswordDto.getPassword());
        if(u.size()==0)
            return false;
        userMapper.updatePasswordCon(updatePasswordDto.getUserId(),updatePasswordDto.getNewPassword());
+       redisService.deleteUserInfo(updatePasswordDto.getUserId());
        return true;
 
     }
@@ -305,12 +318,14 @@ public class UserServiceImplements implements UserService {
      * @param
      * @return
      */
+    @Transactional
     @Override
     public boolean updateUserNameService(UpdateUserNameDto updateUserNameDto) {
         List<UserInfo> a = userMapper.CheckisR2(updateUserNameDto.getNewUserName());
         if(a.size()!=0)
             return false;
         userMapper.updateUserNameCon(updateUserNameDto.getUserId(),updateUserNameDto.getNewUserName());
+        redisService.deleteUserInfo(updateUserNameDto.getUserId());
         return true;
     }
 
@@ -321,9 +336,27 @@ public class UserServiceImplements implements UserService {
      * @return
      */
     @Override
-    public List<UserInfo> getUserInfoService(String userId) {
-        return userMapper.getUserInfoCon(userId);
-
+    public UserInfo getUserInfoService(Integer userId) {
+        String userIdStr = userId.toString();
+        // 首先在Redis中查询用户信息是否存在
+        String value = redisService.getUserInfo(userIdStr);
+        if(value == null) {
+            // 若不存在，查询数据库，将用户信息写入Redis并返回
+            log.info("Redis中没有查询到用户信息！");
+            List<UserInfo> userInfoList = userMapper.getUserInfoCon(userIdStr);
+            if (userInfoList.size() == 0) {
+                redisService.saveUserInfo(userIdStr, null);
+                return null;
+            } else {
+                redisService.saveUserInfo(userIdStr, userInfoList.get(0));
+                return userInfoList.get(0);
+            }
+        }
+        else if(value.equals(""))
+            // 若存在，但是无内容，则返回null
+            return null;
+        else
+            return JSONUtils.JSONStringToUserInfo(value);
     }
 
 }
