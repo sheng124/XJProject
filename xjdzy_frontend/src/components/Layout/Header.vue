@@ -62,7 +62,7 @@
         <div v-else>
           <el-dropdown class="avatar-container" trigger="click">
             <div class="avatar-wrapper">
-              <img :src="user.userAvatar" class="user-avatar" />
+              <img :src=user.userAvatar class="user-avatar" />
               <i class="el-icon-caret-bottom" />
             </div>
             <el-dropdown-menu slot="dropdown" class="user-dropdown">

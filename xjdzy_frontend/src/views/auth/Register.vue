@@ -61,7 +61,7 @@
 </template>
   
   <script>
-import { register } from "@/api/auth/auth";
+import { register } from "@/api/auth";
 
 export default {
   name: "Register",

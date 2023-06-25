@@ -167,7 +167,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
    >
    > 如果true，把loading设为true，表单上的这两个按钮就不能点击了。
    >
-   > 然后就调用api/auth/auth.js的接口userRegister，把表单对象传进去，发送给服务器。
+   > 然后就调用api/auth/index.js的接口userRegister，把表单对象传进去，发送给服务器。
    >
    > .then()如果服务器返回了，接收服务器返回的json数据value
    >
@@ -264,7 +264,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
    </template>
    
    <script>
-   import { userRegister } from '@/api/auth/auth'
+   import { userRegister } from '@/api/auth'
    export default {
      name: 'Register',
      data() {
@@ -540,7 +540,7 @@ export function removeAll() {
      </style>
    ```
 
-3. 在api/auth/auth.js文件里添加登录接口
+3. 在api/auth/index.js文件里添加登录接口
 
    ```js
    // 前台用户登录
@@ -559,7 +559,7 @@ export function removeAll() {
 
    ```js
    /* store/modules/user.js */
-   import { login } from '@/api/auth/auth'
+   import { login } from '@/api/auth'
    import { getToken, setToken } from '@/utils/auth'
    
    //定义全局状态数据
@@ -581,7 +581,7 @@ export function removeAll() {
          console.log(userInfo)
          const { username, password } = userInfo
          return new Promise((resolve, reject) => {
-           login({ username: username.trim(), password: password }).then(response => {//这里的login是'@/api/auth/auth'里的登录接口
+           login({ username: username.trim(), password: password }).then(response => {//这里的login是'@/api/auth/index.js'里的登录接口
              const { data } = response
              commit('setTokenState', data.token)	//存到store.state里
              setToken(data.token)		//存到cookie里

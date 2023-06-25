@@ -1,4 +1,4 @@
-import { login, getUserInfo,logout } from '@/api/auth/auth'
+import { login, getUserInfo,logout } from '@/api/auth'
 import { getToken, setToken, setId,getId,removeToken,removeId,removeAll} from '@/utils/js_cookie'
 
 //定义全局状态数据
@@ -38,17 +38,18 @@ const mutations = {
 //actions解决异步请求（指请求数据后不等待数据返回，直接去做别的事，当数据返回时，再通过回调函数）
 const actions = {
   // 用户登录的方法
-  userLogin({ commit }, userInfo) {		//这里的userLogin是给dispatch调用的（dispatch("user/userLogin", this.ruleForm)）
+  userLogin({ commit,state }, userInfo) {		//这里的userLogin是给dispatch调用的（dispatch("user/userLogin", this.ruleForm)）
     console.log(userInfo)
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {//这里的login是'@/api/auth/auth'里的登录接口
+      login({ username: username.trim(), password: password }).then(response => {//这里的login是'@/api/auth'里的登录接口
         const { data } = response
         console.log(data);
         commit('setTokenState', data.token)	//存到store.state里
         commit('setUserIdState', data.userId)
         setToken(data.token)		//存到cookie里
         setId(data.userId)
+        console.log(111111111111111)
         resolve()
       }).catch(error => {
         reject(error)
@@ -57,17 +58,19 @@ const actions = {
   },
   // 获取用户信息
   getInfo({ commit,state }) {
+    console.log("开始getInfo")
     return new Promise((resolve, reject) => {
       getUserInfo(state.user.userId).then(response => {
         const { data } = response
+        console.log("data:"+data)
         if (!data) {
           commit('setTokenState', '')
-          commit('setUserState', null)
+          commit('clearUserState')
           removeAll()
           resolve()
           reject('Verification failed, please Login again.')
         }
-        commit('setUserState', data[0])
+        commit('setUserState', data)
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -80,8 +83,8 @@ const actions = {
       logout(state.token)
         .then((response) => {
           console.log(response);
-          commit("setTokenState", "");
-          commit("clearUserState");
+          commit('setTokenState', '');
+          commit('clearUserState');
           removeToken();
           removeId();
         })
