@@ -254,9 +254,9 @@ public class UserController {
      * @return
      */
     @GetMapping("/user/info/{userId}")
-    public Result getUserInfoCon(@PathVariable String userId){
-        List<UserInfo> res=userService.getUserInfoService(userId);
-        log.info("Service处理的结果："+ res);
+    public Result getUserInfoCon(@PathVariable Integer userId){
+        UserInfo res=userService.getUserInfoService(userId);
+        // log.info("Service处理的结果："+ res);
         if(res != null){
             return Result.success(res);
         }
@@ -264,6 +264,5 @@ public class UserController {
             return Result.error("获取失败!");
         }
     }
-
 }
 

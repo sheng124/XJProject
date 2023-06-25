@@ -35,5 +35,5 @@ public interface UserService {
 
     boolean updateUserNameService(UpdateUserNameDto updateUserNameDto);
 
-    List<UserInfo> getUserInfoService(String userId);
+    UserInfo getUserInfoService(Integer userId);
 }
