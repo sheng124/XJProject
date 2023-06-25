@@ -25,7 +25,7 @@ import Publish from "@/components/PublishCenter/Publish";
 import ArticleData from "@/components/PublishCenter/ArticleData.vue"
 export default {
   name: "PublishCenter",
-  components: { Publish,ArticleData },
+  components: { Publish, ArticleData },
   data() {
     return {
       activeTab: 1

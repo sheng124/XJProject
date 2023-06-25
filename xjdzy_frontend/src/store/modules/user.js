@@ -24,15 +24,14 @@ const mutations = {
     state.user.userAvatar = user.userAvatar
   },
   clearUserState(state){
-    state.user=null
+    state.user.userId = -1
+    state.user.username = ''
+    state.user.password = ''
+    state.user.userAvatar = ''
   },
   setUserIdState(state,userId){
     state.user.userId=userId
   },
-  //退出登录
-  logout(state){
-    state.user=null
-  }
 }
 
 //actions解决异步请求（指请求数据后不等待数据返回，直接去做别的事，当数据返回时，再通过回调函数）

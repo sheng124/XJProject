@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import '@/permission'
 
+
 // Buefy
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'//导入样式

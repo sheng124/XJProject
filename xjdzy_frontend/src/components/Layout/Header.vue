@@ -28,8 +28,9 @@
             >
               注册
             </b-button>
+            
             <b-button
-              class="is-light"
+              class="is-info" outlined
               tag="router-link"
               :to="{ path: '/login' }"
             >
