@@ -40,6 +40,9 @@ public class ArticlesServiceImplements implements ArticlesService {
     @Autowired(required = false)
     private RelArticleTagMapper relArticleTagMapper;
 
+    @Autowired(required = false)
+    private TagMapper tagMapper;
+
     /**
      * 点赞
      * @param likes 点赞实体类
@@ -235,5 +238,27 @@ public class ArticlesServiceImplements implements ArticlesService {
         // 8.获取照片信息
         articleDetailDto.setArticleImages(articleMapper.getArticleImageByArticleId(articleId));
         return articleDetailDto;
+    }
+
+
+    /**
+     * 获取所有标签
+     * @return List<Tag>
+     */
+    @Override
+    public List<Tag> getAllTagsService() {
+        return tagMapper.selectList(null);
+    }
+
+    /**
+     * 增加标签
+     * @param tag 需要增加的标签
+     * @return 增加成功true，否则false
+     */
+    @Override
+    public boolean addTagsService(Tag tag) {
+        if(tagMapper.insert(tag) != 1)
+            return false;
+        return true;
     }
 }

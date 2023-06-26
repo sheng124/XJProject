@@ -2,10 +2,7 @@ package com.xjdzy.service;
 
 import com.xjdzy.dto.ArticleDetailDto;
 import com.xjdzy.dto.ArticleSummaryDto;
-import com.xjdzy.entity.Article;
-import com.xjdzy.entity.Collection;
-import com.xjdzy.entity.Comment;
-import com.xjdzy.entity.Likes;
+import com.xjdzy.entity.*;
 
 import java.util.List;
 
@@ -32,4 +29,8 @@ public interface ArticlesService {
     ArticleDetailDto getArticlesDetailByArticleId(Integer articleId);
 
     List<ArticleSummaryDto> getArticleSummaryByArticleId(List<Integer> articleIdList);
+
+    List<Tag> getAllTagsService();
+
+    boolean addTagsService(Tag tag);
 }
