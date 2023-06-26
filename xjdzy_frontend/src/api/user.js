@@ -44,4 +44,10 @@ export function userPublishArticle(formData) {
   })
 }
 
-
+//获取已发布、已收藏、已点赞文章
+export function getWrLiCoArticles(userId) {
+  return request({
+    url: `/user/articles/${userId}`,
+    method: 'get',
+  })
+}

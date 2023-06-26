@@ -169,7 +169,7 @@
         </el-form-item>
         <el-form-item>
           <el-button @click="cancel = false">取 消</el-button>
-          <el-button type="danger" @click="publishArticle"> 发 表 </el-button>
+          <el-button type="danger" @click="publishArticle" plain> 发 表 </el-button>
         </el-form-item>
       </el-form>
     </el-card>

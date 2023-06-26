@@ -150,11 +150,14 @@ export default {
       }
   },
   methods: {
-    logout() {
+    async logout() {
       this.$store.dispatch("user/userLogout").then(() => {
         this.$message.info("退出登录成功");
         setTimeout(() => {
-          this.$router.push({ path: this.redirect || '/' });
+          if(this.$route.path!=="/"){
+            this.$router.push({ path: this.redirect || "/" });
+          }
+          
         }, 500);
       });
     },

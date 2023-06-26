@@ -1,16 +1,16 @@
-import { login, getUserInfo,logout } from '@/api/auth'
-import { getToken, setToken, setId,getId,removeToken,removeId,removeAll} from '@/utils/js_cookie'
+import { login, getUserInfo, logout } from '@/api/auth'
+import { getToken, setToken, setId, getId, removeToken, removeId, removeAll } from '@/utils/js_cookie'
 
 //定义全局状态数据
 const state = {
   token: getToken(), // token
-  user:{
+  user: {
     userId: getId(), // 用户id
     username: '',  // 用户名
     password: '', //密码
     userAvatar: ''  // 用户头像
   }
-  
+
 }
 
 const mutations = {
@@ -23,27 +23,27 @@ const mutations = {
     state.user.password = user.password
     state.user.userAvatar = user.userAvatar
   },
-  clearUserState(state){
+  clearUserState(state) {
     state.user.userId = -1
     state.user.username = ''
     state.user.password = ''
     state.user.userAvatar = ''
   },
-  setUserIdState(state,userId){
-    state.user.userId=userId
+  setUserIdState(state, userId) {
+    state.user.userId = userId
   },
-  setUsernameState(state,username){
-    state.user.username=username
+  setUsernameState(state, username) {
+    state.user.username = username
   },
-  setPasswordState(state,password){
-    state.user.password=password
+  setPasswordState(state, password) {
+    state.user.password = password
   },
 }
 
 //actions解决异步请求（指请求数据后不等待数据返回，直接去做别的事，当数据返回时，再通过回调函数）
 const actions = {
   // 用户登录的方法
-  userLogin({ commit,state }, userInfo) {		//这里的userLogin是给dispatch调用的（dispatch("user/userLogin", this.ruleForm)）
+  userLogin({ commit, state }, userInfo) {		//这里的userLogin是给dispatch调用的（dispatch("user/userLogin", this.ruleForm)）
     console.log(userInfo)
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
@@ -65,7 +65,7 @@ const actions = {
     })
   },
   // 获取用户信息
-  getInfo({ commit,state }) {
+  getInfo({ commit, state }) {
     console.log("开始getInfo")
     return new Promise((resolve, reject) => {
       getUserInfo(state.user.userId).then(response => {
@@ -95,6 +95,7 @@ const actions = {
           commit('clearUserState');
           removeToken();
           removeId();
+          resolve();
         })
         .catch((error) => {
           reject(error);
