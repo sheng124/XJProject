@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xjdzy.mapper.CommentMapper">
+
+    <select id="getAllByArticleIdCAndUDtos" resultType="com.xjdzy.dto.CAndUDto">
+        select user_avatar,username,comment_id,comment,create_time from user_info,comment
+        where user_info.user_id = comment.user_id
+        and article_id = #{articleId}
+    </select>
+</mapper>
