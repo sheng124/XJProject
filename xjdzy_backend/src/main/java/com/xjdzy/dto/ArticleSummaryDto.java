@@ -9,13 +9,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 获取笔记详细信息功能所需的数据传送对象
+ * 获取已发布、已收藏、已点赞文章功能所需的数据传送对象
  */
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleDetailDto {
+public class ArticleSummaryDto {
     // Article
     private Integer articleId;
     private String articleTitle;
@@ -32,10 +32,6 @@ public class ArticleDetailDto {
     private int likesNum;
     // 从Collection统计
     private int collectionNum;
-    // 从Comment统计
-    private int commentNum;
-    // 从UserInfo和Comment统计
-    private List<CAndUDto> cAndUDtoList;
-    // 从ArticleImages中获取
-    List<String> articleImages;
+    // 自定义
+    private int type;
 }

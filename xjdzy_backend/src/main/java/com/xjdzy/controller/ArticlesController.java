@@ -2,16 +2,15 @@ package com.xjdzy.controller;
 
 
 import com.xjdzy.dto.ArticleDetailDto;
+import com.xjdzy.dto.ArticleSummaryDto;
 import com.xjdzy.dto.Result;
-import com.xjdzy.entity.Article;
-import com.xjdzy.entity.Collection;
-import com.xjdzy.entity.Comment;
-import com.xjdzy.entity.Likes;
+import com.xjdzy.entity.*;
 import com.xjdzy.service.ArticlesService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -136,7 +135,7 @@ public class ArticlesController {
     @GetMapping("/articles")
     public Result getAllArticlesCon(){
         log.info("获取所有文章");
-        List<Article> res=articlesService.getAllArticles();
+        List<ArticleSummaryDto> res=articlesService.getAllArticles();
         log.info("Service处理的结果："+ res);
         return Result.success(res);
     }
@@ -149,7 +148,7 @@ public class ArticlesController {
     @GetMapping("/articles/{categoryId}")
     public Result getAllArticlesByCategoryIdCon(@PathVariable Integer categoryId){
         log.info("获取到的数据："+categoryId);
-        List<Article> res=articlesService.getAllArticlesByCategoryId(categoryId);
+        List<ArticleSummaryDto> res=articlesService.getAllArticlesByCategoryId(categoryId);
         log.info("Service处理的结果："+ res);
         return Result.success(res);
     }
@@ -165,5 +164,34 @@ public class ArticlesController {
         ArticleDetailDto res=articlesService.getArticlesDetailByArticleId(articleId);
         log.info("Service处理的结果："+ res);
         return Result.success(res);
+    }
+
+    /**
+     * 获取所有标签
+     * @return Result：data为Tag列表
+     */
+    @GetMapping("/articles/tags")
+    public Result getAllTagsCon(){
+        List<Tag> res=articlesService.getAllTagsService();
+        log.info("Service处理的结果："+ res);
+        return Result.success(res);
+    }
+
+    /**
+     * 增加标签
+     * @param tag 需要增加的标签
+     * @return Result：data为null
+     */
+    @PostMapping("/articles/tags")
+    public Result addTagsCon(@RequestBody Tag tag){
+        log.info("获取到的数据："+ tag);
+        boolean res=articlesService.addTagsService(tag);
+        log.info("Service处理的结果："+ res);
+        if(res){
+            return Result.success();
+        }
+        else{
+            return Result.error("增加失败！");
+        }
     }
 }

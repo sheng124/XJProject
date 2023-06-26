@@ -1,10 +1,8 @@
 package com.xjdzy.service;
 
 import com.xjdzy.dto.ArticleDetailDto;
-import com.xjdzy.entity.Article;
-import com.xjdzy.entity.Collection;
-import com.xjdzy.entity.Comment;
-import com.xjdzy.entity.Likes;
+import com.xjdzy.dto.ArticleSummaryDto;
+import com.xjdzy.entity.*;
 
 import java.util.List;
 
@@ -22,11 +20,17 @@ public interface ArticlesService {
 
     boolean unCommentService(Integer commentId);
 
-    List<Article>  getAllArticles();
+    List<ArticleSummaryDto>  getAllArticles();
 
-    List<Article>  getAllArticlesByCategoryId(Integer categoryId);
+    List<ArticleSummaryDto>  getAllArticlesByCategoryId(Integer categoryId);
 
     ArticleDetailDto getArticlesDataByArticleId(Integer articleId,ArticleDetailDto articleDetailDto);
 
     ArticleDetailDto getArticlesDetailByArticleId(Integer articleId);
+
+    List<ArticleSummaryDto> getArticleSummaryByArticleId(List<Integer> articleIdList);
+
+    List<Tag> getAllTagsService();
+
+    boolean addTagsService(Tag tag);
 }

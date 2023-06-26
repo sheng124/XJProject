@@ -4,12 +4,14 @@ import com.alibaba.druid.support.json.JSONUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xjdzy.entity.ArticleImages;
 import com.xjdzy.entity.RelArticleTag;
 import com.xjdzy.entity.UserInfo;
 import com.xjdzy.mapper.RelArticleTagMapper;
 import com.xjdzy.mapper.TesrMapper;
 
 import com.xjdzy.entity.Tesr;
+import com.xjdzy.utils.ImageToBase64Utils;
 import net.minidev.json.JSONUtil;
 import org.apache.catalina.User;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,5 +99,20 @@ class XjdzyApplicationTests {
     void TestVoid(){
         String value = stringRedisTemplate.opsForValue().get("xxx");
         System.out.println(value.equals(""));
+    }
+
+    @Test
+    void TestArticle(){
+        List<Integer> stringList = new ArrayList<>();
+        stringList.add(1);
+        stringList.add(2);
+        stringList.add(3);
+        stringList.add(4);
+        List<String> list = new ArrayList<>();
+        for(Integer i:stringList){
+            String s=i.toString();
+            list.add(s);
+        }
+        System.out.println("list:"+list);
     }
 }

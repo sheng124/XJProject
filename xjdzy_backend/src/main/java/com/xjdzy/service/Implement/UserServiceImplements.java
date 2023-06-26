@@ -2,7 +2,6 @@ package com.xjdzy.service.Implement;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xjdzy.dto.*;
 import com.xjdzy.entity.*;
 import com.xjdzy.mapper.*;
@@ -12,12 +11,10 @@ import com.xjdzy.service.UserService;
 import com.xjdzy.utils.ImageToBase64Utils;
 import com.xjdzy.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.yaml.snakeyaml.util.EnumUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +42,9 @@ public class UserServiceImplements implements UserService {
 
     @Autowired(required = false)
     CategoryMapper categoryMapper;
+
+    @Autowired(required = false)
+    ArticleImagesMapper articleImagesMapper;
 
     @Autowired
     private ArticlesService articlesService;
@@ -113,44 +113,55 @@ public class UserServiceImplements implements UserService {
      * @return 数据传送对象ArticleTypeDto
      */
     @Override
-    public List<ArticleTypeDto> getWrLiCoArticlesService(Integer userId) {
+    public List<ArticleSummaryDto> getWrLiCoArticlesService(Integer userId) {
         // 0.创建空的ArticleTypeDtoList
-        List<ArticleTypeDto> articleTypeDtoListAll = new ArrayList<>();
+        List<ArticleSummaryDto> articleSummaryDtoListAll = new ArrayList<>();
         // 1.查询已发布笔记的相关数据以及categoryName：type为1
-        List<ArticleTypeDto> articleTypeDtoList1 = articleMapper.getAllByUserIdWrArticles(userId);
-        int listLength1=articleTypeDtoList1.size();
+        List<Integer> articleIdList1 = articleMapper.getArticleIdByWrite(userId);
+        List<ArticleSummaryDto> articleSummaryDtoList1 = articlesService.getArticleSummaryByArticleId(articleIdList1);
+        int listLength1= articleSummaryDtoList1.size();
         // 2.查询已收藏笔记的相关数据以及categoryName：type为2
-        List<ArticleTypeDto> articleTypeDtoList2 = articleMapper.getAllByUserIdCollectionArticles(userId);
-        int listLength2=articleTypeDtoList2.size()+listLength1;
+        List<Integer> articleIdList2 = articleMapper.getArticleIdByCollection(userId);
+        List<ArticleSummaryDto> articleSummaryDtoList2 = articlesService.getArticleSummaryByArticleId(articleIdList2);
+        int listLength2= articleSummaryDtoList2.size()+listLength1;
         // 3.查询已点赞笔记的相关数据以及categoryName：type为3
-        List<ArticleTypeDto> articleTypeDtoList3 = articleMapper.getAllByUserIdLikesArticles(userId);
-        int listLength3=articleTypeDtoList3.size()+listLength2;
-
+        List<Integer> articleIdList3 = articleMapper.getArticleIdByLike(userId);
+        List<ArticleSummaryDto> articleSummaryDtoList3 = articlesService.getArticleSummaryByArticleId(articleIdList3);
+        int listLength3= articleSummaryDtoList3.size()+listLength2;
         // 4.遍历每一篇笔记
-        articleTypeDtoListAll.addAll(articleTypeDtoList1);
-        articleTypeDtoListAll.addAll(articleTypeDtoList2);
-        articleTypeDtoListAll.addAll(articleTypeDtoList3);
+        articleSummaryDtoListAll.addAll(articleSummaryDtoList1);
+        articleSummaryDtoListAll.addAll(articleSummaryDtoList2);
+        articleSummaryDtoListAll.addAll(articleSummaryDtoList3);
         int n=0;
-        for(ArticleTypeDto articleTypeDto:articleTypeDtoListAll){
-            // 4.1查询RelArticleTag中的相关数据
-            List<Tag> tmpTList=relArticleTagMapper.getAllByArticleIdTags(articleTypeDto.getArticleId());
-            articleTypeDto.setTagList(tmpTList);
-            // 4.2统计Likes中的相关数据
-            int tmpALNum=articleMapper.getLikesNumByArticleId(articleTypeDto.getArticleId());
-            articleTypeDto.setLikesNum(tmpALNum);
-            // 4.3统计Collection中的相关数据
-            int tmpACNum=articleMapper.getCollectionNumByArticleId(articleTypeDto.getArticleId());
-            articleTypeDto.setCollectionNum(tmpACNum);
-            // 4.4设置type
+        for(ArticleSummaryDto articleSummaryDto : articleSummaryDtoListAll){
+            // 4.1设置type
             if(n<listLength1)
-                articleTypeDto.setType(1);
+                articleSummaryDto.setType(1);
             else if(n<listLength2)
-                articleTypeDto.setType(2);
-            else articleTypeDto.setType(3);
+                articleSummaryDto.setType(2);
+            else articleSummaryDto.setType(3);
             n++;
         }
         // 5.返回结果
-        return articleTypeDtoListAll;
+        return articleSummaryDtoListAll;
+    }
+
+    /**
+     * 发布笔记和修改笔记使用：插入笔记图片
+     * @param articleImageList 图片列表，MultipartFile形式
+     * @param articleId 笔记ID
+     * @return 图片列表，Base64格式
+     */
+    public List<String> addArticleImages(MultipartFile[] articleImageList,Integer articleId){
+        List<String> imageBaseList = new ArrayList<>();
+        for(MultipartFile file:articleImageList){
+            String tmpBase64 = ImageToBase64Utils.ImageToBase64(file);
+            ArticleImages articleImages = ArticleImages.builder().articleId(articleId).image(tmpBase64).build();
+            imageBaseList.add(tmpBase64);
+            if(articleImagesMapper.insert(articleImages) != 1)
+                return null;
+        }
+        return imageBaseList;
     }
 
     /**
@@ -160,18 +171,26 @@ public class UserServiceImplements implements UserService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer writeArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto) {
-        Article article=new Article();
-        article.setArticleTitle(articleWriteAndUpdateDto.getArticleTitle());
-        article.setArticleCover(articleWriteAndUpdateDto.getArticleCover());
-        article.setArticleContent(articleWriteAndUpdateDto.getArticleContent());
-        article.setCategoryId(articleWriteAndUpdateDto.getCategoryId());
-        article.setCreateTime(articleWriteAndUpdateDto.getCreateTime());
-        article.setUpdateTime(articleWriteAndUpdateDto.getCreateTime());
-        article.setUserId(articleWriteAndUpdateDto.getUserId());
+    public ArticleCoverAndImagesDto writeArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
+                                                        MultipartFile articleCover,
+                                                        MultipartFile[] articleImageList) {
+        // 构造空的返回数据
+        ArticleCoverAndImagesDto articleCoverAndImagesDto = new ArticleCoverAndImagesDto();
+        // 封面图片编码
+        articleCoverAndImagesDto.setArticleCover(ImageToBase64Utils.ImageToBase64(articleCover));
+        // 更新Article表
+        Article article = Article.builder().articleTitle(articleWriteAndUpdateDto.getArticleTitle())
+                .articleCover(articleCoverAndImagesDto.getArticleCover())
+                .articleContent(articleWriteAndUpdateDto.getArticleContent())
+                .categoryId(articleWriteAndUpdateDto.getCategoryId())
+                .createTime(articleWriteAndUpdateDto.getCreateTime())
+                .updateTime(articleWriteAndUpdateDto.getCreateTime())
+                .userId(articleWriteAndUpdateDto.getUserId())
+                .build();
         if(articleMapper.insert(article) != 1)
             return null;
         else{
+            // 更新RelArticleAndTag表
             Integer articleId=article.getArticleId();
             for(Tag tag: articleWriteAndUpdateDto.getTagList()){
                 RelArticleTag relArticleTag=new RelArticleTag();
@@ -180,7 +199,11 @@ public class UserServiceImplements implements UserService {
                 if(relArticleTagMapper.insert(relArticleTag) != 1)
                     return null;
             }
-            return articleId;
+            // 更新ArticleImages表
+            List<String> articleImageBaseList = addArticleImages(articleImageList,articleId);
+            articleCoverAndImagesDto.setArticleId(articleId);
+            articleCoverAndImagesDto.setArticleImages(articleImageBaseList);
+            return articleCoverAndImagesDto;
         }
     }
 
@@ -191,33 +214,48 @@ public class UserServiceImplements implements UserService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto) {
-        Article article=new Article();
-        article.setArticleId(articleWriteAndUpdateDto.getArticleId());
-        article.setArticleTitle(articleWriteAndUpdateDto.getArticleTitle());
-        article.setArticleCover(articleWriteAndUpdateDto.getArticleCover());
-        article.setArticleContent(articleWriteAndUpdateDto.getArticleContent());
-        article.setCategoryId(articleWriteAndUpdateDto.getCategoryId());
-        article.setCreateTime(articleWriteAndUpdateDto.getCreateTime());
-        article.setUpdateTime(articleWriteAndUpdateDto.getCreateTime());
-        article.setUserId(articleWriteAndUpdateDto.getUserId());
+    public ArticleCoverAndImagesDto updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
+                                                         MultipartFile articleCover,
+                                                         MultipartFile[] articleImageList) {
+        // 构造空的返回数据
+        ArticleCoverAndImagesDto articleCoverAndImagesDto = new ArticleCoverAndImagesDto();
+        // 封面图片编码
+        articleCoverAndImagesDto.setArticleCover(ImageToBase64Utils.ImageToBase64(articleCover));
+        // 更新Article表
+        Article article=Article.builder().articleId(articleWriteAndUpdateDto.getArticleId())
+                .articleTitle(articleWriteAndUpdateDto.getArticleTitle())
+                .articleCover(articleCoverAndImagesDto.getArticleCover())
+                .articleContent(articleWriteAndUpdateDto.getArticleContent())
+                .categoryId(articleWriteAndUpdateDto.getCategoryId())
+                .createTime(articleWriteAndUpdateDto.getCreateTime())
+                .updateTime(articleWriteAndUpdateDto.getCreateTime())
+                .userId(articleWriteAndUpdateDto.getUserId())
+                .build();
         if(articleMapper.updateById(article) != 1)
-            return false;
+            return null;
         else{
             Integer articleId=article.getArticleId();
             // 将原有标签删除
-            Map<String,Object> map = new HashMap<>();
-            map.put("article_id",articleId);
-            relArticleTagMapper.deleteByMap(map);
+            Map<String,Object> map1 = new HashMap<>();
+            map1.put("article_id",articleId);
+            relArticleTagMapper.deleteByMap(map1);
             // 加入新的标签
             for(Tag tag: articleWriteAndUpdateDto.getTagList()){
                 RelArticleTag relArticleTag=new RelArticleTag();
                 relArticleTag.setArticleId(articleId);
                 relArticleTag.setTagId(tag.getTagId());
                 if(relArticleTagMapper.insert(relArticleTag) != 1)
-                    return false;
+                    return null;
             }
-            return true;
+            // 将原有图片删除
+            Map<String,Object> map2 = new HashMap<>();
+            map2.put("article_id",articleId);
+            articleImagesMapper.deleteByMap(map2);
+            // 加入新的图片
+            List<String> articleImageBaseList = addArticleImages(articleImageList,articleId);
+            articleCoverAndImagesDto.setArticleId(articleId);
+            articleCoverAndImagesDto.setArticleImages(articleImageBaseList);
+            return articleCoverAndImagesDto;
         }
     }
 

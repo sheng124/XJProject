@@ -2,6 +2,7 @@ package com.xjdzy.service.Implement;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xjdzy.dto.ArticleDetailDto;
+import com.xjdzy.dto.ArticleSummaryDto;
 import com.xjdzy.dto.CAndUDto;
 import com.xjdzy.entity.*;
 import com.xjdzy.mapper.*;
@@ -9,6 +10,7 @@ import com.xjdzy.service.ArticlesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,9 @@ public class ArticlesServiceImplements implements ArticlesService {
 
     @Autowired(required = false)
     private RelArticleTagMapper relArticleTagMapper;
+
+    @Autowired(required = false)
+    private TagMapper tagMapper;
 
     /**
      * 点赞
@@ -113,24 +118,54 @@ public class ArticlesServiceImplements implements ArticlesService {
     }
 
     /**
-     * 获取所有笔记
-     * @return 所有笔记构成的列表
+     * 根据笔记ID获取笔记概要信息
+     * @param articleIdList 笔记ID List
+     * @return 笔记列表List<ArticleSummaryDto>
      */
-    @Override
-    public List<Article> getAllArticles() {
-        return articleMapper.selectList(null);
+    public List<ArticleSummaryDto> getArticleSummaryByArticleId(List<Integer> articleIdList){
+        // 1.获取基本信息：Article表中的基本信息以及categoryName
+        List<ArticleSummaryDto> articleSummaryDtoList = new ArrayList<>();
+        for(Integer articleId:articleIdList){
+            ArticleSummaryDto articleSummaryDto = articleMapper.getAllByArticleIdArticleSummaryDtos(articleId).get(0);
+            // 2.获取RelArticleTag中的相关数据：标签
+            List<Tag> tmpTList=relArticleTagMapper.getAllByArticleIdTags(articleSummaryDto.getArticleId());
+            articleSummaryDto.setTagList(tmpTList);
+            // 3.统计Likes中的相关数据：点赞数
+            int tmpALNum=articleMapper.getLikesNumByArticleId(articleSummaryDto.getArticleId());
+            articleSummaryDto.setLikesNum(tmpALNum);
+            // 4.统计Collection中的相关数据：收藏数
+            int tmpACNum=articleMapper.getCollectionNumByArticleId(articleSummaryDto.getArticleId());
+            articleSummaryDto.setCollectionNum(tmpACNum);
+            // 5.添加到List中
+            articleSummaryDtoList.add(articleSummaryDto);
+        }
+        // 5.返回结果
+        return articleSummaryDtoList;
     }
 
     /**
-     * 获取指定类别笔记
+     * 获取所有笔记：概要信息
+     * @return 所有笔记构成的列表
+     */
+    @Override
+    public List<ArticleSummaryDto> getAllArticles() {
+        // 查询所有的笔记ID
+        List<Integer> articleIdList = articleMapper.getAllArticleId();
+        // 查询对应笔记的信息
+        return getArticleSummaryByArticleId(articleIdList);
+    }
+
+    /**
+     * 获取指定类别笔记：概要信息
      * @param categoryId 类别ID
      * @return 指定类别笔记构成的列表
      */
     @Override
-    public List<Article> getAllArticlesByCategoryId(Integer categoryId) {
-        LambdaQueryWrapper<Article> lqw= new LambdaQueryWrapper<>();
-        lqw.eq(Article::getCategoryId,categoryId);
-        return articleMapper.selectList(lqw);
+    public List<ArticleSummaryDto> getAllArticlesByCategoryId(Integer categoryId) {
+        // 查询属于该分类的笔记的ID
+        List<Integer> articleIdList = articleMapper.getArticleIdByCategoryId(categoryId);
+        // 查询对应笔记的信息
+        return getArticleSummaryByArticleId(articleIdList);
     }
 
     /**
@@ -200,6 +235,30 @@ public class ArticlesServiceImplements implements ArticlesService {
         // 7.统计UserInfo和Comment中的相关数据
         List<CAndUDto> tmpCAU=commentMapper.getAllByArticleIdCAndUDtos(articleId);
         articleDetailDto.setCAndUDtoList(tmpCAU);
+        // 8.获取照片信息
+        articleDetailDto.setArticleImages(articleMapper.getArticleImageByArticleId(articleId));
         return articleDetailDto;
+    }
+
+
+    /**
+     * 获取所有标签
+     * @return List<Tag>
+     */
+    @Override
+    public List<Tag> getAllTagsService() {
+        return tagMapper.selectList(null);
+    }
+
+    /**
+     * 增加标签
+     * @param tag 需要增加的标签
+     * @return 增加成功true，否则false
+     */
+    @Override
+    public boolean addTagsService(Tag tag) {
+        if(tagMapper.insert(tag) != 1)
+            return false;
+        return true;
     }
 }

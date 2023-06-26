@@ -50,8 +50,11 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {//这里的login是'@/api/auth'里的登录接口
         const { data } = response
         console.log(data);
+        console.log("setToken-before")
         commit('setTokenState', data.token)	//存到store.state里
+        console.log("setToken-before2")
         commit('setUserIdState', data.userId)
+        console.log("setToken-before3")
         setToken(data.token)		//存到cookie里
         setId(data.userId)
         console.log(111111111111111)
