@@ -1,10 +1,20 @@
 <template>
-  <div>发布笔记</div>
+  <div>
+    发布笔记
+  </div>
+  
 </template>
 
 <script>
-export default {
 
+export default {
+  name: "Publish",
+  components: {
+  },
+  data(){
+    return{
+    }
+  }
 }
 </script>
 
