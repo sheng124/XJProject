@@ -26,11 +26,58 @@
           ></el-input>
         </el-form-item>
         <!-- 文章分类 -->
-        <el-form-item label="文章分类">
+        <!-- <el-form-item label="文章分类">
           <el-input
             v-model="articleForm.categoryName"
             placeholder="分类"
           ></el-input>
+        </el-form-item> -->
+        <el-form-item label="文章分类">
+          <el-tag
+            v-show="articleForm.categoryName"
+            :closable="true"
+            style="margin: 0 1rem 0 0"
+            type="success"
+            @close="removeCategory"
+          >
+            {{ articleForm.categoryName }}
+          </el-tag>
+          <!-- 分类选项 -->
+          <el-popover
+            v-if="!articleForm.categoryName"
+            placement="bottom-start"
+            trigger="click"
+            width="460"
+          >
+            <div class="popover-title">分类</div>
+            <!-- 搜索框 -->
+            <el-autocomplete
+              v-model="categoryName"
+              :fetch-suggestions="searchCategories"
+              :trigger-on-focus="true"
+              placeholder="请输入分类名搜索"
+              style="width: 100%"
+              @select="handleSelectCategories"
+            >
+              <template slot-scope="{ item }">
+                <div>{{ item.categoryName }}</div>
+              </template>
+            </el-autocomplete>
+            <!-- 分类 -->
+            <div class="popover-container">
+              <div
+                v-for="item of categoryList"
+                :key="item.categoryId"
+                class="category-item"
+                @click="addCategory(item)"
+              >
+                {{ item.categoryName }}
+              </div>
+            </div>
+            <el-button slot="reference" plain size="small" type="success">
+              添加分类
+            </el-button>
+          </el-popover>
         </el-form-item>
         <!-- 文章标签 -->
         <el-form-item label="文章标签">
@@ -48,11 +95,13 @@
             v-if="articleForm.tagList.length < 3"
             placement="bottom-start"
             trigger="click"
-            width="460"
+            width="300"
+            class="poppver"
           >
             <div class="popover-title">标签</div>
             <!-- 搜索框 -->
             <el-autocomplete
+              class="inline-input"
               v-model="tagName"
               :fetch-suggestions="searchTags"
               :trigger-on-focus="false"
@@ -73,6 +122,7 @@
                 :key="item.tagId"
                 :class="tagClass(item)"
                 @click="addTag(item)"
+                class="mx-1 my-1"
               >
                 {{ item.tagName }}
               </el-tag>
@@ -128,45 +178,24 @@
 <script>
 import { mapGetters } from "vuex";
 import { userPublishArticle } from "@/api/user";
+import { getCategories, getTags, increaseTag } from "@/api/article";
+
 export default {
   name: "Publish",
   components: {},
   data() {
     return {
-      categoryName: "选择分类",
-      categoryList: [
-        {
-          categoryId: 1,
-          categoryName: "分类1",
-        },
-        {
-          categoryId: 1,
-          categoryName: "分类1",
-        },
-      ],
+      categoryName: "",
+      //数据库中的分类列表
+      categoryList: [],
       tagName: "",
-      tagList: [
-        {
-          tagId: 1,
-          tagName: "分类1",
-        },
-        {
-          tagId: 2,
-          tagName: "分类2",
-        },
-      ],
+      //数据库中的标签列表
+      tagList: [],
       articleCoverUrl: "",
       articleImageUrlList: [],
       dialogImageUrl: "",
       dialogVisible: false,
-      article: {
-        articleTitle: "",
-        articleCover: "",
-        articleContent: "",
-        categoryId: null,
-        createTime: "",
-        tagList: [],
-      },
+      //发布笔记表单
       articleForm: {
         articleTitle: "",
         articleContent: "",
@@ -189,7 +218,14 @@ export default {
   created() {},
   mounted() {
     console.log("createTime:" + this.getNowTime());
-    /* this.categoryList = this.getCategoryList(); */
+    getCategories().then((response) => {
+      const { data } = response;
+      this.categoryList = data;
+    });
+    getTags().then((response) => {
+      const { data } = response;
+      this.tagList = data;
+    });
   },
   methods: {
     handleSelectCategories(item) {
@@ -206,14 +242,19 @@ export default {
     searchCategories(keywords, cb) {
       var categoryList = this.categoryList;
       var results = keywords
-        ? categoryList.filter(this.createFilter(keywords))
+        ? categoryList.filter(this.createFilter1(keywords))
         : categoryList;
       // 调用 callback 返回建议列表的数据
       cb(results);
     },
-    createFilter(keywords) {
+    createFilter1(keywords) {
       return (item) => {
-        return item.value.toLowerCase().indexOf(keywords.toLowerCase()) === 0;
+        return item.categoryName.toLowerCase().indexOf(keywords.toLowerCase()) === 0;
+      };
+    },
+    createFilter2(keywords) {
+      return (item) => {
+        return item.tagName.toLowerCase().indexOf(keywords.toLowerCase()) === 0;
       };
     },
 
@@ -224,7 +265,7 @@ export default {
     searchTags(keywords, cb) {
       var tagList = this.tagList;
       var results = keywords
-        ? tagList.filter(this.createFilter(keywords))
+        ? tagList.filter(this.createFilter2(keywords))
         : tagList;
       // 调用 callback 返回建议列表的数据
       cb(results);
@@ -240,6 +281,18 @@ export default {
           tagName: this.tagName,
         });
         //增加标签接口
+        increaseTag(this.tagName).then((response) => {
+          const { data } = response;
+          this.$message({
+            message: "添加标签成功",
+            type: "success",
+            duration: 2000,
+          });
+          getTags().then((response) => {
+            const { data } = response;
+            this.tagList = data;
+          });
+        });
         this.tagName = "";
       }
     },
@@ -267,8 +320,8 @@ export default {
       }
       this.articleForm.articleCover = file.raw;
       this.articleCoverUrl = URL.createObjectURL(file.raw);
-      console.log("封面："+this.articleForm.articleCover);
-      console.log("封面url",this.articleCoverUrl);
+      console.log("封面：" + this.articleForm.articleCover);
+      console.log("封面url", this.articleCoverUrl);
     },
     checkType2(file, fileList) {
       console.log("checkType2工作---");
@@ -285,7 +338,7 @@ export default {
       }
       this.articleForm.articleImages.push(file.raw);
       /* this.articleImageUrlList.push(URL.createObjectURL(file.raw)); */
-      console.log("checktype2处理结果:"+this.articleForm.articleImages);
+      console.log("checktype2处理结果:" + this.articleForm.articleImages);
       /* console.log(this.articleImageUrlList); */
     },
     handleRemove(file, fileList) {
@@ -297,32 +350,34 @@ export default {
       this.dialogVisible = true;
     },
     publishArticle() {
-      console.log(publishArticle+"中~~~~~~~~")
+      console.log("publishArticle中~~~~~~~~");
       //构建formData
       let formData = new FormData();
       //文章信息
       let articleInfo = {
         userId: this.user.userId,
-        articleTitle: "",
-        articleContent: "",
-        categoryId: this.getCategoryId(),
+        articleTitle: this.articleForm.articleTitle,
+        articleContent: this.articleForm.articleContent,
+        categoryId: this.getCategoryId(this.articleForm.categoryName),
         createTime: this.getNowTime(),
         tagList: this.getTagIdList(this.articleForm.tagList),
       };
-      console.log("articleInfo",articleInfo)
+      console.log("articleInfo", articleInfo);
       //这里包装 可以直接转换成对象
       formData.append(
-        'articleInfo',
+        "articleInfo",
         new Blob([JSON.stringify(articleInfo)], { type: "application/json" })
       );
       //封面
-      console.log("封面:"+this.articleForm.articleCover);
-      formData.append('articleCover', this.articleForm.articleCover);
+      console.log("封面:" + this.articleForm.articleCover);
+      formData.append("articleCover", this.articleForm.articleCover);
 
       //文章图片
-      console.log("文章图片："+this.articleForm.articleImages);
-      formData.append('articleImages', this.articleForm.articleImages);
-      console.log(formData)
+      console.log("文章图片：" + this.articleForm.articleImages);
+      for (var i = 0; i < this.articleForm.articleImages.length; i++) {
+        formData.append("articleImages", this.articleForm.articleImages[i]);
+      }
+      console.log("formData", formData);
       userPublishArticle(formData).then((response) => {
         const { data } = response;
         this.$message({
@@ -330,16 +385,32 @@ export default {
           type: "success",
           duration: 2000,
         });
-        this.$store.dispatch("user/getInfo");
+        this.$router.push({
+          name: "user_info",
+          params: {
+            params: {
+              userId: this.user.userId,
+            },
+          },
+        });
       });
     },
     cancel() {},
     getNowTime: function () {
       let dateTime;
       let yy = new Date().getFullYear();
-      let mm = new Date().getMonth() + 1;
-      let dd = new Date().getDate();
-      let hh = new Date().getHours();
+      let mm =
+        new Date().getMonth() + 1 < 10
+          ? "0" + (new Date().getMonth() + 1)
+          : new Date().getMonth() + 1;
+      let dd =
+        new Date().getDate() < 10
+          ? "0" + new Date().getDate()
+          : new Date().getDate();
+      let hh =
+        new Date().getHours() < 10
+          ? "0" + new Date().getHours()
+          : new Date().getHours();
       let mf =
         new Date().getMinutes() < 10
           ? "0" + new Date().getMinutes()
@@ -364,7 +435,7 @@ export default {
       return tagNameList
         .map((tagName) => {
           const tag = this.tagList.find((tag) => tag.tagName === tagName);
-          return tag ? tag.tagId : null;
+          return tag ? { tagId: tag.tagId.toString() } : null;
         })
         .filter((tagId) => tagId !== null);
     },
