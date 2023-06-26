@@ -98,15 +98,15 @@ public class UserController {
     /**
      * 发布笔记
      * @param articleWriteAndUpdateDto 数据传送实体类ArticleWriteDto
-     * @return Result：data为生成的articleId
+     * @return Result：data为null
      */
     @PostMapping("/user/articles")
     public Result writeArticleCon(@RequestPart("articleInfo") ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
                                   @RequestPart("articleCover") MultipartFile articleCover,
                                   @RequestPart("articleImages") MultipartFile[] articleImages){
-        ArticleCoverAndImagesDto res=userService.writeArticleService(articleWriteAndUpdateDto,articleCover,articleImages);
-        if(res != null){
-            return Result.success(res);
+        boolean res=userService.writeArticleService(articleWriteAndUpdateDto,articleCover,articleImages);
+        if(res){
+            return Result.success();
         }
         else{
             return Result.error("发布失败!");
@@ -123,9 +123,9 @@ public class UserController {
                                    @RequestPart("articleCover") MultipartFile articleCover,
                                    @RequestPart("articleImages") MultipartFile[] articleImages){
         log.info("获取到的数据："+ articleWriteAndUpdateDto);
-        ArticleCoverAndImagesDto res=userService.updateArticleService(articleWriteAndUpdateDto,articleCover,articleImages);
+        boolean res=userService.updateArticleService(articleWriteAndUpdateDto,articleCover,articleImages);
         log.info("Service处理的结果："+ res);
-        if(res != null){
+        if(res){
             return Result.success();
         }
         else{

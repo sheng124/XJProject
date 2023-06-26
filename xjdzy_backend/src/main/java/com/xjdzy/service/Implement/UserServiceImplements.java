@@ -171,16 +171,14 @@ public class UserServiceImplements implements UserService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ArticleCoverAndImagesDto writeArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
+    public boolean writeArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
                                                         MultipartFile articleCover,
                                                         MultipartFile[] articleImageList) {
-        // 构造空的返回数据
-        ArticleCoverAndImagesDto articleCoverAndImagesDto = new ArticleCoverAndImagesDto();
         // 封面图片编码
-        articleCoverAndImagesDto.setArticleCover(ImageToBase64Utils.ImageToBase64(articleCover));
+        String articleCoverBase = ImageToBase64Utils.ImageToBase64(articleCover);
         // 更新Article表
         Article article = Article.builder().articleTitle(articleWriteAndUpdateDto.getArticleTitle())
-                .articleCover(articleCoverAndImagesDto.getArticleCover())
+                .articleCover(articleCoverBase)
                 .articleContent(articleWriteAndUpdateDto.getArticleContent())
                 .categoryId(articleWriteAndUpdateDto.getCategoryId())
                 .createTime(articleWriteAndUpdateDto.getCreateTime())
@@ -188,7 +186,7 @@ public class UserServiceImplements implements UserService {
                 .userId(articleWriteAndUpdateDto.getUserId())
                 .build();
         if(articleMapper.insert(article) != 1)
-            return null;
+            return false;
         else{
             // 更新RelArticleAndTag表
             Integer articleId=article.getArticleId();
@@ -197,13 +195,11 @@ public class UserServiceImplements implements UserService {
                 relArticleTag.setArticleId(articleId);
                 relArticleTag.setTagId(tag.getTagId());
                 if(relArticleTagMapper.insert(relArticleTag) != 1)
-                    return null;
+                    return false;
             }
             // 更新ArticleImages表
-            List<String> articleImageBaseList = addArticleImages(articleImageList,articleId);
-            articleCoverAndImagesDto.setArticleId(articleId);
-            articleCoverAndImagesDto.setArticleImages(articleImageBaseList);
-            return articleCoverAndImagesDto;
+            addArticleImages(articleImageList,articleId);
+            return true;
         }
     }
 
@@ -214,17 +210,15 @@ public class UserServiceImplements implements UserService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ArticleCoverAndImagesDto updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
+    public boolean updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
                                                          MultipartFile articleCover,
                                                          MultipartFile[] articleImageList) {
-        // 构造空的返回数据
-        ArticleCoverAndImagesDto articleCoverAndImagesDto = new ArticleCoverAndImagesDto();
         // 封面图片编码
-        articleCoverAndImagesDto.setArticleCover(ImageToBase64Utils.ImageToBase64(articleCover));
+        String articleCoverBase = ImageToBase64Utils.ImageToBase64(articleCover);
         // 更新Article表
         Article article=Article.builder().articleId(articleWriteAndUpdateDto.getArticleId())
                 .articleTitle(articleWriteAndUpdateDto.getArticleTitle())
-                .articleCover(articleCoverAndImagesDto.getArticleCover())
+                .articleCover(articleCoverBase)
                 .articleContent(articleWriteAndUpdateDto.getArticleContent())
                 .categoryId(articleWriteAndUpdateDto.getCategoryId())
                 .createTime(articleWriteAndUpdateDto.getCreateTime())
@@ -232,7 +226,7 @@ public class UserServiceImplements implements UserService {
                 .userId(articleWriteAndUpdateDto.getUserId())
                 .build();
         if(articleMapper.updateById(article) != 1)
-            return null;
+            return false;
         else{
             Integer articleId=article.getArticleId();
             // 将原有标签删除
@@ -245,17 +239,15 @@ public class UserServiceImplements implements UserService {
                 relArticleTag.setArticleId(articleId);
                 relArticleTag.setTagId(tag.getTagId());
                 if(relArticleTagMapper.insert(relArticleTag) != 1)
-                    return null;
+                    return false;
             }
             // 将原有图片删除
             Map<String,Object> map2 = new HashMap<>();
             map2.put("article_id",articleId);
             articleImagesMapper.deleteByMap(map2);
             // 加入新的图片
-            List<String> articleImageBaseList = addArticleImages(articleImageList,articleId);
-            articleCoverAndImagesDto.setArticleId(articleId);
-            articleCoverAndImagesDto.setArticleImages(articleImageBaseList);
-            return articleCoverAndImagesDto;
+            addArticleImages(articleImageList,articleId);
+            return true;
         }
     }
 

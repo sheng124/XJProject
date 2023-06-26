@@ -18,11 +18,11 @@ public interface UserService {
 
     List<ArticleSummaryDto> getWrLiCoArticlesService(Integer userId);
 
-    ArticleCoverAndImagesDto writeArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
+    boolean writeArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
                                                  MultipartFile articleCover,
                                                  MultipartFile[] articleImages);
 
-    ArticleCoverAndImagesDto updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
+    boolean updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
                                                   MultipartFile articleCover,
                                                   MultipartFile[] articleImageList);
 

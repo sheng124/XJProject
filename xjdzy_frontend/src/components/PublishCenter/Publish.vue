@@ -297,7 +297,7 @@ export default {
       this.dialogVisible = true;
     },
     publishArticle() {
-      console.log(publishArticle+"中~~~~~~~~")
+      console.log("publishArticle中~~~~~~~~")
       //构建formData
       let formData = new FormData();
       //文章信息
@@ -337,9 +337,9 @@ export default {
     getNowTime: function () {
       let dateTime;
       let yy = new Date().getFullYear();
-      let mm = new Date().getMonth() + 1;
-      let dd = new Date().getDate();
-      let hh = new Date().getHours();
+      let mm = (new Date().getMonth() + 1)<10 ? "0"+ (new Date().getMonth() + 1):(new Date().getMonth() + 1);
+      let dd = new Date().getDate()<10?"0"+new Date().getDate():new Date().getDate();
+      let hh = new Date().getHours()<10?"0"+new Date().getHours():new Date().getHours();
       let mf =
         new Date().getMinutes() < 10
           ? "0" + new Date().getMinutes()
