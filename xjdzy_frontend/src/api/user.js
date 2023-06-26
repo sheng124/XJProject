@@ -35,4 +35,13 @@ export function uploadUserAvatar(formData) {
   })
 }
 
+// 发布文章
+export function userPublishArticle(formData) {
+  return request({
+    url: '/user/articles',
+    method: 'post',
+    data:formData,
+  })
+}
+
 

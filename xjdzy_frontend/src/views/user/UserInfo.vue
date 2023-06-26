@@ -123,7 +123,7 @@ export default {
   computed: {
     ...mapGetters(["user", "token"]),
   },
-  created() {
+  mounted() {
     this.init();
   },
   methods: {
@@ -134,7 +134,7 @@ export default {
         this.likesANDcollection = data.likesNum + data.collectionNum;
         this.form.username = this.user.username;
         this.form.password = this.user.password;
-        this.imageUrl=this.user.userAvatar;
+        this.imageUrl = this.user.userAvatar;
       });
     },
     checkType(file, fileList) {
@@ -162,7 +162,7 @@ export default {
       uploadUserAvatar(formData).then((response) => {
         const { data } = response;
         this.$message({
-          message: "编辑信息成功",
+          message: "上传头像成功",
           type: "success",
           duration: 2000,
         });
@@ -172,6 +172,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          //this.$store.dispatch("user/getInfo");
           const modifyUsernameForm = {
             userId: this.user.userId,
             username: this.user.username,
@@ -182,21 +183,45 @@ export default {
             password: this.user.password,
             newPassword: this.form.password,
           };
-          modifyUsername(modifyUsernameForm).then((response) => {
-            console.log(response.data);
-          }).catch(() => {
-            });
-          modifyPassword(
-            modifyPasswordForm
-          ).then((response) => {
-            console.log(response.data);
-          })/* .catch(() => {
+
+          if (this.form.username !== this.user.username) {
+            modifyUsername(modifyUsernameForm).then((response) => {
+              console.log(modifyUsernameForm);
+              console.log(response.data);
+              this.$store.commit(
+                "user/setUsernameState",
+                modifyUsernameForm.newUserName
+              );
+              this.$message({
+                message: "修改用户名成功",
+                type: "success",
+                duration: 2000,
+              });
+            }); /* .catch(() => {
             }); */
-          if(this.imageUrl!=this.user.userAvatar){
+          }
+          if (this.form.password !== this.user.password) {
+            modifyPassword(modifyPasswordForm).then((response) => {
+              console.log(modifyPasswordForm);
+              console.log(response.data);
+              this.$store.commit(
+                "user/setPasswordState",
+                modifyPasswordForm.newPassword
+              );
+              this.$message({
+                message: "修改密码成功",
+                type: "success",
+                duration: 2000,
+              });
+            }); /* .catch(() => {
+            }); */
+          }
+          if (this.imageUrl != this.user.userAvatar) {
             this.uploadAvatar();
           }
-          this.dialogVisible=false;
-          this.$store.dispatch("user/getInfo");
+          //this.$store.dispatch("user/getInfo");
+          this.dialogVisible = false;
+          this.$forceUpdate();
         } else {
           return false;
         }

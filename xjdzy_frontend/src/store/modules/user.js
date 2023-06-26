@@ -32,6 +32,12 @@ const mutations = {
   setUserIdState(state,userId){
     state.user.userId=userId
   },
+  setUsernameState(state,username){
+    state.user.username=username
+  },
+  setPasswordState(state,password){
+    state.user.password=password
+  },
 }
 
 //actions解决异步请求（指请求数据后不等待数据返回，直接去做别的事，当数据返回时，再通过回调函数）
@@ -61,7 +67,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       getUserInfo(state.user.userId).then(response => {
         const { data } = response
-        console.log("data:"+data)
+        console.log(data)
         if (!data) {
           commit('setTokenState', '')
           commit('clearUserState')
