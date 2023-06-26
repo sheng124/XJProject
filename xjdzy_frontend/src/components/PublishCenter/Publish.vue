@@ -123,6 +123,7 @@
                 :class="tagClass(item)"
                 @click="addTag(item)"
                 class="mx-1 my-1"
+                style="cursor: pointer;"
               >
                 {{ item.tagName }}
               </el-tag>
