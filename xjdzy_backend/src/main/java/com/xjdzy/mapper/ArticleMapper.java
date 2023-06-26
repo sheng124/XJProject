@@ -1,7 +1,7 @@
 package com.xjdzy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.xjdzy.dto.ArticleTypeDto;
+import com.xjdzy.dto.ArticleSummaryDto;
 import com.xjdzy.entity.Article;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -18,9 +18,17 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     int getCollectionNumByArticleId(Integer articleId);
 
-    List<ArticleTypeDto> getAllByUserIdWrArticles(Integer userId);
+    List<ArticleSummaryDto> getAllByArticleIdArticleSummaryDtos(Integer articleId);
 
-    List<ArticleTypeDto> getAllByUserIdCollectionArticles(Integer userId);
+    List<Integer> getAllArticleId();
 
-    List<ArticleTypeDto> getAllByUserIdLikesArticles(Integer userId);
+    List<Integer> getArticleIdByCategoryId(Integer categoryId);
+
+    List<Integer> getArticleIdByWrite(Integer userId);
+
+    List<Integer> getArticleIdByCollection(Integer userId);
+
+    List<Integer> getArticleIdByLike(Integer userId);
+
+    List<String> getArticleImageByArticleId(Integer articleId);
 }

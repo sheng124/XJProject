@@ -36,5 +36,6 @@ public class ArticleDetailDto {
     private int commentNum;
     // 从UserInfo和Comment统计
     private List<CAndUDto> cAndUDtoList;
-
+    // 从ArticleImages中获取
+    List<String> articleImages;
 }

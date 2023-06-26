@@ -2,6 +2,7 @@ package com.xjdzy.controller;
 
 
 import com.xjdzy.dto.ArticleDetailDto;
+import com.xjdzy.dto.ArticleSummaryDto;
 import com.xjdzy.dto.Result;
 import com.xjdzy.entity.Article;
 import com.xjdzy.entity.Collection;
@@ -136,7 +137,7 @@ public class ArticlesController {
     @GetMapping("/articles")
     public Result getAllArticlesCon(){
         log.info("获取所有文章");
-        List<Article> res=articlesService.getAllArticles();
+        List<ArticleSummaryDto> res=articlesService.getAllArticles();
         log.info("Service处理的结果："+ res);
         return Result.success(res);
     }
@@ -149,7 +150,7 @@ public class ArticlesController {
     @GetMapping("/articles/{categoryId}")
     public Result getAllArticlesByCategoryIdCon(@PathVariable Integer categoryId){
         log.info("获取到的数据："+categoryId);
-        List<Article> res=articlesService.getAllArticlesByCategoryId(categoryId);
+        List<ArticleSummaryDto> res=articlesService.getAllArticlesByCategoryId(categoryId);
         log.info("Service处理的结果："+ res);
         return Result.success(res);
     }

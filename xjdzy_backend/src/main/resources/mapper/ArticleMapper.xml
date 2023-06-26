@@ -17,13 +17,6 @@
         and article.article_id = collection.article_id
         and user_info.user_id = #{userId};
     </select>
-    <select id="getAllByUserIdWrArticles" resultType="com.xjdzy.dto.ArticleTypeDto">
-        select article_id,article_title,article_cover,article_content,create_time,category_name
-        from article,category,user_info
-        where article.user_id = user_info.user_id
-        and article.category_id = category.category_id
-        and user_info.user_id = #{userId};
-    </select>
     <select id="getLikesNumByArticleId" resultType="java.lang.Integer">
         select COUNT(*) from article,likes
         where article.article_id = likes.article_id
@@ -34,19 +27,38 @@
         where article.article_id = collection.article_id
         and article.article_id = #{articleId};
     </select>
-    <select id="getAllByUserIdCollectionArticles" resultType="com.xjdzy.dto.ArticleTypeDto">
-        select article.article_id,article_title,article_cover,article_content,create_time,category_name
-        from article,category,collection
-        where collection.user_id = #{userId}
-          and article.article_id=collection.article_id
-          and article.category_id = category.category_id;
+    <select id="getAllByArticleIdArticleSummaryDtos" resultType="com.xjdzy.dto.ArticleSummaryDto">
+        select article_id,article_title,article_cover,article_content,create_time,update_time,category_name
+        from article,category
+        where article_id = #{articleId}
+        and article.category_id = category.category_id;
     </select>
-    <select id="getAllByUserIdLikesArticles" resultType="com.xjdzy.dto.ArticleTypeDto">
-        select article.article_id,article_title,article_cover,article_content,create_time,category_name
-        from article,category,likes
-        where likes.user_id = #{userId}
-          and article.article_id=likes.article_id
-          and article.category_id = category.category_id;
+    <select id="getAllArticleId" resultType="java.lang.Integer">
+        select article_id from article;
+    </select>
+    <select id="getArticleIdByCategoryId" resultType="java.lang.Integer">
+        select article_id from article
+        where category_id = #{categoryId};
+    </select>
+    <select id="getArticleIdByWrite" resultType="java.lang.Integer">
+        select article_id from article
+        where user_id = #{userId};
+    </select>
+    <select id="getArticleIdByCollection" resultType="java.lang.Integer">
+        select article.article_id from article,user_info,collection
+        where user_info.user_id = #{userId}
+          and user_info.user_id = collection.user_id
+          and article.article_id = collection.article_id;
+    </select>
+    <select id="getArticleIdByLike" resultType="java.lang.Integer">
+        select article.article_id from article,user_info,likes
+        where user_info.user_id = #{userId}
+          and user_info.user_id = likes.user_id
+          and article.article_id = likes.article_id;
+    </select>
+    <select id="getArticleImageByArticleId" resultType="java.lang.String">
+        select image from article_images
+        where article_id = #{articleId}
     </select>
 
 </mapper>

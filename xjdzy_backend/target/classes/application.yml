@@ -18,6 +18,11 @@ spring:
         min-idle: 0
         # 最长等待时间
         max-wait: 100ms
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 16MB
+      max-request-size: 160MB
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

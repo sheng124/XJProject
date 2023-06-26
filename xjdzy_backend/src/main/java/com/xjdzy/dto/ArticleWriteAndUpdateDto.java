@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 发布笔记功能所需的数据传送对象
+ * 发布笔记功能所需的接收数据传送对象
  */
 
 @Data
@@ -21,7 +21,6 @@ public class ArticleWriteAndUpdateDto {
     private int articleId;
     private int userId;
     private String articleTitle;
-    private String articleCover;
     private String articleContent;
     private int categoryId;
     private LocalDateTime createTime;

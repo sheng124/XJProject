@@ -85,7 +85,7 @@ public class UserController {
     @GetMapping("/user/articles/{userId}")
     public Result getWrLiCoArticlesCon(@PathVariable Integer userId){
         log.info("获取到的数据："+ userId);
-        List<ArticleTypeDto> res=userService.getWrLiCoArticlesService(userId);
+        List<ArticleSummaryDto> res=userService.getWrLiCoArticlesService(userId);
         log.info("Service处理的结果："+ res);
         if(res != null){
             return Result.success(res);
@@ -101,10 +101,10 @@ public class UserController {
      * @return Result：data为生成的articleId
      */
     @PostMapping("/user/articles")
-    public Result writeArticleCon(@RequestBody ArticleWriteAndUpdateDto articleWriteAndUpdateDto){
-        log.info("获取到的数据："+ articleWriteAndUpdateDto);
-        Integer res=userService.writeArticleService(articleWriteAndUpdateDto);
-        log.info("Service处理的结果："+ res);
+    public Result writeArticleCon(@RequestPart("articleInfo") ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
+                                  @RequestPart("articleCover") MultipartFile articleCover,
+                                  @RequestPart("articleImages") MultipartFile[] articleImages){
+        ArticleCoverAndImagesDto res=userService.writeArticleService(articleWriteAndUpdateDto,articleCover,articleImages);
         if(res != null){
             return Result.success(res);
         }
@@ -119,11 +119,13 @@ public class UserController {
      * @return Result：data为null
      */
     @PostMapping("/user/articles/edit")
-    public Result updateArticleCon(@RequestBody ArticleWriteAndUpdateDto articleWriteAndUpdateDto){
+    public Result updateArticleCon(@RequestPart("articleInfo") ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
+                                   @RequestPart("articleCover") MultipartFile articleCover,
+                                   @RequestPart("articleImages") MultipartFile[] articleImages){
         log.info("获取到的数据："+ articleWriteAndUpdateDto);
-        boolean res=userService.updateArticleService(articleWriteAndUpdateDto);
+        ArticleCoverAndImagesDto res=userService.updateArticleService(articleWriteAndUpdateDto,articleCover,articleImages);
         log.info("Service处理的结果："+ res);
-        if(res){
+        if(res != null){
             return Result.success();
         }
         else{
