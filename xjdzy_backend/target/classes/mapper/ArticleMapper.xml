@@ -60,5 +60,15 @@
         select image from article_images
         where article_id = #{articleId}
     </select>
+    <select id="getCategoryByArticleId" resultType="com.xjdzy.entity.Category">
+        select category.category_id,category_name from article,category
+        where article.category_id=category.category_id
+        and article.article_id=#{articleId}
+    </select>
+    <select id="getUserInfoByArticleId" resultType="com.xjdzy.entity.UserInfo">
+        select user_info.user_id,username,user_avatar from article,user_info
+        where article.user_id=user_info.user_id
+        and article_id=#{articleId}
+    </select>
 
 </mapper>

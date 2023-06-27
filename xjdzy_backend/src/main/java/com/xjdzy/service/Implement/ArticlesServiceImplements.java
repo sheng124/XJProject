@@ -123,23 +123,29 @@ public class ArticlesServiceImplements implements ArticlesService {
      * @return 笔记列表List<ArticleSummaryDto>
      */
     public List<ArticleSummaryDto> getArticleSummaryByArticleId(List<Integer> articleIdList){
-        // 1.获取基本信息：Article表中的基本信息以及categoryName
         List<ArticleSummaryDto> articleSummaryDtoList = new ArrayList<>();
         for(Integer articleId:articleIdList){
+            // 1.获取基本信息：Article表中的基本信息
             ArticleSummaryDto articleSummaryDto = articleMapper.getAllByArticleIdArticleSummaryDtos(articleId).get(0);
-            // 2.获取RelArticleTag中的相关数据：标签
+            // 2.获取Category信息
+            Category category = articleMapper.getCategoryByArticleId(articleId).get(0);
+            articleSummaryDto.setCategory(category);
+            // 3.获取UserInfo信息
+            UserInfo userInfo = articleMapper.getUserInfoByArticleId(articleId).get(0);
+            articleSummaryDto.setUserInfo(userInfo);
+            // 4.获取RelArticleTag中的相关数据：标签
             List<Tag> tmpTList=relArticleTagMapper.getAllByArticleIdTags(articleSummaryDto.getArticleId());
             articleSummaryDto.setTagList(tmpTList);
-            // 3.统计Likes中的相关数据：点赞数
+            // 5.统计Likes中的相关数据：点赞数
             int tmpALNum=articleMapper.getLikesNumByArticleId(articleSummaryDto.getArticleId());
             articleSummaryDto.setLikesNum(tmpALNum);
-            // 4.统计Collection中的相关数据：收藏数
+            // 6.统计Collection中的相关数据：收藏数
             int tmpACNum=articleMapper.getCollectionNumByArticleId(articleSummaryDto.getArticleId());
             articleSummaryDto.setCollectionNum(tmpACNum);
-            // 5.添加到List中
+            // 7.添加到List中
             articleSummaryDtoList.add(articleSummaryDto);
         }
-        // 5.返回结果
+        // 8.返回结果
         return articleSummaryDtoList;
     }
 
@@ -199,7 +205,7 @@ public class ArticlesServiceImplements implements ArticlesService {
         lqw2.select(Category::getCategoryName)
                 .eq(Category::getCategoryId,tmpA.getCategoryId());
         Category tmpC=categoryMapper.selectOne(lqw2);
-        articleDetailDto.setCategoryName(tmpC.getCategoryName());
+        articleDetailDto.setCategory(tmpC);
         // 3.查询RelArticleTag中的相关数据
         List<Tag> tmpTL=relArticleTagMapper.getAllByArticleIdTags(articleId);
         articleDetailDto.setTagList(tmpTL);
@@ -232,10 +238,13 @@ public class ArticlesServiceImplements implements ArticlesService {
         // 0.创建空的数据传送对象
         ArticleDetailDto articleDetailDto=new ArticleDetailDto();
         getArticlesDataByArticleId(articleId,articleDetailDto);
-        // 7.统计UserInfo和Comment中的相关数据
+        // 7.获取发布者的UserInfo数据
+        UserInfo userInfo = articleMapper.getUserInfoByArticleId(articleId).get(0);
+        articleDetailDto.setUserInfo(userInfo);
+        // 8.统计UserInfo和Comment中的相关数据
         List<CAndUDto> tmpCAU=commentMapper.getAllByArticleIdCAndUDtos(articleId);
         articleDetailDto.setCAndUDtoList(tmpCAU);
-        // 8.获取照片信息
+        // 9.获取照片信息
         articleDetailDto.setArticleImages(articleMapper.getArticleImageByArticleId(articleId));
         return articleDetailDto;
     }
