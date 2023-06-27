@@ -1,6 +1,8 @@
 package com.xjdzy.dto;
 
+import com.xjdzy.entity.Category;
 import com.xjdzy.entity.Tag;
+import com.xjdzy.entity.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +27,7 @@ public class ArticleDetailDto {
     private LocalDateTime updateTime;
     private int viewsNum;
     // Category
-    private String categoryName;
+    private Category category;
     // RelArticleTag
     private List<Tag> tagList;
     // 从Likes统计
@@ -38,4 +40,6 @@ public class ArticleDetailDto {
     private List<CAndUDto> cAndUDtoList;
     // 从ArticleImages中获取
     List<String> articleImages;
+    // UserInfo
+    private UserInfo userInfo;
 }
