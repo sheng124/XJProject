@@ -27,3 +27,11 @@ export function increaseTag(tagName) {
   })
 }
 
+//获取笔记详细内容
+export function getArticleDetail(articleId) {
+  return request({
+    url: `/articles/info/${articleId}`,
+    method: 'get',
+  })
+}
+
