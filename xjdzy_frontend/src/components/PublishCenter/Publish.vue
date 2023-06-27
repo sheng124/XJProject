@@ -389,9 +389,7 @@ export default {
         this.$router.push({
           name: "user_info",
           params: {
-            params: {
               userId: this.user.userId,
-            },
           },
         });
       });
