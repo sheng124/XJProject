@@ -37,6 +37,13 @@ const routes = [
     component: () => import('@/views/user/PublishCenter'),
     meta: { title: '发布中心' }
   },
+  // 文章列表
+  {
+    path: '/tags/:tagId',
+    name: 'article_list',
+    component: () => import('@/views/article/ArticleList'),
+    meta: { title: '文章列表' }
+  },
   {
     path: '/404',
     name: '404',

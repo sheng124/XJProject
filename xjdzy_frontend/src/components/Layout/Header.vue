@@ -14,6 +14,13 @@
 
       <template slot="end">
         <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item>
+        <b-navbar-item
+          tag="router-link"
+          :to="{ name: 'publish_center' }"
+          v-show="token != null"
+        >
+          <i class="el-icon-edit-outline">发布中心</i>
+        </b-navbar-item>
         <b-navbar-item tag="div">
           <b-switch v-model="darkMode" passive-type="is-warning" type="is-dark">
             {{ darkMode ? "夜" : "日" }}
@@ -28,9 +35,10 @@
             >
               注册
             </b-button>
-            
+
             <b-button
-              class="is-info" outlined
+              class="is-info"
+              outlined
               tag="router-link"
               :to="{ path: '/login' }"
             >
@@ -63,25 +71,29 @@
         <div v-else>
           <el-dropdown class="avatar-container" trigger="click">
             <div class="avatar-wrapper">
-              <img :src=user.userAvatar class="user-avatar" />
+              <img :src="user.userAvatar" class="user-avatar" />
               <i class="el-icon-caret-bottom" />
             </div>
             <el-dropdown-menu slot="dropdown" class="user-dropdown">
-              <router-link :to="{
-                name:'user_info',
-                params:{
-                  userId:user.userId
-                }
-              }">
-                <el-dropdown-item> 个人中心 </el-dropdown-item>
+              <router-link
+                :to="{
+                  name: 'user_info',
+                  params: {
+                    userId: user.userId,
+                  },
+                }"
+              >
+                <el-dropdown-item><v-icon small class="mb-1">mdi-account</v-icon>个人中心</el-dropdown-item>
               </router-link>
-              <router-link :to="{
-                name:'publish_center',
-              }">
+              <!-- <router-link
+                :to="{
+                  name: 'publish_center',
+                }"
+              >
                 <el-dropdown-item> 发布中心 </el-dropdown-item>
-              </router-link>
+              </router-link> -->
               <el-dropdown-item divided @click.native="logout">
-                <span style="display: block">退出登录</span>
+                <span style="display: block"><v-icon small class="mb-1">mdi-logout</v-icon>退出登录</span>
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -115,7 +127,7 @@ import {
   enable as enableDarkMode,
 } from "darkreader";
 import { mapGetters } from "vuex";
-import { removeAll,getDarkMode,setDarkMode } from "@/utils/js_cookie";
+import { removeAll, getDarkMode, setDarkMode } from "@/utils/js_cookie";
 export default {
   name: "Header",
   data() {
@@ -129,32 +141,34 @@ export default {
     ...mapGetters(["token", "user"]),
   },
   watch: {
-      // 监听Theme模式
-      darkMode(val) {
-        if (val) {
-          enableDarkMode({})
-        } else {
-          disableDarkMode()
-        }
-        setDarkMode(this.darkMode)
+    // 监听Theme模式
+    darkMode(val) {
+      if (val) {
+        enableDarkMode({});
+      } else {
+        disableDarkMode();
       }
+      setDarkMode(this.darkMode);
     },
+  },
   created() {
     console.log(this.user);
     // 获取cookie中的夜间还是白天模式
-    this.darkMode = getDarkMode()
-      if (this.darkMode) {
-        enableDarkMode({})
-      } else {
-        disableDarkMode()
-      }
+    this.darkMode = getDarkMode();
+    if (this.darkMode) {
+      enableDarkMode({});
+    } else {
+      disableDarkMode();
+    }
   },
   methods: {
-    logout() {
+    async logout() {
       this.$store.dispatch("user/userLogout").then(() => {
         this.$message.info("退出登录成功");
         setTimeout(() => {
-          this.$router.push({ path: this.redirect || '/' });
+          if (this.$route.path !== "/") {
+            this.$router.push({ path: this.redirect || "/" });
+          }
         }, 500);
       });
     },

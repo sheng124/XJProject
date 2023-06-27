@@ -123,6 +123,7 @@
                 :class="tagClass(item)"
                 @click="addTag(item)"
                 class="mx-1 my-1"
+                style="cursor: pointer;"
               >
                 {{ item.tagName }}
               </el-tag>
@@ -168,7 +169,7 @@
         </el-form-item>
         <el-form-item>
           <el-button @click="cancel = false">取 消</el-button>
-          <el-button type="danger" @click="publishArticle"> 发 表 </el-button>
+          <el-button type="danger" @click="publishArticle" plain> 发 表 </el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -388,9 +389,7 @@ export default {
         this.$router.push({
           name: "user_info",
           params: {
-            params: {
               userId: this.user.userId,
-            },
           },
         });
       });

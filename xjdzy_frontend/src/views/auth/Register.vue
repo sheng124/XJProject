@@ -24,6 +24,7 @@
                 v-model="ruleForm.password"
                 type="password"
                 autocomplete="off"
+                show-password
               />
             </el-form-item>
 
@@ -32,6 +33,7 @@
                 v-model="ruleForm.passwordConfirm"
                 type="password"
                 autocomplete="off"
+                show-password
               />
             </el-form-item>
             <!-- <el-form-item label="选择头像" prop="">
@@ -48,7 +50,7 @@
             </el-form-item> -->
 
             <el-form-item>
-              <el-button type="primary" @click="submitForm('ruleForm')"
+              <el-button type="primary" @click="submitForm('ruleForm')" plain
                 >立即注册</el-button
               >
               <el-button @click="resetForm('ruleForm')">重置</el-button>
@@ -69,7 +71,7 @@ export default {
     const validatePass = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请再次输入密码"));
-      } else if (value !== this.ruleForm.pass) {
+      } else if (value !== this.ruleForm.password) {
         callback(new Error("两次输入密码不一致!"));
       } else {
         callback();
