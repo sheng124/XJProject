@@ -12,19 +12,19 @@ import java.util.UUID;
 @Service
 public class UploadFileServiceImplements implements UploadFileService {
     @Override
-    public boolean uploadFIle(MultipartFile file) {
+    public String uploadFIle(MultipartFile file) {
         InputStream inputStream = null;
         try {
             inputStream = file.getInputStream();
             String fileName = file.getOriginalFilename();
             if(fileName == null)
-                return false;
+                return null;
             String suffix = fileName.substring(fileName.lastIndexOf("."));
             String newFileName = UUID.randomUUID().toString().replace("-","")+suffix;
             return FtpUtil.uploadFile(newFileName,inputStream);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         } finally {
             try {
                 if(inputStream != null)

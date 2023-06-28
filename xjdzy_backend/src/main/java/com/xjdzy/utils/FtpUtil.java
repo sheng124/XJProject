@@ -21,7 +21,7 @@ public class FtpUtil {
     // 服务器端设置的baseurl
     private static final String BASE_URL = "http://121.36.202.123:8080/assert/";
 
-    public  static boolean uploadFile(String newFileName, InputStream inputStream) throws IOException {
+    public  static String uploadFile(String newFileName, InputStream inputStream) throws IOException {
         FTPClient ftpClient = new FTPClient();
         try{
             ftpClient.connect(FTP_ADDRESS,FTP_PORT);
@@ -30,20 +30,17 @@ public class FtpUtil {
             if(!FTPReply.isPositiveCompletion(reply)){
                 ftpClient.disconnect();
                 System.out.println("登录失败！");
-                return false;
+                return null;
             }
             ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
             ftpClient.makeDirectory(FTP_PATH);
             ftpClient.changeWorkingDirectory(FTP_PATH);
             ftpClient.enterLocalPassiveMode();
             ftpClient.storeFile(newFileName,inputStream);
-
-            System.out.println("newFileName:"+newFileName);
-            System.out.println("url:"+BASE_URL+newFileName);
-            return true;
+            return BASE_URL+newFileName;
         } catch (IOException e){
             e.printStackTrace();
-            return false;
+            return null;
         } finally {
             ftpClient.logout();
         }

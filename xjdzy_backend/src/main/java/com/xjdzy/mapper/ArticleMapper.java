@@ -37,4 +37,6 @@ public interface ArticleMapper extends BaseMapper<Article> {
     List<Category> getCategoryByArticleId(Integer articleId);
 
     List<UserInfo> getUserInfoByArticleId(Integer articleId);
+
+    boolean updateViewsNumByArticleId(Integer articleId);
 }

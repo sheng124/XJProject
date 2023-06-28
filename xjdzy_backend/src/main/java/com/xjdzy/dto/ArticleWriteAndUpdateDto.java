@@ -24,6 +24,7 @@ public class ArticleWriteAndUpdateDto {
     private String articleContent;
     private int categoryId;
     private LocalDateTime createTime;
+    private String videoUrl;
     // RelArticleTag
     private List<Tag> tagList;
 }

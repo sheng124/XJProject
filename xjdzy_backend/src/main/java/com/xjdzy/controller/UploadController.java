@@ -17,12 +17,12 @@ public class UploadController {
     @Autowired
     UploadFileService uploadFileService;
 
-    @PostMapping("uploadFile")
-    public Result UploadFileCon(@RequestPart("file") MultipartFile file){
-        boolean res = uploadFileService.uploadFIle(file);
+    @PostMapping("/user/uploadVideo")
+    public Result UploadFileCon(@RequestPart("video") MultipartFile file){
+        String res = uploadFileService.uploadFIle(file);
         log.info("Service处理结果："+res);
-        if(res){
-            return Result.success();
+        if(res != null){
+            return Result.success(res);
         }
         else{
             return Result.error("上传失败！");

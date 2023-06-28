@@ -26,6 +26,7 @@ public class ArticleSummaryDto {
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
     private int viewsNum;
+    private String videoUrl;
     // Category
     private Category category;
     // RelArticleTag

@@ -246,6 +246,8 @@ public class ArticlesServiceImplements implements ArticlesService {
         articleDetailDto.setCAndUDtoList(tmpCAU);
         // 9.获取照片信息
         articleDetailDto.setArticleImages(articleMapper.getArticleImageByArticleId(articleId));
+        // 10.修改浏览量
+        articleMapper.updateViewsNumByArticleId(articleId);
         return articleDetailDto;
     }
 
