@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 public class UploadFileServiceImplements implements UploadFileService {
     @Override
-    public String uploadFIle(MultipartFile file) {
+    public String uploadFile(MultipartFile file) {
         InputStream inputStream = null;
         try {
             inputStream = file.getInputStream();

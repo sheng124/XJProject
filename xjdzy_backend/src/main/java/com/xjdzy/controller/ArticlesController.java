@@ -136,7 +136,7 @@ public class ArticlesController {
     public Result getAllArticlesCon(){
         log.info("获取所有文章");
         List<ArticleSummaryDto> res=articlesService.getAllArticles();
-        log.info("Service处理的结果："+ res);
+        log.info("viewsNum:"+res.get(0).getViewsNum());
         return Result.success(res);
     }
 
@@ -149,7 +149,7 @@ public class ArticlesController {
     public Result getAllArticlesByCategoryIdCon(@PathVariable Integer categoryId){
         log.info("获取到的数据："+categoryId);
         List<ArticleSummaryDto> res=articlesService.getAllArticlesByCategoryId(categoryId);
-        log.info("Service处理的结果："+ res);
+        log.info("viewsNum："+ res.get(0).getViewsNum());
         return Result.success(res);
     }
 
@@ -162,7 +162,7 @@ public class ArticlesController {
     public Result getArticlesDetailByArticleIdCon(@PathVariable Integer articleId){
         log.info("获取到的数据："+articleId);
         ArticleDetailDto res=articlesService.getArticlesDetailByArticleId(articleId);
-        log.info("Service处理的结果："+ res);
+        log.info("viewsNum："+ res.getViewsNum());
         return Result.success(res);
     }
 

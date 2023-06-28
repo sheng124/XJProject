@@ -7,7 +7,9 @@ import com.xjdzy.entity.*;
 import com.xjdzy.mapper.*;
 import com.xjdzy.service.ArticlesService;
 import com.xjdzy.service.RedisService;
+import com.xjdzy.service.UploadFileService;
 import com.xjdzy.service.UserService;
+import com.xjdzy.utils.FtpUtil;
 import com.xjdzy.utils.ImageToBase64Utils;
 import com.xjdzy.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -47,10 +49,13 @@ public class UserServiceImplements implements UserService {
     ArticleImagesMapper articleImagesMapper;
 
     @Autowired
-    private ArticlesService articlesService;
+    ArticlesService articlesService;
 
     @Autowired
-    private RedisService redisService;
+    RedisService redisService;
+
+    @Autowired
+    UploadFileService uploadFileService;
 
 
 
@@ -152,16 +157,14 @@ public class UserServiceImplements implements UserService {
      * @param articleId 笔记ID
      * @return 图片列表，Base64格式
      */
-    public List<String> addArticleImages(MultipartFile[] articleImageList,Integer articleId){
-        List<String> imageBaseList = new ArrayList<>();
+    public boolean addArticleImages(MultipartFile[] articleImageList,Integer articleId){
         for(MultipartFile file:articleImageList){
-            String tmpBase64 = ImageToBase64Utils.ImageToBase64(file);
-            ArticleImages articleImages = ArticleImages.builder().articleId(articleId).image(tmpBase64).build();
-            imageBaseList.add(tmpBase64);
+            String imageURL = uploadFileService.uploadFile(file);
+            ArticleImages articleImages = ArticleImages.builder().articleId(articleId).image(imageURL).build();
             if(articleImagesMapper.insert(articleImages) != 1)
-                return null;
+                return false;
         }
-        return imageBaseList;
+        return true;
     }
 
     /**
@@ -174,11 +177,11 @@ public class UserServiceImplements implements UserService {
     public boolean writeArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
                                                         MultipartFile articleCover,
                                                         MultipartFile[] articleImageList) {
-        // 封面图片编码
-        String articleCoverBase = ImageToBase64Utils.ImageToBase64(articleCover);
+        // 封面图片上传
+        String articleCoverURL = uploadFileService.uploadFile(articleCover);
         // 更新Article表
         Article article = Article.builder().articleTitle(articleWriteAndUpdateDto.getArticleTitle())
-                .articleCover(articleCoverBase)
+                .articleCover(articleCoverURL)
                 .articleContent(articleWriteAndUpdateDto.getArticleContent())
                 .categoryId(articleWriteAndUpdateDto.getCategoryId())
                 .createTime(articleWriteAndUpdateDto.getCreateTime())
@@ -199,8 +202,7 @@ public class UserServiceImplements implements UserService {
                     return false;
             }
             // 更新ArticleImages表
-            addArticleImages(articleImageList,articleId);
-            return true;
+            return !addArticleImages(articleImageList, articleId);
         }
     }
 
@@ -214,8 +216,8 @@ public class UserServiceImplements implements UserService {
     public boolean updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
                                                          MultipartFile articleCover,
                                                          MultipartFile[] articleImageList) {
-        // 封面图片编码
-        String articleCoverBase = ImageToBase64Utils.ImageToBase64(articleCover);
+        // 封面图片上传
+        String articleCoverBase = uploadFileService.uploadFile(articleCover);
         // 更新Article表
         Article article=Article.builder().articleId(articleWriteAndUpdateDto.getArticleId())
                 .articleTitle(articleWriteAndUpdateDto.getArticleTitle())
@@ -248,8 +250,7 @@ public class UserServiceImplements implements UserService {
             map2.put("article_id",articleId);
             articleImagesMapper.deleteByMap(map2);
             // 加入新的图片
-            addArticleImages(articleImageList,articleId);
-            return true;
+            return addArticleImages(articleImageList,articleId);
         }
     }
 
@@ -305,16 +306,30 @@ public class UserServiceImplements implements UserService {
     @Override
     @Transactional
     public String updateUserAvatarService(MultipartFile imageFile, Integer userId) {
-        String imageBase64 = ImageToBase64Utils.ImageToBase64(imageFile);
-        if(imageBase64 != null && !imageBase64.equals("0") && !imageBase64.equals("1") && !imageBase64.equals("2")){
+        String imageURL = uploadFileService.uploadFile(imageFile);
+        if(imageURL != null){
             LambdaUpdateWrapper<UserInfo> luw=new LambdaUpdateWrapper<>();
-            luw.set(UserInfo::getUserAvatar,imageBase64)
+            luw.set(UserInfo::getUserAvatar,imageURL)
                     .eq(UserInfo::getUserId,userId);
             userMapper.update(null,luw);
+            redisService.deleteUserInfo(userId);
+            return imageURL;
         }
-        redisService.deleteUserInfo(userId);
-        return imageBase64;
+        return null;
     }
+//    @Override
+//    @Transactional
+//    public String updateUserAvatarService(MultipartFile imageFile, Integer userId) {
+//        String imageBase64 = ImageToBase64Utils.ImageToBase64(imageFile);
+//        if(imageBase64 != null && !imageBase64.equals("0") && !imageBase64.equals("1") && !imageBase64.equals("2")){
+//            LambdaUpdateWrapper<UserInfo> luw=new LambdaUpdateWrapper<>();
+//            luw.set(UserInfo::getUserAvatar,imageBase64)
+//                    .eq(UserInfo::getUserId,userId);
+//            userMapper.update(null,luw);
+//        }
+//        redisService.deleteUserInfo(userId);
+//        return imageBase64;
+//    }
     /**
      * 获取所有类别
      * @param
