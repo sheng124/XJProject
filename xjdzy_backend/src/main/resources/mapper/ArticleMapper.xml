@@ -33,7 +33,7 @@
         and article.article_id = #{articleId};
     </select>
     <select id="getAllByArticleIdArticleSummaryDtos" resultType="com.xjdzy.dto.ArticleSummaryDto">
-        select article_id,article_title,article_cover,article_content,create_time,update_time,video_url
+        select article_id,article_title,article_cover,views_num,article_content,create_time,update_time,video_url
         from article,category
         where article_id = #{articleId}
         and article.category_id = category.category_id;
