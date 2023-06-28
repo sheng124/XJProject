@@ -109,35 +109,23 @@
                   v-for="(article, index2) in allDivideArticles[index][index1]"
                   :key="index2"
                   class="my-2"
+                  style="border-radius: 20px"
                 >
                   <!-- 笔记封面 -->
                   <!-- 可以试着采用类似小红书，点击笔记，弹出窗口显示文章内容 -->
-                  <router-link
-                    :to="{
-                      name: 'article',
-                      params: { articleId: article.articleId },
-                    }"
-                  >
-                    <v-hover v-slot="{ hover }">
+                  <div style="cursor: pointer;">
+                    <v-hover v-slot="{ hover }" >
                       <img
                         :src="article.articleCover"
                         :class="{ 'image-hover': hover, image: !hover }"
+                        @click="openArticleDialog(article.articleId)"
                       />
                     </v-hover>
-                  </router-link>
-
-                  <div style="padding: 14px">
-                    <router-link
-                      :to="{
-                        name: 'article',
-                        params: { articleId: article.articleId },
-                      }"
-                    >
+                  </div>
+                  <div style="padding: 14px;cursor: pointer;" @click="openArticleDialog(articleId)">
                       <div class="mb-2 has-text-black has-text-weight-semibold">
                         {{ article.articleTitle }}
                       </div>
-                    </router-link>
-
                     <!-- 笔记作者头像，名称 -->
                     <router-link
                       :to="{
@@ -197,34 +185,12 @@
       </b-tabs>
     </section>
     <!-- 文章内容弹窗 -->
-    <el-button @click="openArticleDialog(1)">打开对话框1</el-button>
-    <el-button @click="openArticleDialog(2)">打开对话框2</el-button>
-    <!-- <div data-app="true">
-      <v-dialog v-model="selectedArticleVisible" max-width="1200px">
-      <article-model
-        :currentArticleId="selectedArticleId"
-        @close="closeArticleDialog"
-      ></article-model>
-    </v-dialog>
-    </div> -->
     <div data-app="true">
-      <v-dialog v-model="selectedArticleVisible" max-width="1000px">
-        <v-card elevation="1" shaped max-width="1000px">
-          <el-row>
-            <el-col :span="6"><b-carousel>
-                <b-carousel-item v-for="(carousel, i) in carousels" :key="i">
-                  <section :class="`hero is-medium is-${carousel.color}`">
-                    <div class="hero-body has-text-centered">
-                      <h1 class="title">{{ carousel.text }}</h1>
-                    </div>
-                  </section>
-                </b-carousel-item>
-              </b-carousel>
-            </el-col>
-            <el-col>Auto</el-col>
-          </el-row>
-          
-        </v-card>
+      <v-dialog v-model="selectedArticleVisible" max-width="1000px" style="height:800px">
+        <article-model
+          :currentArticleId="selectedArticleId"
+          @close="closeArticleDialog"
+        ></article-model>
       </v-dialog>
     </div>
   </div>
@@ -328,7 +294,8 @@ export default {
         const { data } = response;
         console.log("收到的所有相关笔记数据", data, data.length);
         //已发布：1，已收藏:2，已喜欢：3
-        /* for(var i=0;i<data.length;i++){
+        for(var i=0;i<data.length;i++){
+          data[i].createTime=this.replaceTWithSpace(data[i].createTime);
                   console.log("笔记"+i+"的类型为：",data[i].type)
                   if(data[i].type==1){
                     this.wrArticles.push(data[i]);
@@ -339,13 +306,13 @@ export default {
                   else{
                     this.liArticles.push(data[i]);
                   }
-                } */
+                }
         // 分类为 type 为 1 的文章
-        this.wrArticles = data.filter((article) => article.type === 1);
+        //this.wrArticles = data.filter((article) => article.type === 1);
         // 分类为 type 为 2 的文章
-        this.coArticles = data.filter((article) => article.type === 2);
+        //this.coArticles = data.filter((article) => article.type === 2);
         // 分类为 type 为 3 的文章
-        this.liArticles = data.filter((article) => article.type === 3);
+        //this.liArticles = data.filter((article) => article.type === 3);
         console.log("已发布笔记：", this.wrArticles);
         console.log("已收藏笔记：", this.coArticles);
         console.log("已喜欢笔记：", this.liArticles);
@@ -512,6 +479,9 @@ export default {
     closeArticleDialog() {
       this.electedArticleVisible = false;
       this.selectedArticleId = null;
+    },
+    replaceTWithSpace(str) {
+      return str.replace("T", " ");
     },
   },
 };
