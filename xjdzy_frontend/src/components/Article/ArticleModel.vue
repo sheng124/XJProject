@@ -13,17 +13,17 @@
                 </div>
               </section> -->
             <b-carousel-item>
-            <figure class="image is-2by3">
-              <iframe
-                class="has-ratio"
-                width="100%"
-                
-                src="http://121.36.202.123:8080/assert/c574a573bdb0491ba42809c842d3cda3.mp4"
-                frameborder="0"
-                allowfullscreen
-              ></iframe><!-- 去掉了height="360" -->
-            </figure>
-          </b-carousel-item>
+              <figure class="image is-2by3">
+                <iframe
+                  class="has-ratio"
+                  width="100%"
+                  src="http://121.36.202.123:8080/assert/d27794096e604201bd2b9511e8196345.MP4"
+                  frameborder="0"
+                  allowfullscreen
+                ></iframe
+                ><!-- 去掉了height="360" -->
+              </figure>
+            </b-carousel-item>
             <!-- <b-carousel-item>
               <div class="video-container">
                 <div class="responsive-video">
@@ -41,7 +41,7 @@
               v-for="(img, index) in article.articleImages"
               :key="index"
             >
-              <div class="image-container has-background-black">
+              <div class="image-container has-background-light">
                 <!-- <b-image class="image" :src="img"></b-image> -->
                 <img :src="img" alt="Image" class="responsive-image" />
               </div>
@@ -91,7 +91,9 @@
               >
             </b-taglist>
           </v-card-text>
-          <v-card-text>{{ article.createTime }}</v-card-text>
+          <v-card-text>{{ article.createTime }} </v-card-text>
+          <!-- <v-divider inset></v-divider> -->
+          <v-divider class="my-1" style="width:90%;margin-left: 5%;"></v-divider>
         </el-col>
       </el-row>
     </v-card>
@@ -190,5 +192,4 @@ export default {
   width: 100%;
   height: 100%;
 }
-
 </style>

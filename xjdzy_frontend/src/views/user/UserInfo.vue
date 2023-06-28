@@ -122,7 +122,7 @@
                       />
                     </v-hover>
                   </div>
-                  <div style="padding: 14px;cursor: pointer;" @click="openArticleDialog(articleId)">
+                  <div style="padding: 14px;cursor: pointer;" @click="openArticleDialog(article.articleId)">
                       <div class="mb-2 has-text-black has-text-weight-semibold">
                         {{ article.articleTitle }}
                       </div>
@@ -130,15 +130,15 @@
                     <router-link
                       :to="{
                         name: 'user_info',
-                        params: { userId: user.userId },
+                        params: { userId: article.userInfo.userId },
                       }"
                     >
                       <div class="level-left">
                         <img
-                          :src="user.userAvatar"
+                          :src="article.userInfo.userAvatar"
                           class="user-avatar-article mr-1"
                         />
-                        {{ user.username }}
+                        {{ article.userInfo.username }}
                       </div>
                     </router-link>
                     <!-- 发表时间 -->

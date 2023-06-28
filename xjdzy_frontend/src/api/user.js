@@ -51,3 +51,14 @@ export function getWrLiCoArticles(userId) {
     method: 'get',
   })
 }
+
+//上传视频
+export function uploadVideo(formData,fn) {
+  return request({
+    url: '/user/uploadVideo',
+    method: 'post',
+    data:formData,
+    onUploadProgress: fn, // `onUploadProgress` 允许为上传处理进度事件
+    //onDownloadProgress: fn
+  })
+}

@@ -10,8 +10,8 @@ const service = axios.create({
   baseURL: process.env.VUE_APP_SERVER_URL,	//'http://127.0.0.1:8080'
 
   // baseURL: 'https://api.example.com',
-  // 超时时间 单位是ms，这里设置了5s的超时时间
-  timeout: 20 * 1000
+  // 超时时间 单位是ms，这里设置了100s的超时时间
+  timeout: 180 * 1000
 })
 
 // 2.请求拦截器request interceptor
