@@ -19,7 +19,7 @@ public class UploadController {
 
     @PostMapping("/user/uploadVideo")
     public Result UploadFileCon(@RequestPart("video") MultipartFile file){
-        String res = uploadFileService.uploadFIle(file);
+        String res = uploadFileService.uploadFile(file);
         log.info("Service处理结果："+res);
         if(res != null){
             return Result.success(res);
