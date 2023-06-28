@@ -86,7 +86,7 @@ public class UserController {
     public Result getWrLiCoArticlesCon(@PathVariable Integer userId){
         log.info("获取到的数据："+ userId);
         List<ArticleSummaryDto> res=userService.getWrLiCoArticlesService(userId);
-        log.info("Service处理的结果："+ res);
+        log.info("viewsNum："+ res.get(0).getViewsNum());
         if(res != null){
             return Result.success(res);
         }
