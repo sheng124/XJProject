@@ -39,4 +39,6 @@ public interface UserService {
     boolean updateUserNameService(UpdateUserNameDto updateUserNameDto);
 
     UserInfo getUserInfoService(Integer userId);
+
+    boolean getFollowStatusService(Integer userId, Integer fUserId);
 }
