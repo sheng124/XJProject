@@ -3,6 +3,7 @@ package com.xjdzy.controller;
 
 import com.xjdzy.dto.ArticleDetailDto;
 import com.xjdzy.dto.ArticleSummaryDto;
+import com.xjdzy.dto.LACStatusDTO;
 import com.xjdzy.dto.Result;
 import com.xjdzy.entity.*;
 import com.xjdzy.service.ArticlesService;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -192,6 +192,25 @@ public class ArticlesController {
         }
         else{
             return Result.error("增加失败！");
+        }
+    }
+
+    /**
+     * 获取点赞、收藏状态
+     * @param userId 用户ID
+     * @param articleId 笔记ID
+     * @return Result：data为数据传输对象GetLACStatusDTO
+     */
+    @GetMapping("/articles/getLACStatus/{userId}/{articleId}")
+    public Result getLACStatusCon(@PathVariable Integer userId,@PathVariable Integer articleId){
+        log.info("获取到的数据："+ userId + " " + articleId);
+        LACStatusDTO res = articlesService.getLACStatusService(userId,articleId);
+        log.info("Service处理的结果："+ res);
+        if(res != null){
+            return Result.success(res);
+        }
+        else{
+            return Result.error("获取失败！");
         }
     }
 }

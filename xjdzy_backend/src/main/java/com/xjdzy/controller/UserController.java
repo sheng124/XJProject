@@ -265,5 +265,19 @@ public class UserController {
             return Result.error("获取失败!");
         }
     }
+
+    /**
+     * 查看关注状态
+     * @param userId 当前用户ID
+     * @param fUserId 对方用户ID
+     * @return Result：data为true或false(true为已关注)
+     */
+    @GetMapping("/user/getFollowStatus/{userId}/{fUserId}")
+    public Result getFollowStatusCon(@PathVariable Integer userId,@PathVariable Integer fUserId){
+        log.info("获取到的数据："+ userId + " " + fUserId);
+        boolean res = userService.getFollowStatusService(userId,fUserId);
+        log.info("Service处理的结果："+ res);
+        return Result.success(res);
+    }
 }
 

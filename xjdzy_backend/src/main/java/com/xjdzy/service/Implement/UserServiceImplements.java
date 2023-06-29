@@ -317,19 +317,7 @@ public class UserServiceImplements implements UserService {
         }
         return null;
     }
-//    @Override
-//    @Transactional
-//    public String updateUserAvatarService(MultipartFile imageFile, Integer userId) {
-//        String imageBase64 = ImageToBase64Utils.ImageToBase64(imageFile);
-//        if(imageBase64 != null && !imageBase64.equals("0") && !imageBase64.equals("1") && !imageBase64.equals("2")){
-//            LambdaUpdateWrapper<UserInfo> luw=new LambdaUpdateWrapper<>();
-//            luw.set(UserInfo::getUserAvatar,imageBase64)
-//                    .eq(UserInfo::getUserId,userId);
-//            userMapper.update(null,luw);
-//        }
-//        redisService.deleteUserInfo(userId);
-//        return imageBase64;
-//    }
+
     /**
      * 获取所有类别
      * @param
@@ -406,4 +394,14 @@ public class UserServiceImplements implements UserService {
             return JSONUtils.JSONStringToUserInfo(value);
     }
 
+    /**
+     * 查看关注状态
+     * @param userId 当前用户ID
+     * @param fUserId 对方用户ID
+     * @return Result：data为true或false(true为已关注)
+     */
+    @Override
+    public boolean getFollowStatusService(Integer userId, Integer fUserId) {
+        return followMapper.getByUserIdAndFUserId(userId,fUserId).size() != 0;
+    }
 }

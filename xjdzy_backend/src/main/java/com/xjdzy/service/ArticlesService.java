@@ -2,6 +2,7 @@ package com.xjdzy.service;
 
 import com.xjdzy.dto.ArticleDetailDto;
 import com.xjdzy.dto.ArticleSummaryDto;
+import com.xjdzy.dto.LACStatusDTO;
 import com.xjdzy.entity.*;
 
 import java.util.List;
@@ -33,4 +34,6 @@ public interface ArticlesService {
     List<Tag> getAllTagsService();
 
     boolean addTagsService(Tag tag);
+
+    LACStatusDTO getLACStatusService(Integer userId, Integer articleId);
 }
