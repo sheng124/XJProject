@@ -35,3 +35,51 @@ export function getArticleDetail(articleId) {
   })
 }
 
+//评论
+export function doComment(data) {
+  return request({
+    url: '/articles/comment',
+    method: 'post',
+    data:data
+  })
+}
+//删除评论
+export function deleteComment(comment) {
+  return request({
+    url: '/articles/unComment',
+    method: 'delete',
+    data:comment
+  })
+}
+//点赞
+export function doLike(likeInfo) {
+  return request({
+    url: '/articles/like',
+    method: 'post',
+    data:likeInfo
+  })
+}
+//取消点赞
+export function undoLike(unlikeInfo) {
+  return request({
+    url: '/articles/unlike',
+    method: 'delete',
+    data:unlikeInfo
+  })
+}
+//收藏
+export function doCollection(collectionInfo) {
+  return request({
+    url: '/articles/collection',
+    method: 'post',
+    data:collectionInfo
+  })
+}
+//取消收藏
+export function undoCollection(uncollectionInfo) {
+  return request({
+    url: '/articles/unCollection',
+    method: 'delete',
+    data:uncollectionInfo
+  })
+}

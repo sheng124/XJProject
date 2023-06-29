@@ -62,3 +62,21 @@ export function uploadVideo(formData,fn) {
     //onDownloadProgress: fn
   })
 }
+
+//关注
+export function doFollow(data) {
+  return request({
+    url: '/user/follow',
+    method: 'post',
+    data:data,
+  })
+}
+
+//取消关注
+export function undoFollow(data) {
+  return request({
+    url: '/user/unfollow',
+    method: 'delete',
+    data:data,
+  })
+}

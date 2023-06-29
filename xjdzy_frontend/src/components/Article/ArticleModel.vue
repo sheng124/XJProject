@@ -63,37 +63,160 @@
                   :src="user.userAvatar"
                   class="user-avatar-article-detail mr-1"
                 />
-                <span class="ml-2">{{ user.username }}</span>
+                <span class="ml-2 is-size-4">{{ user.username }}</span>
               </div>
             </router-link>
-            <b-button type="is-danger" rounded class="mr-2">关注</b-button>
+            <v-btn color="red" dark rounded class="mr-4">
+              <v-icon dark left> mdi-account-multiple-plus </v-icon>关注
+            </v-btn>
+            <v-btn color="red" outlined dark rounded class="mr-4">
+              已关注
+            </v-btn>
           </div>
-          <!-- 标题 -->
-          <v-card-title>{{ article.articleTitle }}</v-card-title>
-          <v-card-text class="is-size-6">{{
-            article.articleContent
-          }}</v-card-text>
-          <v-card-text>
-            <b-taglist>
-              <b-tag
-                rounded
-                type="is-info is-light"
-                v-for="tag in article.tagList"
-                :key="tag.tagId"
+          <div style="overflow-y: scroll; overflow-x: hidden; height: 600px">
+            <!-- <div class="wrapper" ref="wrapper"> -->
+            <div>
+              <!-- 标题 -->
+              <v-card-title>{{ article.articleTitle }}</v-card-title>
+              <v-card-text class="is-size-6">{{
+                article.articleContent
+              }}</v-card-text>
+              <v-card-text class="py-1">
+                <b-taglist>
+                  <b-tag
+                    rounded
+                    type="is-info is-light"
+                    v-for="tag in article.tagList"
+                    :key="tag.tagId"
+                  >
+                    <router-link
+                      :to="{
+                        name: 'tag',
+                        params: { tagId: tag.tagId },
+                      }"
+                      ><span class="has-text-info">#{{ tag.tagName }}</span>
+                    </router-link></b-tag
+                  >
+                </b-taglist>
+              </v-card-text>
+              <v-card-text class="py-2 has-text-grey"
+                >{{ article.createTime }}
+              </v-card-text>
+              <v-card-text class="my-1 py-1"
+                ><v-divider class="my-1"></v-divider
+              ></v-card-text>
+              <v-card-text class="pt-0 pb-2 has-text-grey"
+                >共 {{ article.commentNum }} 条评论</v-card-text
               >
-                <router-link
-                  :to="{
-                    name: 'tag',
-                    params: { tagId: tag.tagId },
-                  }"
-                  ><span class="has-text-info">#{{ tag.tagName }}</span>
-                </router-link></b-tag
+              <v-card-text
+                v-for="(comment, index) in article.candUDtoList"
+                :key="index"
+                class="py-2"
               >
-            </b-taglist>
-          </v-card-text>
-          <v-card-text>{{ article.createTime }} </v-card-text>
-          <!-- <v-divider inset></v-divider> -->
-          <v-divider class="my-1" style="width:90%;margin-left: 5%;"></v-divider>
+                <!-- 评论用户的头像，名称 -->
+                <div style="display: flex" class="mx-2">
+                  <!-- 跳转到评论者的个人首页 -->
+                  <div>
+                    <router-link
+                      :to="{
+                        name: 'user_info',
+                        params: { userId: comment.userId },
+                      }"
+                    >
+                      <img
+                        :src="comment.userAvatar"
+                        class="comment-user-avatar"
+                      />
+                    </router-link>
+                  </div>
+                  <v-card-text
+                    class="px-0 py-0 ml-2"
+                    @mouseover="
+                      checkCurrentUser(comment.userId, comment.commentId)
+                    "
+                  >
+                    <router-link
+                      :to="{
+                        name: 'user_info',
+                        params: { userId: comment.userId },
+                      }"
+                      ><span class="is-size-6">{{ comment.userName }}</span>
+                    </router-link>
+
+                    <v-card-text class="py-0 px-0">{{
+                      comment.comment
+                    }}</v-card-text>
+                    <p style="display: flex; justify-content: space-between">
+                      <span class="has-text-grey-light my-1">{{
+                        comment.createTime
+                      }}</span
+                      ><span style="margin-left: auto"
+                        ><b-icon
+                          @click.native="
+                            clickToDeleteComment(comment.commentId)
+                          "
+                          v-if="
+                            isCurrentUser(comment.userId, comment.commentId)
+                          "
+                          icon="trash-can"
+                          type="is-danger"
+                        >
+                        </b-icon
+                      ></span>
+                    </p>
+                    <p>
+                      <v-divider class="my-1" light></v-divider>
+                    </p>
+                  </v-card-text>
+
+                  <!-- <v-card-text class="has-text-right py-0">{{ comment.createTime }}</v-card-text>
+                  <v-card-text class="py-0" style="margin-left:28px"><v-divider class="my-1"></v-divider></v-card-text> -->
+                </div>
+              </v-card-text>
+            </div>
+          </div>
+          <el-divider class="my-0"></el-divider>
+          <v-card-text class="py-1"
+            ><span
+              ><v-btn text icon @click="clickToLike" v-if="this.likesNum === 0"
+                ><v-icon class="is-size-3"
+                  >mdi-cards-heart-outline</v-icon
+                ></v-btn
+              ><v-btn text icon color="red" @click="clickToUnlike" v-else
+                ><v-icon class="is-size-3">mdi-heart</v-icon></v-btn
+              ><span class="ml-1 mr-3">{{ article.likesNum }}</span></span
+            ><span
+              ><v-btn
+                text
+                icon
+                @click="clickToCollect"
+                v-if="this.collectionNum === 0"
+                ><v-icon class="is-size-3">mdi-star-outline</v-icon></v-btn
+              ><v-btn
+                text
+                icon
+                color="yellow darken-2"
+                @click="clickToUncollect"
+                v-else
+                ><v-icon class="is-size-3">mdi-star</v-icon></v-btn
+              ><span class="ml-1 mr-3">{{ article.collectionNum }}</span></span
+            ><span
+              ><v-btn text icon
+                ><v-icon class="is-size-3" @click="clickToComment"
+                  >mdi-chat-processing-outline</v-icon
+                ></v-btn
+              ><span class="ml-1 mr-3">{{ article.commentNum }}</span></span
+            ></v-card-text
+          >
+          <b-input
+            placeholder="说点什么"
+            rounded
+            icon="chat"
+            ref="comment"
+            @keyup.enter.native="handleComment"
+            v-model="commentText"
+            class="mx-2"
+          ></b-input>
         </el-col>
       </el-row>
     </v-card>
@@ -102,7 +225,17 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { getArticleDetail } from "@/api/article";
+import {
+  getArticleDetail,
+  doComment,
+  deleteComment,
+  doLike,
+  undoLike,
+  doCollection,
+  undoCollection,
+} from "@/api/article";
+import { doFollow, undoFollow } from "@/api/user";
+/* import IScroll from "iscroll"; // 普通版 */
 export default {
   name: "ArticleModel",
   props: {
@@ -121,20 +254,208 @@ export default {
         { text: "Slide 5", color: "danger" },
       ],
       article: null,
+      scroll: null,
+      commentText: "",
+      newCommentNum: 0,
+      hoveredUserId: null,
+      hoveredCommentId: null,
+      likesNum: 0,
+      collectionNum: 0,
     };
   },
   methods: {
-    formatDate(dateString) {
+    formatDate1(dateString) {
       const datePart = dateString.split("T")[0];
       return datePart;
+    },
+    formatDate2(dateString) {
+      const date = dateString.replace("T", " ");
+      return date;
     },
     getArticle() {
       getArticleDetail(this.currentArticleId).then((response) => {
         const { data } = response;
+        console.log("response", data);
         this.article = data;
-        this.article.createTime = this.formatDate(this.article.createTime);
-        console.log("获取文章详细内容：", this.article);
+        console.log("this.article.candUDtoList", this.article.candUDtoList);
+        this.article.createTime = this.formatDate1(this.article.createTime);
+        for (var i = 0; i < this.article.candUDtoList.length; i++) {
+          this.article.candUDtoList[i].createTime = this.formatDate2(
+            this.article.candUDtoList[i].createTime
+          );
+        }
+        /* this.article.candUDtoList = this.article.candUDtoList.sort((a, b) => {
+          const dateA = new Date(a);
+          const dateB = new Date(b);
+          return dateB - dateA;
+        }); */
+        console.log("处理后的文章详细内容：", this.article);
       });
+    },
+    handleComment() {
+      const commentData = {
+        userId: this.user.userId,
+        articleId: this.currentArticleId,
+        comment: this.commentText,
+        createTime: this.getNowTime(),
+      };
+      console.log(commentData);
+      doComment(commentData).then((response) => {
+        this.commentText = "";
+        this.$message({
+          message: "评论成功",
+          type: "success",
+          duration: 2000,
+        });
+        this.newCommentNum++;
+      });
+    },
+    clickToComment() {
+      this.$refs.comment.focus();
+    },
+    clickToDeleteComment(selectedCommentId) {
+      const comment = {
+        commentId: selectedCommentId,
+      };
+      console.log("删除的评论：", comment);
+      deleteComment(comment).then((response) => {
+        this.$message({
+          message: "删除评论成功",
+          type: "success",
+          duration: 2000,
+        });
+        this.newCommentNum--;
+      });
+    },
+    getNowTime: function () {
+      let dateTime;
+      let yy = new Date().getFullYear();
+      let mm =
+        new Date().getMonth() + 1 < 10
+          ? "0" + (new Date().getMonth() + 1)
+          : new Date().getMonth() + 1;
+      let dd =
+        new Date().getDate() < 10
+          ? "0" + new Date().getDate()
+          : new Date().getDate();
+      let hh =
+        new Date().getHours() < 10
+          ? "0" + new Date().getHours()
+          : new Date().getHours();
+      let mf =
+        new Date().getMinutes() < 10
+          ? "0" + new Date().getMinutes()
+          : new Date().getMinutes();
+      let ss =
+        new Date().getSeconds() < 10
+          ? "0" + new Date().getSeconds()
+          : new Date().getSeconds();
+      dateTime =
+        yy + "-" + mm + "-" + dd + "T" + hh + ":" + mf + ":" + ss + ".000Z";
+      console.log(dateTime);
+      return dateTime;
+    },
+    checkCurrentUser(userId, commentId) {
+      this.hoveredUserId = userId;
+      this.hoveredCommentId = commentId;
+      console.log(
+        "鼠标悬浮的评论用户ID和评论ID",
+        this.hoveredUserId,
+        this.hoveredCommentId
+      );
+    },
+    isCurrentUser(userId, commentId) {
+      return (
+        this.hoveredUserId === userId &&
+        this.user.userId === userId &&
+        this.hoveredCommentId === commentId
+      );
+    },
+    clickToFollow() {
+      const data = {
+        userId: this.user.userId,
+        followingUserId: this.article.userInfo.userId,
+      };
+      doFollow(data).then((response) => {
+        this.$message({
+          message: "关注成功",
+          type: "success",
+          duration: 2000,
+        });
+      });
+    },
+    clickToUnfollow() {
+      const data = {
+        userId: this.user.userId,
+        followingUserId: this.article.userInfo.userId,
+      };
+      undoFollow(data).then((response) => {
+        this.$message({
+          message: "已取消关注",
+          type: "success",
+          duration: 2000,
+        });
+      });
+    },
+    clickToLike() {
+      const like = {
+        userId: this.user.userId,
+        articleId: this.currentArticleId,
+      };
+      console.log("点赞信息：", like);
+      doLike(like).then((response) => {
+        this.$message({
+          message: "点赞成功",
+          type: "success",
+          duration: 2000,
+        });
+      });
+      this.likesNum = 1;
+    },
+    clickToUnlike() {
+      const unlike = {
+        userId: this.user.userId,
+        articleId: this.currentArticleId,
+      };
+      console.log("取消点赞信息：", unlike);
+      undoLike(unlike).then((response) => {
+        this.$message({
+          message: "已取消收藏",
+          type: "success",
+          duration: 2000,
+        });
+      });
+      this.likesNum = 0;
+    },
+    clickToCollect() {
+      const collection = {
+        userId: this.user.userId,
+        articleId: this.currentArticleId,
+      };
+      console.log("收藏信息：", collection);
+      doCollection(collection).then((response) => {
+        this.$message({
+          message: "收藏成功",
+          type: "success",
+          duration: 2000,
+        });
+      });
+      this.collectionNum = 1;
+    },
+    clickToUncollect() {
+      const uncollection = {
+        userId: this.user.userId,
+        articleId: this.currentArticleId,
+      };
+      console.log("取消收藏信息：", uncollection);
+      undoCollection(uncollection).then((response) => {
+        this.$message({
+          message: "已取消收藏",
+          type: "success",
+          duration: 2000,
+        });
+      });
+      this.collectionNum = 0;
     },
   },
   computed: {
@@ -146,14 +467,29 @@ export default {
       console.log("currentArticleId", this.currentArticleId);
       this.getArticle();
     },
+    newCommentNum(val) {
+      console.log("newCommentNum", this.newCommentNum);
+      this.getArticle();
+    },
+    likesNum(val) {
+      console.log("likesNum", this.likesNum);
+      this.getArticle();
+    },
+    collectionNum(val) {
+      console.log("collectionNum", this.collectionNum);
+      this.getArticle();
+    },
   },
   mounted() {
     this.getArticle();
+    /* this.scroll = new IScroll(this.$refs.wrapper, {
+      mouseWheel: true, // 允许鼠标滚轮
+    }); */
   },
 };
 </script>
 
-<style>
+<style scoped>
 .user-avatar-article-detail {
   cursor: pointer;
   border-radius: 50%;
@@ -192,4 +528,24 @@ export default {
   width: 100%;
   height: 100%;
 }
+
+.comment-user-avatar {
+  cursor: pointer;
+  border-radius: 50%;
+  width: 35px; /* 根据需要调整头像的宽度 */
+  height: 32px; /* 根据需要调整头像的高度 */
+}
+.router-link-active {
+  text-decoration: none;
+  color: gray;
+}
+a {
+  text-decoration: none;
+  color: gray;
+}
+/*.wrapper {
+  position: relative;
+  height: 600px;
+  overflow: hidden;
+}*/
 </style>
