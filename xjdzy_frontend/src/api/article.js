@@ -83,3 +83,10 @@ export function undoCollection(uncollectionInfo) {
     data:uncollectionInfo
   })
 }
+//获取笔记详细内容
+export function getLACStatus(userId,articleId) {
+  return request({
+    url: `/articles/getLACStatus/${userId}/${articleId}`,
+    method: 'get',
+  })
+}

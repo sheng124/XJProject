@@ -12,12 +12,12 @@
                   <h1 class="title">{{ carousel.text }}</h1>
                 </div>
               </section> -->
-            <b-carousel-item>
+            <b-carousel-item v-if="article.videoUrl!=null">
               <figure class="image is-2by3">
                 <iframe
                   class="has-ratio"
                   width="100%"
-                  src="http://121.36.202.123:8080/assert/d27794096e604201bd2b9511e8196345.MP4"
+                  :src="article.videoUrl"
                   frameborder="0"
                   allowfullscreen
                 ></iframe
@@ -66,7 +66,7 @@
                 <span class="ml-2 is-size-4">{{ user.username }}</span>
               </div>
             </router-link>
-            <span v-if="selfFlag == false">
+            <span v-if="user.userId === article.userId">
               <v-btn
                 color="red"
                 @click="clickToFollow"
@@ -163,8 +163,11 @@
                     <v-card-text class="py-0 px-0">{{
                       comment.comment
                     }}</v-card-text>
-                    <p style="display: flex; justify-content: space-between">
-                      <span class="has-text-grey-light my-1">{{
+                    <p
+                      style="display: flex; justify-content: space-between"
+                      class="mb-1"
+                    >
+                      <span class="has-text-grey-light py-2">{{
                         comment.createTime
                       }}</span
                       ><span style="margin-left: auto">
@@ -178,9 +181,7 @@
                           v-if="
                             isCurrentUser(comment.userId, comment.commentId)
                           "
-                          ><v-icon
-                            >mdi-trash-can</v-icon
-                          ></v-btn
+                          ><v-icon>mdi-trash-can</v-icon></v-btn
                         >
                         <!-- <b-icon
                           @click.native="
@@ -220,7 +221,7 @@
                 ></v-btn
               ><v-btn text icon color="red" @click="clickToUnlike" v-else
                 ><v-icon class="is-size-3">mdi-heart</v-icon></v-btn
-              ><span class="ml-1 mr-3">{{ article.likesFlag }}</span></span
+              ><span class="ml-1 mr-3">{{ article.likesNum }}</span></span
             ><span
               ><v-btn
                 text
@@ -235,7 +236,7 @@
                 @click="clickToUncollect"
                 v-else
                 ><v-icon class="is-size-3">mdi-star</v-icon></v-btn
-              ><span class="ml-1 mr-3">{{ article.collectionFlag }}</span></span
+              ><span class="ml-1 mr-3">{{ article.collectionNum }}</span></span
             ><span
               ><v-btn text icon
                 ><v-icon class="is-size-3" @click="clickToComment"
@@ -269,8 +270,9 @@ import {
   undoLike,
   doCollection,
   undoCollection,
+  getLACStatus,
 } from "@/api/article";
-import { doFollow, undoFollow } from "@/api/user";
+import { doFollow, undoFollow, getFollowStatus } from "@/api/user";
 /* import IScroll from "iscroll"; // 普通版 */
 export default {
   name: "ArticleModel",
@@ -298,7 +300,6 @@ export default {
       likesFlag: false,
       collectionFlag: false,
       followFlag: false,
-      selfFlag: null,
     };
   },
   methods: {
@@ -328,6 +329,26 @@ export default {
           return dateB - dateA;
         }); */
         console.log("处理后的文章详细内容：", this.article);
+        //查看关注，点赞，收藏状态
+        this.getStatus(
+          this.user.userId,
+          this.article.userInfo.userId,
+          this.article.articleId
+        );
+      });
+    },
+    //查看关注，点赞，收藏状态
+    getStatus(userId, fUserId, articleId) {
+      getFollowStatus(userId, fUserId).then((response) => {
+        const { data } = response;
+        this.followFlag = data;
+        console.log("查看当前关注状态：", this.followFlag);
+      });
+      getLACStatus(userId, articleId).then((response) => {
+        const { data } = response;
+        this.likesFlag = data.like;
+        this.collectionFlag = data.collection;
+        console.log("查看当前点赞、收藏状态：", this.followFlag);
       });
     },
     handleComment() {
@@ -497,6 +518,15 @@ export default {
       });
       this.collectionFlag = false;
     },
+    //向父组件传值
+    sendValuesToParent() {
+      const values = {
+        Lflag: this.likesFlag,
+        Cflag: this.collectionFlag,
+      }; // 将多个值封装到对象中
+      this.$emit("getLACstatus", values); // 触发自定义事件，并传递值对象
+      console.log("子组件ArticleModel向父组件传值",values)
+    },
   },
   computed: {
     ...mapGetters(["user", "token"]),
@@ -514,11 +544,14 @@ export default {
     likesFlag(val) {
       console.log("likesFlag", this.likesFlag);
       this.getArticle();
+      this.sendValuesToParent();
     },
     collectionFlag(val) {
       console.log("collectionFlag", this.collectionFlag);
       this.getArticle();
+      this.sendValuesToParent();
     },
+    
   },
   mounted() {
     this.getArticle();

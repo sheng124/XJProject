@@ -1,6 +1,6 @@
 <template>
   <header class="header has-background-white has-text-black">
-    <b-navbar class="is-white has-shadow" :fixed-top="true">
+    <b-navbar class="is-white" :fixed-top="true">
       <template slot="brand">
         <b-navbar-item tag="router-link" :to="{ path: '/' }">
           <img :src="doubaoImg" alt="logo" />

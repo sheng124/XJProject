@@ -202,7 +202,7 @@ public class UserServiceImplements implements UserService {
                     return false;
             }
             // 更新ArticleImages表
-            return !addArticleImages(articleImageList, articleId);
+            return addArticleImages(articleImageList, articleId);
         }
     }
 

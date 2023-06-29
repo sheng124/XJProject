@@ -80,3 +80,11 @@ export function undoFollow(data) {
     data:data,
   })
 }
+
+//查看是否关注
+export function getFollowStatus(userId,fUserId) {
+  return request({
+    url: `/user/getFollowStatus/${userId}/${fUserId}`,
+    method: 'get',
+  })
+}

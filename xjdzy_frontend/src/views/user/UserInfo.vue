@@ -16,7 +16,32 @@
               <img :src="user.userAvatar" class="user-avatar" />
             </div>
             <div class="media-content ml-3">
-              <p class="title is-4 mx-4 mt-4">{{ user.username }}</p>
+              <div class="level">
+                <span class="title is-4 mx-4 mt-4">{{ user.username }}</span>
+                <span v-if="this.currentUserId != this.user.userId">
+                  <v-btn
+                    color="red"
+                    @click="clickToFollow"
+                    dark
+                    rounded
+                    class="mr-4"
+                    v-if="followFlag == false"
+                  >
+                    <v-icon dark left> mdi-account-multiple-plus </v-icon>关注
+                  </v-btn>
+                  <v-btn
+                    color="red"
+                    @click="clickToUnfollow"
+                    outlined
+                    dark
+                    rounded
+                    class="mr-4"
+                    v-else
+                  >
+                    已关注
+                  </v-btn>
+                </span>
+              </div>
               <p>
                 <i
                   class="el-icon-edit ml-4 is-size-7 has-text-grey"
@@ -113,8 +138,8 @@
                 >
                   <!-- 笔记封面 -->
                   <!-- 可以试着采用类似小红书，点击笔记，弹出窗口显示文章内容 -->
-                  <div style="cursor: pointer;">
-                    <v-hover v-slot="{ hover }" >
+                  <div style="cursor: pointer">
+                    <v-hover v-slot="{ hover }">
                       <img
                         :src="article.articleCover"
                         :class="{ 'image-hover': hover, image: !hover }"
@@ -122,10 +147,13 @@
                       />
                     </v-hover>
                   </div>
-                  <div style="padding: 14px;cursor: pointer;" >
-                      <div class="mb-2 has-text-black has-text-weight-semibold" @click="openArticleDialog(article.articleId)">
-                        {{ article.articleTitle }}
-                      </div>
+                  <div style="padding: 14px; cursor: pointer">
+                    <div
+                      class="mb-2 has-text-black has-text-weight-semibold"
+                      @click="openArticleDialog(article.articleId)"
+                    >
+                      {{ article.articleTitle }}
+                    </div>
                     <!-- 笔记作者头像，名称 -->
                     <router-link
                       :to="{
@@ -186,10 +214,15 @@
     </section>
     <!-- 文章内容弹窗 -->
     <div data-app="true">
-      <v-dialog v-model="selectedArticleVisible" max-width="1000px" style="height:800px">
+      <v-dialog
+        v-model="selectedArticleVisible"
+        max-width="1000px"
+        style="height: 800px"
+      >
         <article-model
           :currentArticleId="selectedArticleId"
           @close="closeArticleDialog"
+          @getLACstatus="handleChildValuesChange"
         ></article-model>
       </v-dialog>
     </div>
@@ -204,12 +237,19 @@ import {
   modifyUsername,
   modifyPassword,
   getWrLiCoArticles,
+  doFollow,undoFollow,getFollowStatus
 } from "@/api/user";
 import ArticleModel from "@/components/Article/ArticleModel.vue";
 export default {
   name: "UserInfo",
   components: {
     ArticleModel,
+  },
+  watch: {
+    LACstatus(val) {
+      this.init();
+      console.log("收到子组件传过来的值后，更新文章列表");
+    },
   },
   data() {
     return {
@@ -260,7 +300,6 @@ export default {
       wrArticles: [],
       liArticles: [],
       coArticles: [],
-      articles: [],
       wrDivideArticles: [],
       liDivideArticles: [],
       coDivideArticles: [],
@@ -270,6 +309,12 @@ export default {
       //选择的文章
       selectedArticleId: -1,
       selectedArticleVisible: false,
+
+      //点赞、收藏状态
+      LACstatus: {},
+      //当前用户ID
+      currentUserId:this.$route.params.userId,
+      followFlag:false,
     };
   },
   computed: {
@@ -279,7 +324,23 @@ export default {
     this.init();
   },
   methods: {
+    reset() {
+      this.wrArticles = [];
+      this.liArticles = [];
+      this.coArticles = [];
+      this.wrDivideArticles = [];
+      this.liDivideArticles = [];
+      this.coDivideArticles = [];
+      this.allDivideArticles = [];
+    },
     init() {
+      console.log("当前用户ID：",this.currentUserId)
+      getFollowStatus(this.user.userId, this.currentUserId).then((response) => {
+        const { data } = response;
+        this.followFlag = data;
+        console.log("查看当前关注状态：", this.followFlag);
+      });
+      this.reset();
       getUserData(this.user.userId).then((response) => {
         const { data } = response;
         this.userData = data;
@@ -292,21 +353,19 @@ export default {
       this.tabs = ["笔记", "收藏", "点赞"];
       getWrLiCoArticles(this.user.userId).then((response) => {
         const { data } = response;
-        console.log("收到的所有相关笔记数据", data, data.length);
+        console.log("收到的所有该用户相关笔记数据", data, data.length);
         //已发布：1，已收藏:2，已喜欢：3
-        for(var i=0;i<data.length;i++){
-          data[i].createTime=this.replaceTWithSpace(data[i].createTime);
-                  console.log("笔记"+i+"的类型为：",data[i].type)
-                  if(data[i].type==1){
-                    this.wrArticles.push(data[i]);
-                  }
-                  else if(data[i].type==2){
-                    this.coArticles.push(data[i]);
-                  }
-                  else{
-                    this.liArticles.push(data[i]);
-                  }
-                }
+        for (var i = 0; i < data.length; i++) {
+          data[i].createTime = this.replaceTWithSpace(data[i].createTime);
+          console.log("笔记" + i + "的类型为：", data[i].type);
+          if (data[i].type == 1) {
+            this.wrArticles.push(data[i]);
+          } else if (data[i].type == 2) {
+            this.coArticles.push(data[i]);
+          } else {
+            this.liArticles.push(data[i]);
+          }
+        }
         // 分类为 type 为 1 的文章
         //this.wrArticles = data.filter((article) => article.type === 1);
         // 分类为 type 为 2 的文章
@@ -316,16 +375,13 @@ export default {
         console.log("已发布笔记：", this.wrArticles);
         console.log("已收藏笔记：", this.coArticles);
         console.log("已喜欢笔记：", this.liArticles);
-        this.articles.push(this.wrArticles);
-        this.articles.push(this.coArticles);
-        this.articles.push(this.liArticles);
-        console.log("所有该用户相关的笔记：", this.articles);
         this.wrDivideArticles = this.divideArticle2(this.wrArticles);
-        this.liDivideArticles = this.divideArticle2(this.coArticles);
-        this.coDivideArticles = this.divideArticle2(this.liArticles);
+        this.coDivideArticles = this.divideArticle2(this.coArticles);
+        this.liDivideArticles = this.divideArticle2(this.liArticles);
         this.allDivideArticles.push(this.wrDivideArticles);
         this.allDivideArticles.push(this.coDivideArticles);
         this.allDivideArticles.push(this.liDivideArticles);
+        console.log("分类好并分好栏的笔记：", this.allDivideArticles);
       });
     },
     // 将所有该用户相关的笔记分为4列
@@ -482,6 +538,40 @@ export default {
     },
     replaceTWithSpace(str) {
       return str.replace("T", " ");
+    },
+    //处理子组件传过来的值
+    handleChildValuesChange(data) {
+      this.LACstatus = data; // 接收子组件传递的值对象
+      console.log("父组件收到的值", this.LACstatus);
+    },
+    //关注、取消关注
+    clickToFollow() {
+      const data = {
+        userId: this.user.userId,
+        followingUserId: this.article.userInfo.userId,
+      };
+      doFollow(data).then((response) => {
+        this.$message({
+          message: "关注成功",
+          type: "success",
+          duration: 2000,
+        });
+        this.followFlag = true;
+      });
+    },
+    clickToUnfollow() {
+      const data = {
+        userId: this.user.userId,
+        followingUserId: this.article.userInfo.userId,
+      };
+      undoFollow(data).then((response) => {
+        this.$message({
+          message: "已取消关注",
+          type: "success",
+          duration: 2000,
+        });
+        this.followFlag = false;
+      });
     },
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card class="column is-10 is-offset-1">
+    <el-card class="column is-10 is-offset-1" v-loading="loading">
       <p class="is-size-4 has-text-weight-bold mb-4">发布笔记</p>
       <!-- 文章数据 -->
       <el-form
@@ -147,7 +147,7 @@
             <div v-if="articleForm.articleCover == ''" class="el-upload__text">
               将文件拖到此处，或<em>点击上传</em>
             </div>
-            <img v-else :src="articleCoverUrl" height="180px" width="360px" />
+            <img v-else :src="articleCoverUrl" style="height: 100%" />
           </el-upload>
         </el-form-item>
         <!-- 上传文章图片 -->
@@ -189,7 +189,7 @@
               style="margin-top: 30px"
             ></el-progress>
             <video
-              v-if="articleForm.videoUrl != ''"
+              v-if="articleForm.videoUrl != null && videoUploadPercent>100"
               :src="articleForm.videoUrl"
               style="height: 100%"
               controls="controls"
@@ -222,6 +222,7 @@ export default {
   components: {},
   data() {
     return {
+      loading:false,  //是否加载
       categoryName: "",
       //数据库中的分类列表
       categoryList: [],
@@ -240,7 +241,7 @@ export default {
         tagList: [],
         articleCover: "",
         articleImages: [],
-        videoUrl: "", //新增视频url
+        videoUrl: null, //新增视频url
       },
       //视频数据
       videoFlag: false,
@@ -356,16 +357,19 @@ export default {
     checkType1(file, fileList) {
       //截取文件类型
       let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
+      fileType=fileType.toLowerCase();
+      console.log("filetype:",fileType)
       fileList = [];
       if (fileType !== "jpeg" && fileType !== "jpg" && fileType !== "png") {
         this.$message.error("封面格式不正确");
         return false;
       }
-      if (file.size / 1024 / 1024 > 2) {
-        this.$message.error("上传头像不能超过2MB");
+      if (file.size / 1024 / 1024 > 160) {
+        this.$message.error("上传图片不能超过160MB");
         return false;
       }
       this.articleForm.articleCover = file.raw;
+      this.articleForm.articleImages.push(file.raw);
       this.articleCoverUrl = URL.createObjectURL(file.raw);
       console.log("封面：" + this.articleForm.articleCover);
       console.log("封面url", this.articleCoverUrl);
@@ -374,13 +378,14 @@ export default {
       console.log("checkType2工作---");
       //截取文件类型
       let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
+      fileType=fileType.toLowerCase();
       fileList = [];
-      if (fileType !== "jpeg" && fileType !== "jpg" && fileType !== "png") {
+      if (fileType != "jpeg" && fileType != "jpg" && fileType != "png") {
         this.$message.error("图片格式不正确");
         return false;
       }
-      if (file.size / 1024 / 1024 > 2) {
-        this.$message.error("上传头像不能超过2MB");
+      if (file.size / 1024 / 1024 > 160) {
+        this.$message.error("上传图片不能超过160MB");
         return false;
       }
       this.articleForm.articleImages.push(file.raw);
@@ -405,12 +410,12 @@ export default {
       console.log("视频：", file, fileType);
       const isLt160M = file.size / 1024 / 1024 < 160;
       if (
-        fileType !== "mp4" &&
-        fileType !== "ogg" &&
-        fileType !== "flv" &&
-        fileType !== "avi" &&
-        fileType !== "wmv" &&
-        fileType !== "rmvb"
+        fileType != "mp4" &&
+        fileType != "ogg" &&
+        fileType != "flv" &&
+        fileType != "avi" &&
+        fileType != "wmv" &&
+        fileType != "rmvb"
       ) {
         this.$message.error("请上传正确的视频格式");
         return false;
@@ -423,7 +428,7 @@ export default {
       console.log(this.videoFormData);
       this.videoFlag = true;
       uploadVideo(this.videoFormData, this.uploadProgress).then((response) => {
-        this.videoUploadPercent = 100;
+        this.videoUploadPercent = 99;
         const { data } = response;
         this.articleForm.videoUrl = data;
         console.log("articleForm", this.articleForm);
@@ -433,21 +438,20 @@ export default {
           duration: 2000,
         });
         setTimeout(() => {
-          this.videoUploadPercent++; // 5 秒后将变量加 1
-
+          this.videoUploadPercent=101; // 5 秒后将变量变为101
           console.log("当前进度", this.videoUploadPercent); // 输出变量的值
-        }, 5000); // 等待 2 秒（2000 毫秒）
-        this.videoUploadPercent++;
+        }, 2000); // 等待 1 秒（1000 毫秒）
+        
       });
       const intervalId = setInterval(() => {
         this.videoUploadPercent++; // 每隔0.1秒加1
 
         console.log("当前进度", this.videoUploadPercent); // 输出当前计数器的值
 
-        if (this.videoUploadPercent >= 99) {
+        if (this.videoUploadPercent >= 95) {
           clearInterval(intervalId); // 达到目标值后停止计时器
         }
-      }, 200); // 间隔为0.1秒（100毫秒）
+      }, 100); // 间隔为0.1秒（100毫秒）
     },
     uploadProgress(progressEvent) {
       /*
@@ -476,12 +480,12 @@ export default {
       console.log("视频：", file, fileType);
       const isLt160M = file.size / 1024 / 1024 < 160;
       if (
-        fileType !== "mp4" &&
-        fileType !== "ogg" &&
-        fileType !== "flv" &&
-        fileType !== "avi" &&
-        fileType !== "wmv" &&
-        fileType !== "rmvb"
+        fileType != "mp4" &&
+        fileType != "ogg" &&
+        fileType != "flv" &&
+        fileType != "avi" &&
+        fileType != "wmv" &&
+        fileType != "rmvb"
       ) {
         this.$message.error("请上传正确的视频格式");
         return false;
@@ -532,6 +536,16 @@ export default {
 
     publishArticle() {
       console.log("publishArticle中~~~~~~~~");
+      console.log("是否有分类")
+      if(this.articleForm.categoryName==""){
+        this.$message({
+          message: "必须指定分类",
+          type: "error",
+          duration: 2000,
+        });
+      }
+      else{
+        this.loading=true;
       //构建formData
       let formData = new FormData();
       //文章信息
@@ -562,6 +576,7 @@ export default {
       console.log("formData", formData);
       userPublishArticle(formData).then((response) => {
         const { data } = response;
+        this.loading=false;
         this.$message({
           message: "发布笔记成功",
           type: "success",
@@ -574,6 +589,7 @@ export default {
           },
         });
       });
+      }
     },
     cancel() {},
     getNowTime: function () {
@@ -605,6 +621,7 @@ export default {
       return dateTime;
     },
     getCategoryId(categoryName) {
+      
       for (var i = 0; i < this.categoryList.length; i++) {
         if (categoryName == this.categoryList[i].categoryName) {
           return this.categoryList[i].categoryId;
@@ -617,7 +634,7 @@ export default {
           const tag = this.tagList.find((tag) => tag.tagName === tagName);
           return tag ? { tagId: tag.tagId.toString() } : null;
         })
-        .filter((tagId) => tagId !== null);
+        .filter((tagId) => tagId != null);
     },
   },
 };
