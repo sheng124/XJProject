@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <v-app>
     <div class="mb-5">
       <Header></Header>
     </div>
     <div class="container is-fluid context">
         <router-view :key="this.$route.fullPath"></router-view>
     </div>
-  </div>
+  </v-app>
 </template>
 
 <script>

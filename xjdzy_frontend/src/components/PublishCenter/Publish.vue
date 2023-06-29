@@ -123,7 +123,7 @@
                 :class="tagClass(item)"
                 @click="addTag(item)"
                 class="mx-1 my-1"
-                style="cursor: pointer;"
+                style="cursor: pointer"
               >
                 {{ item.tagName }}
               </el-tag>
@@ -167,9 +167,45 @@
             <img width="100%" :src="dialogImageUrl" alt="" />
           </el-dialog>
         </el-form-item>
+        <!-- 上传视频 -->
+        <el-form-item label="视频上传" prop="Video">
+          <!-- action必选参数, 上传的地址 -->
+          <el-upload
+            class="upload-cover"
+            action="none"
+            :auto-upload="false"
+            :show-file-list="false"
+            :on-change="checkType3"
+            drag
+          >
+            <i v-if="videoFlag == false" class="el-icon-upload"></i>
+            <div v-if="videoFlag == false" class="el-upload__text">
+              将文件拖到此处，或<em>点击上传</em>
+            </div>
+            <el-progress
+              v-if="videoFlag == true && videoUploadPercent <= 100"
+              type="circle"
+              :percentage="videoUploadPercent"
+              style="margin-top: 30px"
+            ></el-progress>
+            <video
+              v-if="articleForm.videoUrl != ''"
+              :src="articleForm.videoUrl"
+              style="height: 100%"
+              controls="controls"
+            >
+              您的浏览器不支持视频播放
+            </video>
+            <div class="el-upload__tip" slot="tip">
+              只能上传mp4/flv/avi文件，且不超过300M
+            </div>
+          </el-upload>
+        </el-form-item>
         <el-form-item>
           <el-button @click="cancel = false">取 消</el-button>
-          <el-button type="danger" @click="publishArticle" plain> 发 表 </el-button>
+          <el-button type="danger" @click="publishArticle" plain>
+            发 表
+          </el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -178,7 +214,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { userPublishArticle } from "@/api/user";
+import { userPublishArticle, uploadVideo } from "@/api/user";
 import { getCategories, getTags, increaseTag } from "@/api/article";
 
 export default {
@@ -204,7 +240,13 @@ export default {
         tagList: [],
         articleCover: "",
         articleImages: [],
+        videoUrl: "", //新增视频url
       },
+      //视频数据
+      videoFlag: false,
+      Plus: true,
+      videoUploadPercent: 0,
+      videoFormData: null,
     };
   },
   computed: {
@@ -216,7 +258,9 @@ export default {
       };
     },
   },
-  created() {},
+  created() {
+    this.videoFormData = new FormData();
+  },
   mounted() {
     console.log("createTime:" + this.getNowTime());
     getCategories().then((response) => {
@@ -250,7 +294,9 @@ export default {
     },
     createFilter1(keywords) {
       return (item) => {
-        return item.categoryName.toLowerCase().indexOf(keywords.toLowerCase()) === 0;
+        return (
+          item.categoryName.toLowerCase().indexOf(keywords.toLowerCase()) === 0
+        );
       };
     },
     createFilter2(keywords) {
@@ -350,6 +396,140 @@ export default {
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
     },
+    //上传视频
+    //视频检查格式和大小
+    checkType3(file, fileList) {
+      //截取文件类型
+      let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
+      fileType=fileType.toLowerCase();
+      console.log("视频：", file, fileType);
+      const isLt160M = file.size / 1024 / 1024 < 160;
+      if (
+        fileType !== "mp4" &&
+        fileType !== "ogg" &&
+        fileType !== "flv" &&
+        fileType !== "avi" &&
+        fileType !== "wmv" &&
+        fileType !== "rmvb"
+      ) {
+        this.$message.error("请上传正确的视频格式");
+        return false;
+      }
+      if (!isLt160M) {
+        this.$message.error("上传视频大小不能超过160MB哦!");
+        return false;
+      }
+      this.videoFormData.append("video", file.raw);
+      console.log(this.videoFormData);
+      this.videoFlag = true;
+      uploadVideo(this.videoFormData, this.uploadProgress).then((response) => {
+        this.videoUploadPercent = 100;
+        const { data } = response;
+        this.articleForm.videoUrl = data;
+        console.log("articleForm", this.articleForm);
+        this.$message({
+          message: "上传视频成功",
+          type: "success",
+          duration: 2000,
+        });
+        setTimeout(() => {
+          this.videoUploadPercent++; // 5 秒后将变量加 1
+
+          console.log("当前进度", this.videoUploadPercent); // 输出变量的值
+        }, 5000); // 等待 2 秒（2000 毫秒）
+        this.videoUploadPercent++;
+      });
+      const intervalId = setInterval(() => {
+        this.videoUploadPercent++; // 每隔0.1秒加1
+
+        console.log("当前进度", this.videoUploadPercent); // 输出当前计数器的值
+
+        if (this.videoUploadPercent >= 99) {
+          clearInterval(intervalId); // 达到目标值后停止计时器
+        }
+      }, 200); // 间隔为0.1秒（100毫秒）
+    },
+    uploadProgress(progressEvent) {
+      /*
+       * progressEvent.loaded :已上传量
+       * progressEvent.total :上传的总大小
+       */
+      const p = Math.floor((progressEvent.loaded / progressEvent.total) * 30);
+      this.videoUploadPercent = p;
+      console.log("当前进度", this.videoUploadPercent);
+    },
+    downloadProgress(progressEvent) {
+      console.log(
+        "progressEvent.lengthComputable",
+        progressEvent.lengthComputable
+      );
+
+      //属性lengthComputable主要表明总共需要完成的工作量和已经完成的工作是否可以被测量
+      //如果lengthComputable为false，就获取不到progressEvent.total和progressEvent.loaded
+      const p = Math.floor((progressEvent.loaded / progressEvent.total) * 100); //实时获取最新下载进度
+      this.videoUploadPercent = p;
+    },
+    checkType4(file, fileList) {
+      // ...其他逻辑...
+      //截取文件类型
+      let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
+      console.log("视频：", file, fileType);
+      const isLt160M = file.size / 1024 / 1024 < 160;
+      if (
+        fileType !== "mp4" &&
+        fileType !== "ogg" &&
+        fileType !== "flv" &&
+        fileType !== "avi" &&
+        fileType !== "wmv" &&
+        fileType !== "rmvb"
+      ) {
+        this.$message.error("请上传正确的视频格式");
+        return false;
+      }
+      if (!isLt160M) {
+        this.$message.error("上传视频大小不能超过160MB哦!");
+        return false;
+      }
+      this.videoFormData.append("video", file.raw);
+      console.log(this.videoFormData);
+      this.videoFlag = true;
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://localhost:8080/user/uploadVideo"); // 根据实际情况替换上传接口的URL
+      xhr.upload.addEventListener(
+        "progress",
+        this.uploadRequestProgress,
+        false
+      );
+      xhr.addEventListener("progress", this.uploadResponseProgress, false);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          // 上传完成，处理服务器响应
+          const response = JSON.parse(xhr.responseText);
+          // 处理响应数据...
+          console.log("上传视频后的响应：", response);
+          this.$message({
+            message: "上传视频成功",
+            type: "success",
+            duration: 2000,
+          });
+        }
+      };
+
+      // 发送上传请求
+      xhr.send(this.videoFormData);
+    },
+    uploadRequestProgress(event) {
+      const percent = (event.loaded / event.total) * 100;
+      // 更新上传请求的进度条显示
+      //this.videoUploadPercent = percent;
+    },
+    uploadResponseProgress(event) {
+      const percent = (event.loaded / event.total) * 100;
+      // 更新服务器响应的进度条显示
+      this.videoUploadPercent = percent;
+    },
+
     publishArticle() {
       console.log("publishArticle中~~~~~~~~");
       //构建formData
@@ -362,6 +542,7 @@ export default {
         categoryId: this.getCategoryId(this.articleForm.categoryName),
         createTime: this.getNowTime(),
         tagList: this.getTagIdList(this.articleForm.tagList),
+        videoUrl: this.articleForm.videoUrl,
       };
       console.log("articleInfo", articleInfo);
       //这里包装 可以直接转换成对象
@@ -389,7 +570,7 @@ export default {
         this.$router.push({
           name: "user_info",
           params: {
-              userId: this.user.userId,
+            userId: this.user.userId,
           },
         });
       });

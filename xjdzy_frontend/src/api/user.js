@@ -51,3 +51,32 @@ export function getWrLiCoArticles(userId) {
     method: 'get',
   })
 }
+
+//上传视频
+export function uploadVideo(formData,fn) {
+  return request({
+    url: '/user/uploadVideo',
+    method: 'post',
+    data:formData,
+    onUploadProgress: fn, // `onUploadProgress` 允许为上传处理进度事件
+    //onDownloadProgress: fn
+  })
+}
+
+//关注
+export function doFollow(data) {
+  return request({
+    url: '/user/follow',
+    method: 'post',
+    data:data,
+  })
+}
+
+//取消关注
+export function undoFollow(data) {
+  return request({
+    url: '/user/unfollow',
+    method: 'delete',
+    data:data,
+  })
+}

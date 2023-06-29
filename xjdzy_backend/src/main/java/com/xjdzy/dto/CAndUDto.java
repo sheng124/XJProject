@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CAndUDto {
+    private Integer userId;
     private String userAvatar;
     private String userName;
     private int commentId;
