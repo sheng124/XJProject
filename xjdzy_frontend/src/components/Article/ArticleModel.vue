@@ -66,12 +66,29 @@
                 <span class="ml-2 is-size-4">{{ user.username }}</span>
               </div>
             </router-link>
-            <v-btn color="red" dark rounded class="mr-4">
-              <v-icon dark left> mdi-account-multiple-plus </v-icon>关注
-            </v-btn>
-            <v-btn color="red" outlined dark rounded class="mr-4">
-              已关注
-            </v-btn>
+            <span v-if="selfFlag == false">
+              <v-btn
+                color="red"
+                @click="clickToFollow"
+                dark
+                rounded
+                class="mr-4"
+                v-if="followFlag == false"
+              >
+                <v-icon dark left> mdi-account-multiple-plus </v-icon>关注
+              </v-btn>
+              <v-btn
+                color="red"
+                @click="clickToUnfollow"
+                outlined
+                dark
+                rounded
+                class="mr-4"
+                v-else
+              >
+                已关注
+              </v-btn>
+            </span>
           </div>
           <div style="overflow-y: scroll; overflow-x: hidden; height: 600px">
             <!-- <div class="wrapper" ref="wrapper"> -->
@@ -150,8 +167,22 @@
                       <span class="has-text-grey-light my-1">{{
                         comment.createTime
                       }}</span
-                      ><span style="margin-left: auto"
-                        ><b-icon
+                      ><span style="margin-left: auto">
+                        <v-btn
+                          text
+                          icon
+                          color="red"
+                          @click.native="
+                            clickToDeleteComment(comment.commentId)
+                          "
+                          v-if="
+                            isCurrentUser(comment.userId, comment.commentId)
+                          "
+                          ><v-icon
+                            >mdi-trash-can</v-icon
+                          ></v-btn
+                        >
+                        <!-- <b-icon
                           @click.native="
                             clickToDeleteComment(comment.commentId)
                           "
@@ -162,7 +193,8 @@
                           type="is-danger"
                         >
                         </b-icon
-                      ></span>
+                      > -->
+                      </span>
                     </p>
                     <p>
                       <v-divider class="my-1" light></v-divider>
@@ -178,19 +210,23 @@
           <el-divider class="my-0"></el-divider>
           <v-card-text class="py-1"
             ><span
-              ><v-btn text icon @click="clickToLike" v-if="this.likesNum === 0"
+              ><v-btn
+                text
+                icon
+                @click="clickToLike"
+                v-if="this.likesFlag == false"
                 ><v-icon class="is-size-3"
                   >mdi-cards-heart-outline</v-icon
                 ></v-btn
               ><v-btn text icon color="red" @click="clickToUnlike" v-else
                 ><v-icon class="is-size-3">mdi-heart</v-icon></v-btn
-              ><span class="ml-1 mr-3">{{ article.likesNum }}</span></span
+              ><span class="ml-1 mr-3">{{ article.likesFlag }}</span></span
             ><span
               ><v-btn
                 text
                 icon
                 @click="clickToCollect"
-                v-if="this.collectionNum === 0"
+                v-if="this.collectionFlag == false"
                 ><v-icon class="is-size-3">mdi-star-outline</v-icon></v-btn
               ><v-btn
                 text
@@ -199,7 +235,7 @@
                 @click="clickToUncollect"
                 v-else
                 ><v-icon class="is-size-3">mdi-star</v-icon></v-btn
-              ><span class="ml-1 mr-3">{{ article.collectionNum }}</span></span
+              ><span class="ml-1 mr-3">{{ article.collectionFlag }}</span></span
             ><span
               ><v-btn text icon
                 ><v-icon class="is-size-3" @click="clickToComment"
@@ -259,8 +295,10 @@ export default {
       newCommentNum: 0,
       hoveredUserId: null,
       hoveredCommentId: null,
-      likesNum: 0,
-      collectionNum: 0,
+      likesFlag: false,
+      collectionFlag: false,
+      followFlag: false,
+      selfFlag: null,
     };
   },
   methods: {
@@ -382,6 +420,7 @@ export default {
           type: "success",
           duration: 2000,
         });
+        this.followFlag = true;
       });
     },
     clickToUnfollow() {
@@ -395,6 +434,7 @@ export default {
           type: "success",
           duration: 2000,
         });
+        this.followFlag = false;
       });
     },
     clickToLike() {
@@ -410,7 +450,7 @@ export default {
           duration: 2000,
         });
       });
-      this.likesNum = 1;
+      this.likesFlag = true;
     },
     clickToUnlike() {
       const unlike = {
@@ -425,7 +465,7 @@ export default {
           duration: 2000,
         });
       });
-      this.likesNum = 0;
+      this.likesFlag = false;
     },
     clickToCollect() {
       const collection = {
@@ -440,7 +480,7 @@ export default {
           duration: 2000,
         });
       });
-      this.collectionNum = 1;
+      this.collectionFlag = true;
     },
     clickToUncollect() {
       const uncollection = {
@@ -455,7 +495,7 @@ export default {
           duration: 2000,
         });
       });
-      this.collectionNum = 0;
+      this.collectionFlag = false;
     },
   },
   computed: {
@@ -471,12 +511,12 @@ export default {
       console.log("newCommentNum", this.newCommentNum);
       this.getArticle();
     },
-    likesNum(val) {
-      console.log("likesNum", this.likesNum);
+    likesFlag(val) {
+      console.log("likesFlag", this.likesFlag);
       this.getArticle();
     },
-    collectionNum(val) {
-      console.log("collectionNum", this.collectionNum);
+    collectionFlag(val) {
+      console.log("collectionFlag", this.collectionFlag);
       this.getArticle();
     },
   },
