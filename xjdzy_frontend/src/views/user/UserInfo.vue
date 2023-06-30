@@ -122,23 +122,23 @@
                       />
                     </v-hover>
                   </div>
-                  <div style="padding: 14px;cursor: pointer;" @click="openArticleDialog(articleId)">
-                      <div class="mb-2 has-text-black has-text-weight-semibold">
+                  <div style="padding: 14px;cursor: pointer;" >
+                      <div class="mb-2 has-text-black has-text-weight-semibold" @click="openArticleDialog(article.articleId)">
                         {{ article.articleTitle }}
                       </div>
                     <!-- 笔记作者头像，名称 -->
                     <router-link
                       :to="{
                         name: 'user_info',
-                        params: { userId: user.userId },
+                        params: { userId: article.userInfo.userId },
                       }"
                     >
                       <div class="level-left">
                         <img
-                          :src="user.userAvatar"
+                          :src="article.userInfo.userAvatar"
                           class="user-avatar-article mr-1"
                         />
-                        {{ user.username }}
+                        {{ article.userInfo.username }}
                       </div>
                     </router-link>
                     <!-- 发表时间 -->
@@ -149,15 +149,15 @@
                     <!-- 笔记分类 -->
                     <router-link
                       :to="{
-                        name: 'categorie',
+                        name: 'categories',
                         params: {
-                          categoryId: article.categoryId,
+                          categoryId: article.category.categoryId,
                         },
                       }"
                       style="float: right"
                     >
                       <v-icon>mdi-bookmark</v-icon>
-                      {{ article.categoryName }}
+                      {{ article.category.categoryName }}
                     </router-link>
                     <!-- 笔记标签 -->
                     <b-taglist>
@@ -487,7 +487,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
@@ -565,10 +565,10 @@ export default {
 }
 .router-link-active {
   text-decoration: none;
-  color: black;
+  color: gray;
 }
 a {
   text-decoration: none;
-  color: grey;
+  color: gray;
 }
 </style>

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xjdzy.dto.ArticleDetailDto;
 import com.xjdzy.dto.ArticleSummaryDto;
 import com.xjdzy.dto.CAndUDto;
+import com.xjdzy.dto.LACStatusDTO;
 import com.xjdzy.entity.*;
 import com.xjdzy.mapper.*;
 import com.xjdzy.service.ArticlesService;
@@ -268,8 +269,21 @@ public class ArticlesServiceImplements implements ArticlesService {
      */
     @Override
     public boolean addTagsService(Tag tag) {
-        if(tagMapper.insert(tag) != 1)
-            return false;
-        return true;
+        return tagMapper.insert(tag) == 1;
+    }
+
+
+    /**
+     * 获取点赞、收藏状态
+     * @param userId 用户ID
+     * @param articleId 笔记ID
+     * @return 数据传输对象GetLACStatusDTO
+     */
+    @Override
+    public LACStatusDTO getLACStatusService(Integer userId, Integer articleId) {
+        LACStatusDTO lacStatusDTO = new LACStatusDTO();
+        lacStatusDTO.setLike(likesMapper.getByUserIdAndArticleId(userId,articleId).size() != 0);
+        lacStatusDTO.setCollection(collectionMapper.getByUserIdAndArticleId(userId,articleId).size() != 0);
+        return lacStatusDTO;
     }
 }

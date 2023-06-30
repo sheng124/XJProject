@@ -5,8 +5,9 @@
 <mapper namespace="com.xjdzy.mapper.CommentMapper">
 
     <select id="getAllByArticleIdCAndUDtos" resultType="com.xjdzy.dto.CAndUDto">
-        select user_avatar,username,comment_id,comment,create_time from user_info,comment
+        select user_info.user_id,user_avatar,username,comment_id,comment,create_time from user_info,comment
         where user_info.user_id = comment.user_id
         and article_id = #{articleId}
+        order by comment.create_time desc
     </select>
 </mapper>

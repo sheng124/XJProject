@@ -86,7 +86,7 @@ public class UserController {
     public Result getWrLiCoArticlesCon(@PathVariable Integer userId){
         log.info("获取到的数据："+ userId);
         List<ArticleSummaryDto> res=userService.getWrLiCoArticlesService(userId);
-        log.info("Service处理的结果："+ res);
+        log.info("viewsNum："+ res.get(0).getViewsNum());
         if(res != null){
             return Result.success(res);
         }
@@ -179,8 +179,7 @@ public class UserController {
         Integer userId = (Integer) JwtAndLoginUtils.parseJWT(request.getHeader("token")).get("user_id");
         log.info("上传用户头像，解析到的userName："+userId);
         String res=userService.updateUserAvatarService(imageFile,userId);
-        // 结果过长，不再输出
-        // log.info("Service处理的结果："+ res);
+        log.info("Service处理的结果："+ res);
         if(res == null){
             return Result.error("上传失败!");
         }
@@ -265,6 +264,20 @@ public class UserController {
         else{
             return Result.error("获取失败!");
         }
+    }
+
+    /**
+     * 查看关注状态
+     * @param userId 当前用户ID
+     * @param fUserId 对方用户ID
+     * @return Result：data为true或false(true为已关注)
+     */
+    @GetMapping("/user/getFollowStatus/{userId}/{fUserId}")
+    public Result getFollowStatusCon(@PathVariable Integer userId,@PathVariable Integer fUserId){
+        log.info("获取到的数据："+ userId + " " + fUserId);
+        boolean res = userService.getFollowStatusService(userId,fUserId);
+        log.info("Service处理的结果："+ res);
+        return Result.success(res);
     }
 }
 
