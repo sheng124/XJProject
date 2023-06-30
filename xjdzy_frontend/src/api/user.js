@@ -43,6 +43,14 @@ export function userPublishArticle(formData) {
     data:formData,
   })
 }
+// 修改文章
+export function userEditArticle(formData) {
+  return request({
+    url: '/user/articles/edit',
+    method: 'post',
+    data:formData,
+  })
+}
 
 //获取已发布、已收藏、已点赞文章
 export function getWrLiCoArticles(userId) {

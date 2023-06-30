@@ -107,8 +107,13 @@
 
 <script>
 import { mapGetters } from "vuex";
+import ArticleModel from "@/components/Article/ArticleModel.vue"; //导入子组件文章模型
 export default {
   name: "ArticleList",
+  components: {
+    //声明组件
+    ArticleModel,
+  },
   computed: {
     ...mapGetters(["token", "user"]),
   },
@@ -127,13 +132,17 @@ export default {
       selectedArticleVisible: false, //查看文章详细内容的对话框
       //点赞、收藏状态
       LACstatus: {},
-      //当前用户ID
-      currentUserId: this.$route.params.userId,
-      followFlag: false, //当前个人首页的用户是否是我关注的
+      
     };
   },
-  mounted() {
+  created() {
     this.init();
+  },
+  watch:{
+    articles(val){
+      console.log("当前文章数组:", this.articles);
+      this.init();
+    }
   },
   methods: {
     reset() {
@@ -141,6 +150,7 @@ export default {
       this.divideArticles = [];
     },
     init() {
+      console.log()
       for (var i = 0; i < this.articles.length; i++) {
         this.articles[i].createTime = this.replaceTWithSpace(
           this.articles[i].createTime
@@ -202,6 +212,10 @@ export default {
 </script>
 
 <style>
+.time {
+  font-size: 13px;
+  color: #999;
+}
 .image {
   width: 100%;
   display: block;
@@ -212,5 +226,11 @@ export default {
   filter: brightness(80%);
   width: 100%;
   display: block;
+}
+.user-avatar-article {
+  cursor: pointer;
+  border-radius: 50%;
+  width: 20px; /* 根据需要调整头像的宽度 */
+  height: 20px; /* 根据需要调整头像的高度 */
 }
 </style>

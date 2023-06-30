@@ -202,6 +202,7 @@ public class ArticlesServiceImplements implements ArticlesService {
         articleDetailDto.setCreateTime(tmpA.getCreateTime());
         articleDetailDto.setUpdateTime(tmpA.getUpdateTime());
         articleDetailDto.setViewsNum(tmpA.getViewsNum());
+        articleDetailDto.setVideoUrl(tmpA.getVideoUrl());
         // 2.查询Category中的相关数据
         LambdaQueryWrapper<Category> lqw2=new LambdaQueryWrapper<>();
         lqw2.select(Category::getCategoryName)

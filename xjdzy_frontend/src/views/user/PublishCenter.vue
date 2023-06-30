@@ -43,22 +43,35 @@
       </el-menu>
     </el-col>
     <el-col :span="19" class="has-background-white-bis">
-      <Publish v-show="activeTab === 1"></Publish>
-      <ArticleData v-show="activeTab === 2"></ArticleData>
+      <publish v-show="activeTab === 1"></publish>
+      <article-data v-show="activeTab === 2"></article-data>
+      <edit v-show="activeTab === 3"></edit>
     </el-col>
   </el-row>
 </template>
 
 <script>
-import Publish from "@/components/PublishCenter/Publish";
+import Publish from "@/components/PublishCenter/Publish.vue";
 import ArticleData from "@/components/PublishCenter/ArticleData.vue";
+import Edit from "@/components/PublishCenter/Edit.vue";
+import { mapGetters } from "vuex";
+
 export default {
   name: "PublishCenter",
-  components: { Publish, ArticleData },
-  data() {
+  components: { Publish, ArticleData,Edit },
+  data(){
     return {
-      activeTab: 1,
+      activeTab: 2,
     };
+  },
+  computed: {
+    ...mapGetters(["token", "user","editArticleId"]),
+  },
+  watch:{
+    editArticleId(val){
+      console.log("监听到要编辑的笔记ID:",val)
+      this.activeTab=3;
+    },
   },
   methods: {
     navigateTo(routePath) {
@@ -66,7 +79,10 @@ export default {
         this.activeTab = 1;
       } else if (routePath === "/data") {
         this.activeTab = 2;
+      }else if(routePath === "/edit"){
+        this.activeTab=3
       }
+
     },
   },
 };

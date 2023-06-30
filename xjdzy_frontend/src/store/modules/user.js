@@ -11,6 +11,7 @@ const state = {
     userAvatar: ''  // 用户头像
   },
   editArticleId:-1,
+  deleteArticle:-1,
 
 }
 

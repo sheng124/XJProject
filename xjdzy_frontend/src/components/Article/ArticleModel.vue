@@ -151,6 +151,7 @@
                     @mouseover="
                       checkCurrentUser(comment.userId, comment.commentId)
                     "
+                    @mouseleave="clearHover()"
                   >
                     <router-link
                       :to="{
@@ -284,13 +285,6 @@ export default {
   },
   data() {
     return {
-      carousels: [
-        { text: "Slide 1", color: "primary" },
-        { text: "Slide 2", color: "info" },
-        { text: "Slide 3", color: "success" },
-        { text: "Slide 4", color: "warning" },
-        { text: "Slide 5", color: "danger" },
-      ],
       article: null,
       scroll: null,
       commentText: "",
@@ -429,6 +423,10 @@ export default {
         this.user.userId === userId &&
         this.hoveredCommentId === commentId
       );
+    },
+    clearHover(){
+      this.hoveredUserId=null;
+      this.hoveredCommentId=null;
     },
     clickToFollow() {
       const data = {

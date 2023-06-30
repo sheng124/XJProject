@@ -123,110 +123,11 @@
         <template v-for="(tab, index) in tabs"
           ><!-- 三个标签栏： 笔记、收藏、点赞-->
           <b-tab-item :key="index" :label="tab">
-            <div class="columns is-desktop">
-              <div
-                class="column"
-                v-for="(divideArticles, index1) in allDivideArticles[index]"
-                :key="index1"
-              >
-                <!-- 关于笔记作者相关的路由还需更改 -->
-                <el-card
-                  :body-style="{ padding: '0px' }"
-                  v-for="(article, index2) in divideArticles"
-                  :key="index2"
-                  class="my-2"
-                  style="border-radius: 20px"
-                >
-                  <!-- 笔记封面 -->
-                  <!-- 可以试着采用类似小红书，点击笔记，弹出窗口显示文章内容 -->
-                  <div style="cursor: pointer">
-                    <v-hover v-slot="{ hover }">
-                      <img
-                        :src="article.articleCover"
-                        :class="{ 'image-hover': hover, image: !hover }"
-                        @click="openArticleDialog(article.articleId)"
-                      />
-                    </v-hover>
-                  </div>
-                  <div style="padding: 14px; cursor: pointer">
-                    <div
-                      class="mb-2 has-text-black has-text-weight-semibold"
-                      @click="openArticleDialog(article.articleId)"
-                    >
-                      {{ article.articleTitle }}
-                    </div>
-                    <!-- 笔记作者头像，名称 -->
-                    <router-link
-                      :to="{
-                        name: 'user_info',
-                        params: { userId: article.userInfo.userId },
-                      }"
-                    >
-                      <div class="level-left">
-                        <img
-                          :src="article.userInfo.userAvatar"
-                          class="user-avatar-article mr-1"
-                        />
-                        {{ article.userInfo.username }}
-                      </div>
-                    </router-link>
-                    <!-- 发表时间 -->
-                    <time class="time"
-                      ><v-icon small class="mb-1 mr-1">mdi-clock-outline</v-icon
-                      >{{ article.createTime }}</time
-                    >
-                    <!-- 笔记分类 -->
-                    <router-link
-                      :to="{
-                        name: 'categories',
-                        params: {
-                          categoryId: article.category.categoryId,
-                        },
-                      }"
-                      style="float: right"
-                    >
-                      <v-icon>mdi-bookmark</v-icon>
-                      {{ article.category.categoryName }}
-                    </router-link>
-                    <!-- 笔记标签 -->
-                    <b-taglist>
-                      <b-tag
-                        rounded
-                        type="is-info is-light"
-                        v-for="tag in article.tagList"
-                        :key="tag.tagId"
-                      >
-                        <router-link
-                          :to="{
-                            name: 'tag',
-                            params: { tagId: tag.tagId },
-                          }"
-                          ><span class="has-text-info">#{{ tag.tagName }}</span>
-                        </router-link></b-tag
-                      >
-                    </b-taglist>
-                  </div>
-                </el-card>
-              </div>
-            </div>
+            <article-list :articles="allArticles[index]"></article-list>
           </b-tab-item>
         </template>
       </b-tabs>
     </section>
-    <!-- 文章内容弹窗 -->
-    <div data-app="true">
-      <v-dialog
-        v-model="selectedArticleVisible"
-        max-width="1000px"
-        style="height: 800px"
-      >
-        <article-model
-          :currentArticleId="selectedArticleId"
-          @close="closeArticleDialog"
-          @getLACstatus="handleChildValuesChange"
-        ></article-model>
-      </v-dialog>
-    </div>
   </div>
 </template>
 
@@ -242,12 +143,13 @@ import {
   undoFollow,
   getFollowStatus,
 } from "@/api/user"; //从“/src/api/user.js”导入发送axios请求的函数
-import ArticleModel from "@/components/Article/ArticleModel.vue"; //导入子组件文章模型
+
+import ArticleList from "@/components/Article/ArticleList.vue";
 export default {
   name: "UserInfo",
   components: {
     //声明组件
-    ArticleModel,
+    ArticleList,
   },
   watch: {
     //监听一些数据的变化，以做出一些处理
@@ -302,18 +204,7 @@ export default {
       wrArticles: [], //已发布笔记数组
       liArticles: [], //已点赞笔记数组
       coArticles: [], //已收藏数组
-      wrDivideArticles: [], //已发布笔记分为4列后的数组。本质上是一个二维数组
-      liDivideArticles: [], //已点赞笔记分为4列后的数组
-      coDivideArticles: [], //已收藏笔记分为4列后的数组
-      allDivideArticles: [], //将上面三个数组的合并，本质上是一个三维数组
-      currentDate: new Date(), //当前时间
-
-      //选择的文章
-      selectedArticleId: -1, //选择查看的文章ID
-      selectedArticleVisible: false, //查看文章详细内容的对话框
-
-      //点赞、收藏状态
-      LACstatus: {},
+      allArticles:[],
       //当前用户ID
       currentUserId: this.$route.params.userId,
       followFlag: false, //当前个人首页的用户是否是我关注的
@@ -330,17 +221,13 @@ export default {
       this.wrArticles = [];
       this.liArticles = [];
       this.coArticles = [];
-      this.wrDivideArticles = [];
-      this.liDivideArticles = [];
-      this.coDivideArticles = [];
-      this.allDivideArticles = [];
+      this.allArticles=[];
     },
     processArticle(data) {
       //这里的data就是当前用户所有相关的文章
       console.log("收到的所有该用户相关笔记数据", data, data.length);
       //已发布：1，已收藏:2，已喜欢：3
       for (var i = 0; i < data.length; i++) {
-        data[i].createTime = this.replaceTWithSpace(data[i].createTime);
         console.log("笔记" + i + "的类型为：", data[i].type);
         //将文章划分归类
         if (data[i].type == 1) {
@@ -351,24 +238,16 @@ export default {
           this.liArticles.push(data[i]);
         }
       }
+      this.allArticles.push(this.wrArticles);
+      this.allArticles.push(this.coArticles);
+      this.allArticles.push(this.liArticles);
       // 分类为 type 为 1 的文章
       //this.wrArticles = data.filter((article) => article.type === 1);
       // 分类为 type 为 2 的文章
       //this.coArticles = data.filter((article) => article.type === 2);
       // 分类为 type 为 3 的文章
       //this.liArticles = data.filter((article) => article.type === 3);
-      console.log("已发布笔记：", this.wrArticles);
-      console.log("已收藏笔记：", this.coArticles);
-      console.log("已喜欢笔记：", this.liArticles);
-      //将已发布文章划分为四列
-      this.wrDivideArticles = this.divideArticle2(this.wrArticles);
-      this.coDivideArticles = this.divideArticle2(this.coArticles);
-      this.liDivideArticles = this.divideArticle2(this.liArticles);
-      //将上面这三个划分好的数组合并一起
-      this.allDivideArticles.push(this.wrDivideArticles);
-      this.allDivideArticles.push(this.coDivideArticles);
-      this.allDivideArticles.push(this.liDivideArticles);
-      console.log("分类好并分好栏的笔记：", this.allDivideArticles);
+      console.log("已分类好的笔记：", this.allArticles);
     },
     init() {
       this.reset();
@@ -534,23 +413,6 @@ export default {
           return false;
         }
       });
-    },
-    //打开文章弹窗
-    openArticleDialog(articleId) {
-      this.selectedArticleVisible = true;
-      this.selectedArticleId = articleId;
-      console.log(
-        "打开文章详细内容对话框：",
-        this.selectedArticleVisible,
-        this.selectedArticleId
-      );
-    },
-    closeArticleDialog() {
-      this.electedArticleVisible = false;
-      this.selectedArticleId = null;
-    },
-    replaceTWithSpace(str) {
-      return str.replace("T", " ");
     },
     //处理子组件传过来的值
     handleChildValuesChange(data) {
