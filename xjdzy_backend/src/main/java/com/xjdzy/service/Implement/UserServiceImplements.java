@@ -184,6 +184,7 @@ public class UserServiceImplements implements UserService {
                 .createTime(articleWriteAndUpdateDto.getCreateTime())
                 .updateTime(articleWriteAndUpdateDto.getCreateTime())
                 .userId(articleWriteAndUpdateDto.getUserId())
+                .videoUrl(articleWriteAndUpdateDto.getVideoUrl())
                 .build();
         if(articleMapper.insert(article) != 1)
             return false;
@@ -224,6 +225,7 @@ public class UserServiceImplements implements UserService {
                 .createTime(articleWriteAndUpdateDto.getCreateTime())
                 .updateTime(articleWriteAndUpdateDto.getCreateTime())
                 .userId(articleWriteAndUpdateDto.getUserId())
+                .videoUrl(articleWriteAndUpdateDto.getVideoUrl())
                 .build();
         if(articleMapper.updateById(article) != 1)
             return false;

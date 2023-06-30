@@ -2,17 +2,35 @@
  * @Author: wyh 1370804207@qq.com
  * @Date: 2023-06-27 20:04:11
  * @LastEditors: wyh 1370804207@qq.com
- * @LastEditTime: 2023-06-28 15:38:17
+ * @LastEditTime: 2023-06-28 17:03:32
  * @FilePath: \xjdzy_frontend\src\components\PublishCenter\ArticleData.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div>
     <el-card class="column is-10 is-offset-1" style="margin-bottom: 20px;">
-        <div class="avatar-wrapper">
+      <div class="div1">
+        <div class="avatar-wrapper" >
           <img :src="user.userAvatar" class="user-avatar" />
-          <i class="el-icon-caret-bottom" />
         </div>
+        <div class="div2">
+          <div class="div3">
+            <p style="font-size: 19px;">{{ userName }}</p>
+          </div>
+          <div class="div4">
+            <div style="margin-left: 2px;position: absolute; width: 50px;">
+              <p style="font-size: 16px;">{{user_following}} 关注</p>
+            </div>
+            <div style="margin-left: 60px;position: absolute;width: 50px;">
+              <p style="font-size: 16px;">{{user_followers}} 粉丝</p>
+            </div>
+            <div style="margin-left: 120px;position: absolute;width: 150px;">
+              <p style="font-size: 16px;">{{likesANDcollection}} 获赞与收藏</p>
+            </div>
+          </div>
+        </div>
+      </div>  
+
     </el-card>
 
     <el-card class="column is-10 is-offset-1">
@@ -20,20 +38,20 @@
 
       <div class="biaoqian1">
         <el-card class="biaoqian2">
-          <p class="title1">笔记访问量</p>
+          <p class="title1">发表文章总数</p>
+          <p class="data1">{{allArticleNum}}</p>
+        </el-card>
+        <el-card class="biaoqian2">
+          <p class="title1">文章访问量</p>
           <p class="data1">{{allViewsNum}}</p>
         </el-card>
         <el-card class="biaoqian2">
-          <p class="title1">新增粉丝</p>
-          <p class="data1">{{value1}}</p>
+          <p class="title1">文章点赞数</p>
+          <p class="data1">{{allLikesNum}}</p>
         </el-card>
         <el-card class="biaoqian2">
-          <p class="title1">新增粉丝</p>
-          <p class="data1">{{value1}}</p>
-        </el-card>
-        <el-card class="biaoqian2">
-          <p class="title1">新增粉丝</p>
-          <p class="data1">{{value1}}</p>
+          <p class="title1">文章收藏数</p>
+          <p class="data1">{{allCollectionNum}}</p>
         </el-card>
       </div>
 
@@ -52,7 +70,20 @@ export default {
       return {
         value1: 2222,
         wrArticles: [],
+        allArticleNum:0,
         allViewsNum:0,
+        allLikesNum:0,
+        allCollectionNum:0,
+        userName:null,
+        userData: {
+          following: 0,
+          followers: 0,
+          likesNum: 0,
+          collectionNum: 0,
+        },
+        likesANDcollection: 0,
+        user_following:0,
+        user_followers:0,
       };
     },
     computed: {
@@ -61,8 +92,20 @@ export default {
   mounted() {
     this.init();
   },
+  watch: {
+    // 监听模式
+    
+  },
   methods:{
     init(){
+      getUserData(this.user.userId).then((response) => {
+        const { data } = response;
+        this.userData = data;
+        this.likesANDcollection = data.likesNum + data.collectionNum;
+        this.user_following = data.following;
+        this.user_followers = data.followers;
+        this.userName=this.user.username;
+      });
       getWrLiCoArticles(this.user.userId).then((response) => {
         const { data } = response;
         console.log("收到的所有相关笔记数据", data, data.length);
@@ -71,8 +114,11 @@ export default {
             console.log("笔记"+i+"的类型为：",data[i].type)
             if(data[i].type==1){
                 this.wrArticles.push(data[i]);
+                this.allArticleNum=this.allArticleNum+1;
                 this.allViewsNum=this.allViewsNum+data[i].viewsNum;
                 console.log("笔记的访问量为：",data[i].viewsNum);
+                this.allLikesNum=this.allLikesNum+data[i].likesNum;
+                this.allCollectionNum=this.allCollectionNum+data[i].collectionNum;
             }      
         }
       });
@@ -82,31 +128,45 @@ export default {
 </script>
 
 <style>
+  .div1{
+  width:500px;
+  height: 80px; 
+  position: relative;
+  }
+  .div2{
+    margin-left: 100px;
+    width:500px;
+    position: absolute;
+  }
+  .div3{
+    margin-top: 10px;
+    position: absolute;
+  }
+  .div4{
+    margin-top: 60px;
+    position: absolute;
+  }
  .biaoqian1{
     text-align: center;
     width: 100%;
   }
-  .biaoqian2{
+.biaoqian2{
     display:inline-block;
     background-color: #FBFBFB	 ;
     
     margin-left: 10px;
     width:23%;
     height: 115px;
-  }
-  .title1{
+}
+.title1{
     font-size: 16px;
     font-family: "Hiragino Sans GB";
     color: #959595;
-  }
-  .data1{
+}
+.data1{
     font-size: 30px;
     font-family: "San Francisco UI";
     margin-top: 7px;
-  }
-  .avatar-wrapper {
-  margin-top: 5px;
-  position: relative;
 }
 
 .user-avatar {
@@ -121,5 +181,9 @@ export default {
   right: -20px;
   top: 25px;
   font-size: 12px;
+}
+.avatar-wrapper {
+  margin-top: 5px;
+  position: absolute;
 }
 </style>

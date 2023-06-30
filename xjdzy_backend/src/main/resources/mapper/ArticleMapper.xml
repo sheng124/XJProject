@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xjdzy.mapper.ArticleMapper">
+    <update id="updateViewsNumByArticleId">
+        update article
+        set views_num = views_num + 1
+        where article_id = #{articleId};
+    </update>
 
     <select id="getLikesNumByUserId" resultType="java.lang.Integer">
         select COUNT(*) from user_info,article,likes
@@ -28,7 +33,7 @@
         and article.article_id = #{articleId};
     </select>
     <select id="getAllByArticleIdArticleSummaryDtos" resultType="com.xjdzy.dto.ArticleSummaryDto">
-        select article_id,article_title,article_cover,article_content,create_time,update_time,category_name
+        select article_id,article_title,article_cover,article_content,create_time,update_time,video_url
         from article,category
         where article_id = #{articleId}
         and article.category_id = category.category_id;
@@ -59,6 +64,16 @@
     <select id="getArticleImageByArticleId" resultType="java.lang.String">
         select image from article_images
         where article_id = #{articleId}
+    </select>
+    <select id="getCategoryByArticleId" resultType="com.xjdzy.entity.Category">
+        select category.category_id,category_name from article,category
+        where article.category_id=category.category_id
+        and article.article_id=#{articleId}
+    </select>
+    <select id="getUserInfoByArticleId" resultType="com.xjdzy.entity.UserInfo">
+        select user_info.user_id,username,user_avatar from article,user_info
+        where article.user_id=user_info.user_id
+        and article_id=#{articleId}
     </select>
 
 </mapper>

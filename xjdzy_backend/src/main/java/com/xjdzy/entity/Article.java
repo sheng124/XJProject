@@ -24,4 +24,5 @@ public class Article {
     private int viewsNum;
     private int userId;
     private int categoryId;
+    private String videoUrl;
 }
