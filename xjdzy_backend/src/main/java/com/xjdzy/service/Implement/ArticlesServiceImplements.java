@@ -191,7 +191,8 @@ public class ArticlesServiceImplements implements ArticlesService {
                 Article::getCreateTime,
                 Article::getUpdateTime,
                 Article::getViewsNum,
-                Article::getCategoryId)
+                Article::getCategoryId,
+                Article::getVideoUrl)
                 .eq(Article::getArticleId,articleId);
         Article tmpA=articleMapper.selectOne(lqw1);
         articleDetailDto.setArticleId(articleId);

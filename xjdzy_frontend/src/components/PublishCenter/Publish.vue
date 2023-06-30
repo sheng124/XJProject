@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card style="margin: 0 5%;" v-loading="loading">
+    <el-card style="margin: 0 3%;" v-loading="loading">
       <p class="is-size-4 has-text-weight-bold mb-4">发布笔记</p>
       <!-- 文章数据 -->
       <el-form

@@ -120,18 +120,19 @@
         v-model="activeTab"
         class="mt-3"
       >
-        <template v-for="(tab, index) in tabs">
+        <template v-for="(tab, index) in tabs"
+          ><!-- 三个标签栏： 笔记、收藏、点赞-->
           <b-tab-item :key="index" :label="tab">
             <div class="columns is-desktop">
               <div
                 class="column"
-                v-for="(item, index1) in allDivideArticles[index]"
+                v-for="(divideArticles, index1) in allDivideArticles[index]"
                 :key="index1"
               >
                 <!-- 关于笔记作者相关的路由还需更改 -->
                 <el-card
                   :body-style="{ padding: '0px' }"
-                  v-for="(article, index2) in allDivideArticles[index][index1]"
+                  v-for="(article, index2) in divideArticles"
                   :key="index2"
                   class="my-2"
                   style="border-radius: 20px"
@@ -230,50 +231,51 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from "vuex"; //store的getter修饰器，用来更方便的拿store里放的数据
 import {
   getUserData,
   uploadUserAvatar,
   modifyUsername,
   modifyPassword,
   getWrLiCoArticles,
-  doFollow,undoFollow,getFollowStatus
-} from "@/api/user";
-import ArticleModel from "@/components/Article/ArticleModel.vue";
+  doFollow,
+  undoFollow,
+  getFollowStatus,
+} from "@/api/user"; //从“/src/api/user.js”导入发送axios请求的函数
+import ArticleModel from "@/components/Article/ArticleModel.vue"; //导入子组件文章模型
 export default {
   name: "UserInfo",
   components: {
+    //声明组件
     ArticleModel,
   },
   watch: {
+    //监听一些数据的变化，以做出一些处理
     LACstatus(val) {
       this.init();
       console.log("收到子组件传过来的值后，更新文章列表");
     },
   },
   data() {
+    //声明数据
     return {
-      carousels: [
-        { text: "Slide 1", color: "primary" },
-        { text: "Slide 2", color: "info" },
-        { text: "Slide 3", color: "success" },
-        { text: "Slide 4", color: "warning" },
-        { text: "Slide 5", color: "danger" },
-      ],
       userData: {
+        //用户数据：关注数、粉丝数、点赞数、收藏数
         following: 0,
         followers: 0,
         likesNum: 0,
         collectionNum: 0,
       },
-      likesANDcollection: 0,
-      dialogVisible: false,
+      likesANDcollection: 0, //获赞与收藏数
+      dialogVisible: false, //编辑资料对话框是否显示
       dialog: false, //测试
       form: {
+        //编辑资料的表单
         username: "",
         password: "",
       },
       rules: {
+        //表单的验证规则
         username: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           {
@@ -293,28 +295,28 @@ export default {
           },
         ],
       },
-      imageFile: null,
+      imageFile: null, //上传头像所需的参数
       imageUrl: "",
-      activeTab: "",
-      tabs: [],
-      wrArticles: [],
-      liArticles: [],
-      coArticles: [],
-      wrDivideArticles: [],
-      liDivideArticles: [],
-      coDivideArticles: [],
-      allDivideArticles: [],
-      currentDate: new Date(),
+      activeTab: "", //当前选中的标签栏
+      tabs: [], //标签栏数组：存放【笔记、收藏、点赞】
+      wrArticles: [], //已发布笔记数组
+      liArticles: [], //已点赞笔记数组
+      coArticles: [], //已收藏数组
+      wrDivideArticles: [], //已发布笔记分为4列后的数组。本质上是一个二维数组
+      liDivideArticles: [], //已点赞笔记分为4列后的数组
+      coDivideArticles: [], //已收藏笔记分为4列后的数组
+      allDivideArticles: [], //将上面三个数组的合并，本质上是一个三维数组
+      currentDate: new Date(), //当前时间
 
       //选择的文章
-      selectedArticleId: -1,
-      selectedArticleVisible: false,
+      selectedArticleId: -1, //选择查看的文章ID
+      selectedArticleVisible: false, //查看文章详细内容的对话框
 
       //点赞、收藏状态
       LACstatus: {},
       //当前用户ID
-      currentUserId:this.$route.params.userId,
-      followFlag:false,
+      currentUserId: this.$route.params.userId,
+      followFlag: false, //当前个人首页的用户是否是我关注的
     };
   },
   computed: {
@@ -333,17 +335,53 @@ export default {
       this.coDivideArticles = [];
       this.allDivideArticles = [];
     },
+    processArticle(data) {
+      //这里的data就是当前用户所有相关的文章
+      console.log("收到的所有该用户相关笔记数据", data, data.length);
+      //已发布：1，已收藏:2，已喜欢：3
+      for (var i = 0; i < data.length; i++) {
+        data[i].createTime = this.replaceTWithSpace(data[i].createTime);
+        console.log("笔记" + i + "的类型为：", data[i].type);
+        //将文章划分归类
+        if (data[i].type == 1) {
+          this.wrArticles.push(data[i]);
+        } else if (data[i].type == 2) {
+          this.coArticles.push(data[i]);
+        } else {
+          this.liArticles.push(data[i]);
+        }
+      }
+      // 分类为 type 为 1 的文章
+      //this.wrArticles = data.filter((article) => article.type === 1);
+      // 分类为 type 为 2 的文章
+      //this.coArticles = data.filter((article) => article.type === 2);
+      // 分类为 type 为 3 的文章
+      //this.liArticles = data.filter((article) => article.type === 3);
+      console.log("已发布笔记：", this.wrArticles);
+      console.log("已收藏笔记：", this.coArticles);
+      console.log("已喜欢笔记：", this.liArticles);
+      //将已发布文章划分为四列
+      this.wrDivideArticles = this.divideArticle2(this.wrArticles);
+      this.coDivideArticles = this.divideArticle2(this.coArticles);
+      this.liDivideArticles = this.divideArticle2(this.liArticles);
+      //将上面这三个划分好的数组合并一起
+      this.allDivideArticles.push(this.wrDivideArticles);
+      this.allDivideArticles.push(this.coDivideArticles);
+      this.allDivideArticles.push(this.liDivideArticles);
+      console.log("分类好并分好栏的笔记：", this.allDivideArticles);
+    },
     init() {
-      console.log("当前用户ID：",this.currentUserId)
+      this.reset();
+      console.log("当前用户ID：", this.currentUserId);
       getFollowStatus(this.user.userId, this.currentUserId).then((response) => {
         const { data } = response;
         this.followFlag = data;
         console.log("查看当前关注状态：", this.followFlag);
       });
-      this.reset();
       getUserData(this.user.userId).then((response) => {
         const { data } = response;
         this.userData = data;
+        console.log("获取用户信息",this.userData)
         this.likesANDcollection = data.likesNum + data.collectionNum;
         this.form.username = this.user.username;
         this.form.password = this.user.password;
@@ -353,35 +391,7 @@ export default {
       this.tabs = ["笔记", "收藏", "点赞"];
       getWrLiCoArticles(this.user.userId).then((response) => {
         const { data } = response;
-        console.log("收到的所有该用户相关笔记数据", data, data.length);
-        //已发布：1，已收藏:2，已喜欢：3
-        for (var i = 0; i < data.length; i++) {
-          data[i].createTime = this.replaceTWithSpace(data[i].createTime);
-          console.log("笔记" + i + "的类型为：", data[i].type);
-          if (data[i].type == 1) {
-            this.wrArticles.push(data[i]);
-          } else if (data[i].type == 2) {
-            this.coArticles.push(data[i]);
-          } else {
-            this.liArticles.push(data[i]);
-          }
-        }
-        // 分类为 type 为 1 的文章
-        //this.wrArticles = data.filter((article) => article.type === 1);
-        // 分类为 type 为 2 的文章
-        //this.coArticles = data.filter((article) => article.type === 2);
-        // 分类为 type 为 3 的文章
-        //this.liArticles = data.filter((article) => article.type === 3);
-        console.log("已发布笔记：", this.wrArticles);
-        console.log("已收藏笔记：", this.coArticles);
-        console.log("已喜欢笔记：", this.liArticles);
-        this.wrDivideArticles = this.divideArticle2(this.wrArticles);
-        this.coDivideArticles = this.divideArticle2(this.coArticles);
-        this.liDivideArticles = this.divideArticle2(this.liArticles);
-        this.allDivideArticles.push(this.wrDivideArticles);
-        this.allDivideArticles.push(this.coDivideArticles);
-        this.allDivideArticles.push(this.liDivideArticles);
-        console.log("分类好并分好栏的笔记：", this.allDivideArticles);
+        this.processArticle(data);
       });
     },
     // 将所有该用户相关的笔记分为4列
@@ -433,6 +443,7 @@ export default {
       });
       return targetArrays;
     },
+    //上传头像的On-change函数
     checkType(file, fileList) {
       //截取文件类型
       let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
@@ -451,6 +462,7 @@ export default {
       console.log(this.imageUrl);
       this.$forceUpdate();
     },
+    //上传头像函数
     uploadAvatar() {
       let formData = new FormData();
       console.log(this.imageFile);
@@ -465,6 +477,7 @@ export default {
         this.$store.dispatch("user/getInfo");
       });
     },
+    //提交编辑资料的表单
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -527,7 +540,7 @@ export default {
       this.selectedArticleVisible = true;
       this.selectedArticleId = articleId;
       console.log(
-        "打开对话框：",
+        "打开文章详细内容对话框：",
         this.selectedArticleVisible,
         this.selectedArticleId
       );
@@ -616,16 +629,6 @@ export default {
   color: #999;
 }
 
-.bottom {
-  margin-top: 13px;
-  line-height: 12px;
-}
-
-.button {
-  padding: 0;
-  float: right;
-}
-
 .image {
   width: 100%;
   display: block;
@@ -638,7 +641,7 @@ export default {
   display: block;
 }
 
-.clearfix:before,
+/* .clearfix:before,
 .clearfix:after {
   display: table;
   content: "";
@@ -646,7 +649,7 @@ export default {
 
 .clearfix:after {
   clear: both;
-}
+} */
 .user-avatar-article {
   cursor: pointer;
   border-radius: 50%;

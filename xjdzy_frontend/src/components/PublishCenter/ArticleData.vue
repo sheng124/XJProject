@@ -10,7 +10,7 @@
   <div>
     笔记数据
     <el-button @click="edit">编辑</el-button>
-    <el-card class="column is-10 is-offset-1" style="margin-bottom: 20px;">
+    <el-card style="margin: 0 3%;margin-bottom: 20px;">
       <div class="div1">
         <div class="avatar-wrapper" >
           <img :src="user.userAvatar" class="user-avatar" />
@@ -35,7 +35,7 @@
 
     </el-card>
 
-    <el-card class="column is-10 is-offset-1">
+    <el-card style="margin: 0 3%;margin-bottom: 20px;">
       <p class="is-size-4 has-text-weight-bold mb-4">数据总览</p>
 
       <div class="biaoqian1">
@@ -60,6 +60,92 @@
 
       <p class="is-size-4 has-text-weight-bold mb-4" style="margin-top: 30px;">最新发布文章数据</p>
     
+      <div class="columns is-desktop">
+              <div
+                class="column"
+                v-for="(item, index1) in allDivideArticles[index]"
+                :key="index1"
+              >
+                <!-- 关于笔记作者相关的路由还需更改 -->
+                <el-card
+                  :body-style="{ padding: '0px' }"
+                  v-for="(article, index2) in allDivideArticles[index][index1]"
+                  :key="index2"
+                  class="my-2"
+                  style="border-radius: 20px"
+                >
+                  <!-- 笔记封面 -->
+                  <!-- 可以试着采用类似小红书，点击笔记，弹出窗口显示文章内容 -->
+                  <div style="cursor: pointer">
+                    <v-hover v-slot="{ hover }">
+                      <img
+                        :src="article.articleCover"
+                        :class="{ 'image-hover': hover, image: !hover }"
+                        @click="openArticleDialog(article.articleId)"
+                      />
+                    </v-hover>
+                  </div>
+                  <div style="padding: 14px; cursor: pointer">
+                    <div
+                      class="mb-2 has-text-black has-text-weight-semibold"
+                      @click="openArticleDialog(article.articleId)"
+                    >
+                      {{ article.articleTitle }}
+                    </div>
+                    <!-- 笔记作者头像，名称 -->
+                    <router-link
+                      :to="{
+                        name: 'user_info',
+                        params: { userId: article.userInfo.userId },
+                      }"
+                    >
+                      <div class="level-left">
+                        <img
+                          :src="article.userInfo.userAvatar"
+                          class="user-avatar-article mr-1"
+                        />
+                        {{ article.userInfo.username }}
+                      </div>
+                    </router-link>
+                    <!-- 发表时间 -->
+                    <time class="time"
+                      ><v-icon small class="mb-1 mr-1">mdi-clock-outline</v-icon
+                      >{{ article.createTime }}</time
+                    >
+                    <!-- 笔记分类 -->
+                    <router-link
+                      :to="{
+                        name: 'categories',
+                        params: {
+                          categoryId: article.category.categoryId,
+                        },
+                      }"
+                      style="float: right"
+                    >
+                      <v-icon>mdi-bookmark</v-icon>
+                      {{ article.category.categoryName }}
+                    </router-link>
+                    <!-- 笔记标签 -->
+                    <b-taglist>
+                      <b-tag
+                        rounded
+                        type="is-info is-light"
+                        v-for="tag in article.tagList"
+                        :key="tag.tagId"
+                      >
+                        <router-link
+                          :to="{
+                            name: 'tag',
+                            params: { tagId: tag.tagId },
+                          }"
+                          ><span class="has-text-info">#{{ tag.tagName }}</span>
+                        </router-link></b-tag
+                      >
+                    </b-taglist>
+                  </div>
+                </el-card>
+              </div>
+            </div>
     </el-card>
   </div>
 </template>
@@ -118,6 +204,7 @@ export default {
         for(var i=0;i<data.length;i++){
             console.log("笔记"+i+"的类型为：",data[i].type)
             if(data[i].type==1){
+              //处理数据
                 this.wrArticles.push(data[i]);
                 this.allArticleNum=this.allArticleNum+1;
                 this.allViewsNum=this.allViewsNum+data[i].viewsNum;
@@ -135,6 +222,7 @@ export default {
         this.selectToEditArticleId
       );//需要向父组件传值
     },
+    
   }
 }
 </script>
