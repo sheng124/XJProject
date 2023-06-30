@@ -570,14 +570,16 @@ export default {
   height: 40px; /* 根据需要调整头像的高度 */
 }
 .image-container {
-  height: 700px;
+  height: 745px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .responsive-image {
-  width: 100%;
+  width: auto;
   height: auto;
+  max-height: 100%;
+  max-width:100%
 }
 .video-container {
   height: 700px;

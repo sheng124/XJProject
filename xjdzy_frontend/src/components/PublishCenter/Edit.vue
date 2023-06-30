@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card style="margin: 0 5%;" v-loading="loading">
-      <p class="is-size-4 has-text-weight-bold mb-4">发布笔记</p>
+      <p class="is-size-4 has-text-weight-bold mb-4">修改笔记</p>
       <!-- 文章数据 -->
       <el-form
         ref="articleForm"
@@ -215,11 +215,26 @@
 <script>
 import { mapGetters } from "vuex";
 import { userPublishArticle, uploadVideo } from "@/api/user";
-import { getCategories, getTags, increaseTag } from "@/api/article";
+import { getCategories, getTags, increaseTag, getArticleDetail } from "@/api/article";
 
 export default {
-  name: "Publish",
+  name: "Edit",
   components: {},
+  watch:{
+    editArticleId(val){
+      this.articleForm.articleId=val;
+      getArticleDetail(this.articleForm.articleId).then((response)=>{
+        const {data} =response;
+        this.articleForm.articleTitle=data.articleTitle;
+        this.articleForm.articleContent=data.articleContent;
+        this.articleForm.categoryName=data.categoryName;
+        this.articleForm.tagList=data.tagList;
+        this.articleForm.articleCover=data.articleCover;
+        this.articleForm.articleImages=data.articleImages;
+        this.articleForm.videoUrl=data.videoUrl;
+      })
+    }
+  },
   data() {
     return {
       loading:false,  //是否加载
@@ -233,8 +248,9 @@ export default {
       articleImageUrlList: [],
       dialogImageUrl: "",
       dialogVisible: false,
-      //发布笔记表单
+      //修改笔记表单
       articleForm: {
+        articleId:this.editArticleId,
         articleTitle: "",
         articleContent: "",
         categoryName: "",
@@ -248,10 +264,12 @@ export default {
       Plus: true,
       videoUploadPercent: 0,
       videoFormData: null,
+      //当前编辑笔记ID,从store里拿
+      
     };
   },
   computed: {
-    ...mapGetters(["user", "token"]),
+    ...mapGetters(["user", "token","editArticleId"]),
     tagClass() {
       return function (item) {
         const index = this.articleForm.tagList.indexOf(item.tagName);
