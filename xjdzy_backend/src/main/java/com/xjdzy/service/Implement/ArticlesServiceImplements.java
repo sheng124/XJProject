@@ -103,7 +103,6 @@ public class ArticlesServiceImplements implements ArticlesService {
         else{
             return null;
         }
-
     }
 
     /**
@@ -191,7 +190,8 @@ public class ArticlesServiceImplements implements ArticlesService {
                 Article::getCreateTime,
                 Article::getUpdateTime,
                 Article::getViewsNum,
-                Article::getCategoryId)
+                Article::getCategoryId,
+                Article::getVideoUrl)
                 .eq(Article::getArticleId,articleId);
         Article tmpA=articleMapper.selectOne(lqw1);
         articleDetailDto.setArticleId(articleId);
@@ -201,6 +201,7 @@ public class ArticlesServiceImplements implements ArticlesService {
         articleDetailDto.setCreateTime(tmpA.getCreateTime());
         articleDetailDto.setUpdateTime(tmpA.getUpdateTime());
         articleDetailDto.setViewsNum(tmpA.getViewsNum());
+        articleDetailDto.setVideoUrl(tmpA.getVideoUrl());
         // 2.查询Category中的相关数据
         LambdaQueryWrapper<Category> lqw2=new LambdaQueryWrapper<>();
         lqw2.select(Category::getCategoryName)

@@ -1,15 +1,12 @@
 package com.xjdzy.service.Implement;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xjdzy.entity.UserInfo;
 import com.xjdzy.service.RedisService;
-import com.xjdzy.utils.JSONUtils;
+import com.xjdzy.utils.JsonUtils;
 import com.xjdzy.utils.JwtAndLoginUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -88,7 +85,7 @@ public class RedisServiceImplements implements RedisService {
                     JwtAndLoginUtils.expire, TimeUnit.MILLISECONDS);
         }
         else{
-            String JSONString = JSONUtils.objectToJSONString(o);
+            String JSONString = JsonUtils.objectToJSONString(o);
             stringRedisTemplate.opsForValue().set(userId, JSONString,
                     JwtAndLoginUtils.expire, TimeUnit.MILLISECONDS);
         }

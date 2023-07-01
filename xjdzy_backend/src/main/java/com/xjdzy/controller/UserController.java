@@ -119,11 +119,9 @@ public class UserController {
      * @return Result：data为null
      */
     @PostMapping("/user/articles/edit")
-    public Result updateArticleCon(@RequestPart("articleInfo") ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
-                                   @RequestPart("articleCover") MultipartFile articleCover,
-                                   @RequestPart("articleImages") MultipartFile[] articleImages){
+    public Result updateArticleCon(@RequestBody ArticleWriteAndUpdateDto articleWriteAndUpdateDto){
         log.info("获取到的数据："+ articleWriteAndUpdateDto);
-        boolean res=userService.updateArticleService(articleWriteAndUpdateDto,articleCover,articleImages);
+        boolean res=userService.updateArticleService(articleWriteAndUpdateDto);
         log.info("Service处理的结果："+ res);
         if(res){
             return Result.success();

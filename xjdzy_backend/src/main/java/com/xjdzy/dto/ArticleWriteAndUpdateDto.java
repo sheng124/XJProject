@@ -22,9 +22,12 @@ public class ArticleWriteAndUpdateDto {
     private int userId;
     private String articleTitle;
     private String articleContent;
+    private String articleCover;
     private int categoryId;
     private LocalDateTime createTime;
     private String videoUrl;
     // RelArticleTag
     private List<Tag> tagList;
+    // ArticleImages
+    private List<String> imageList;
 }
