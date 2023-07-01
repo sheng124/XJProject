@@ -56,7 +56,7 @@
               <!-- 笔记分类 -->
               <router-link
                 :to="{
-                  name: 'categories',
+                  name: 'articles_of_category',
                   params: {
                     categoryId: article.category.categoryId,
                   },
@@ -76,7 +76,7 @@
                 >
                   <router-link
                     :to="{
-                      name: 'tag',
+                      name: 'articles_of_tag',
                       params: { tagId: tag.tagId },
                     }"
                     ><span class="has-text-info">#{{ tag.tagName }}</span>

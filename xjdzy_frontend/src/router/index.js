@@ -7,7 +7,8 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: () => import('@/views/HomeView')
+    component: () => import('@/views/HomeView'),
+    meta: { title: '首页' }
   },
   // 聊天室
   {
@@ -43,13 +44,20 @@ const routes = [
     component: () => import('@/views/user/PublishCenter'),
     meta: { title: '发布中心' }
   },
-  // 文章列表
-  /* {
-    path: '/tags/:tagId',
-    name: 'article_list',
-    component: () => import('@/views/article/ArticleList'),
-    meta: { title: '文章列表' }
-  }, */
+  // 分类文章列表
+  {
+    path: '/articles/category/:categoryId',
+    name: 'articles_of_category',
+    component: () => import('@/views/HomeView'),
+    meta: { title: '分类文章' }
+  },
+  // 标签文章列表
+  {
+    path: '/articles/tag/:tagId',
+    name: 'articles_of_tag',
+    component: () => import('@/views/article/ArticlesOfTag'),
+    meta: { title: '标签文章' }
+  },
   {
     path: '/404',
     name: '404',

@@ -1,5 +1,12 @@
 import request from '@/utils/request'
 
+//获取用户信息
+export function getUserInfo(userId) {
+  return request({
+    url: `/user/info/${userId}`,
+    method: 'get',
+  })
+}
 // 获取用户关注数、粉丝数、获赞与收藏数
 export function getUserData(userId) {
   return request({

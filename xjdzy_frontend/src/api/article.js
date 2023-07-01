@@ -91,3 +91,19 @@ export function getLACStatus(userId,articleId) {
     method: 'get',
   })
 }
+
+//根据标签ID获取文章列表
+export function getArticlesByTagId(tagId) {
+  return request({
+    url: `/articles/tag/${tagId}`,
+    method: 'get',
+  })
+}
+
+//获取所有文章
+export function getAllArticles(){
+  return request({
+    url: '/articles',
+    method: 'get',
+  })
+}

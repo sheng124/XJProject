@@ -9,15 +9,18 @@
       </el-card> -->
 
       <!-- 用户卡片 -->
-      <div class="card">
-        <div class="card-content">
+      <div class="card" style="display: flex;
+  justify-content: center;">
+        <div class="card-content" style="justify-content: center">
           <div class="media">
             <div class="media-left">
-              <img :src="user.userAvatar" class="user-avatar" />
+              <img :src="currentUser.userAvatar" class="user-avatar" />
             </div>
             <div class="media-content ml-3">
               <div class="level">
-                <span class="title is-4 mx-4 mt-4">{{ user.username }}</span>
+                <span class="title is-4 mx-4 mt-4">{{
+                  currentUser.username
+                }}</span>
                 <span v-if="this.currentUserId != this.user.userId">
                   <v-btn
                     color="red"
@@ -44,6 +47,7 @@
               </div>
               <p>
                 <i
+                  v-if="this.currentUserId == this.user.userId"
                   class="el-icon-edit ml-4 is-size-7 has-text-grey"
                   style="cursor: pointer"
                   @click="dialogVisible = true"
@@ -112,28 +116,40 @@
       </div>
     </div>
     <!-- 此用户发布、收藏、点赞的笔记列表 -->
-    <section>
+    <section><!--   -->
       <!-- 标签栏 -->
-      <b-tabs
+      <!-- <b-tabs
         type="is-toggle-rounded"
         position="is-centered"
         v-model="activeTab"
         class="mt-3"
       >
         <template v-for="(tab, index) in tabs"
-          ><!-- 三个标签栏： 笔记、收藏、点赞-->
+          >
           <b-tab-item :key="index" :label="tab">
             <article-list :articles="allArticles[index]"></article-list>
           </b-tab-item>
         </template>
-      </b-tabs>
+      </b-tabs> -->
+      <v-tabs v-model="activeTab" centered><!--   -->
+        <v-tabs-slider color="purple darken-3"></v-tabs-slider>
+        <v-tab v-for="(tab, index) in tabs" :key="index">
+          {{ tab }}
+        </v-tab>
+      </v-tabs>
     </section>
+    <v-tabs-items class="mt-3" v-model="activeTab">
+      <v-tab-item v-for="(tab, index) in tabs" :key="index">
+        <article-list :articles="allArticles[index]"></article-list>
+      </v-tab-item>
+    </v-tabs-items>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex"; //store的getter修饰器，用来更方便的拿store里放的数据
 import {
+  getUserInfo,
   getUserData,
   uploadUserAvatar,
   modifyUsername,
@@ -199,29 +215,44 @@ export default {
       },
       imageFile: null, //上传头像所需的参数
       imageUrl: "",
-      activeTab: "", //当前选中的标签栏
-      tabs: [], //标签栏数组：存放【笔记、收藏、点赞】
+      activeTab: "笔记", //当前选中的标签栏
+      tabs: ["笔记", "收藏", "点赞"], //标签栏数组：存放【笔记、收藏、点赞】
       wrArticles: [], //已发布笔记数组
       liArticles: [], //已点赞笔记数组
       coArticles: [], //已收藏数组
-      allArticles:[],
+      allArticles: [],
       //当前用户ID
       currentUserId: this.$route.params.userId,
+      currentUser: null,
       followFlag: false, //当前个人首页的用户是否是我关注的
     };
   },
   computed: {
     ...mapGetters(["user", "token"]),
   },
-  mounted() {
+  created() {
     this.init();
+  },
+  watch: {
+    followFlag(val) {
+      getUserData(this.currentUserId).then((response) => {
+        const { data } = response;
+        this.userData = data;
+        console.log("获取用户信息", this.userData);
+        this.likesANDcollection = data.likesNum + data.collectionNum;
+      });
+    },
+    activeTab(val) {
+      console.log("当前选中的标签栏：", val);
+      console.log(this.activeTab);
+    },
   },
   methods: {
     reset() {
       this.wrArticles = [];
       this.liArticles = [];
       this.coArticles = [];
-      this.allArticles=[];
+      this.allArticles = [];
     },
     processArticle(data) {
       //这里的data就是当前用户所有相关的文章
@@ -250,25 +281,29 @@ export default {
       console.log("已分类好的笔记：", this.allArticles);
     },
     init() {
+      console.log("当前选中的标签栏：", this.activeTab);
       this.reset();
       console.log("当前用户ID：", this.currentUserId);
+      getUserInfo(this.currentUserId).then((response) => {
+        const { data } = response;
+        this.currentUser = data;
+        console.log("当前用户信息：", this.currentUser);
+      });
       getFollowStatus(this.user.userId, this.currentUserId).then((response) => {
         const { data } = response;
         this.followFlag = data;
         console.log("查看当前关注状态：", this.followFlag);
       });
-      getUserData(this.user.userId).then((response) => {
+      getUserData(this.currentUserId).then((response) => {
         const { data } = response;
         this.userData = data;
-        console.log("获取用户信息",this.userData)
+        console.log("获取用户信息", this.userData);
         this.likesANDcollection = data.likesNum + data.collectionNum;
         this.form.username = this.user.username;
         this.form.password = this.user.password;
         this.imageUrl = this.user.userAvatar;
       });
-      this.activeTab = "笔记";
-      this.tabs = ["笔记", "收藏", "点赞"];
-      getWrLiCoArticles(this.user.userId).then((response) => {
+      getWrLiCoArticles(this.currentUserId).then((response) => {
         const { data } = response;
         this.processArticle(data);
       });
@@ -423,7 +458,7 @@ export default {
     clickToFollow() {
       const data = {
         userId: this.user.userId,
-        followingUserId: this.article.userInfo.userId,
+        followingUserId: this.currentUserId,
       };
       doFollow(data).then((response) => {
         this.$message({
@@ -437,7 +472,7 @@ export default {
     clickToUnfollow() {
       const data = {
         userId: this.user.userId,
-        followingUserId: this.article.userInfo.userId,
+        followingUserId: this.currentUserId,
       };
       undoFollow(data).then((response) => {
         this.$message({

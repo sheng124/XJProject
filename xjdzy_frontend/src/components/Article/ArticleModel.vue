@@ -55,18 +55,18 @@
             <router-link
               :to="{
                 name: 'user_info',
-                params: { userId: user.userId },
+                params: { userId: article.userInfo.userId },
               }"
             >
               <div class="level-left mx-2 my-2">
                 <img
-                  :src="user.userAvatar"
+                  :src="article.userInfo.userAvatar"
                   class="user-avatar-article-detail mr-1"
                 />
-                <span class="ml-2 is-size-4">{{ user.username }}</span>
+                <span class="ml-2 is-size-4">{{ article.userInfo.username }}</span>
               </div>
             </router-link>
-            <span v-if="user.userId === article.userId">
+            <span v-if="user.userId != article.userInfo.userId">
               <v-btn
                 color="red"
                 @click="clickToFollow"
@@ -95,7 +95,7 @@
             <div>
               <!-- 标题 -->
               <v-card-title>{{ article.articleTitle }}</v-card-title>
-              <v-card-text class="is-size-6">{{
+              <v-card-text style="white-space: pre-wrap;" class="is-size-6">{{
                 article.articleContent
               }}</v-card-text>
               <v-card-text class="py-1">
@@ -108,7 +108,7 @@
                   >
                     <router-link
                       :to="{
-                        name: 'tag',
+                        name: 'articles_of_tag',
                         params: { tagId: tag.tagId },
                       }"
                       ><span class="has-text-info">#{{ tag.tagName }}</span>
