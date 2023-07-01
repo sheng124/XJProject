@@ -44,11 +44,11 @@ export function userPublishArticle(formData) {
   })
 }
 // 修改文章
-export function userEditArticle(formData) {
+export function userEditArticle(data) {
   return request({
     url: '/user/articles/edit',
     method: 'post',
-    data:formData,
+    data:data,
   })
 }
 
@@ -68,6 +68,14 @@ export function uploadVideo(formData,fn) {
     data:formData,
     onUploadProgress: fn, // `onUploadProgress` 允许为上传处理进度事件
     //onDownloadProgress: fn
+  })
+}
+//上传图片
+export function uploadImage(formData) {
+  return request({
+    url: '/user/uploadImage',
+    method: 'post',
+    data:formData,
   })
 }
 

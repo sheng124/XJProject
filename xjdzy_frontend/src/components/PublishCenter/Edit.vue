@@ -223,7 +223,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { userEditArticle, uploadVideo } from "@/api/user";
+import { userEditArticle, uploadVideo ,uploadImage} from "@/api/user";
 import {
   getCategories,
   getTags,
@@ -247,11 +247,9 @@ export default {
         this.articleForm.tagList = data.tagList;
         this.articleForm.articleCover = data.articleCover;
         this.articleForm.articleImages = data.articleImages;
-        for(var i=0;i<this.articleForm.articleImages.length;i++){
-          this.ImageList[i]={
-            name:"",
-            url:this.articleForm.articleImages[i]
-          }
+        this.ImageList=[];
+        for (var i = 0; i < this.articleForm.articleImages.length; i++) {
+          this.ImageList.push({name:i.toString(),url:this.articleForm.articleImages[i]})
         }
         this.articleForm.videoUrl = data.videoUrl;
         if (this.articleForm.videoUrl != null) {
@@ -292,7 +290,7 @@ export default {
       videoUploadPercent: 0,
       videoFormData: null,
       //当前编辑笔记ID,从store里拿
-      ImageList:[],
+      ImageList: [],
     };
   },
   computed: {
@@ -328,7 +326,7 @@ export default {
       this.articleForm.categoryName = item.categoryName;
     },
     removeCategory() {
-      this.articleForm.categoryName= null;
+      this.articleForm.categoryName = null;
     },
     searchCategories(keywords, cb) {
       var categoryList = this.categoryList;
@@ -413,11 +411,16 @@ export default {
         this.$message.error("上传图片不能超过160MB");
         return false;
       }
-      this.articleCover = file.raw;
-      this.articleForm.articleImages.push(file.raw);
-      this.articleForm.articleCover = URL.createObjectURL(file.raw);
+      //构建formData
+      let formData = new FormData();
+      formData.append("image",file.raw);
+      console.log("上传图片的formdata：",formData);
+      uploadImage(formData).then((response)=>{
+        const {data}=response;  //返回的是图片的url
+        this.articleForm.articleCover=data;
+      })
+      this.articleForm.articleImages.push(this.articleForm.articleCover);
       console.log("封面url：" + this.articleForm.articleCover);
-      console.log("封面", this.articleCover);
     },
     checkType2(file, fileList) {
       console.log("checkType2工作---");
@@ -433,14 +436,24 @@ export default {
         this.$message.error("上传图片不能超过160MB");
         return false;
       }
-      this.articleForm.articleImages.push(file.raw);
-      /* this.articleImageUrlList.push(URL.createObjectURL(file.raw)); */
+      //构建formData
+      let formData = new FormData();
+      formData.append("image",file.raw);
+      console.log("上传图片的formdata：",formData);
+      uploadImage(formData).then((response)=>{
+        const {data}=response;  //返回的是图片的url
+        this.articleForm.articleImages.push(data);
+        this.ImageList.push({name:file.name,url:data})
+      })
       console.log("checktype2处理结果:" + this.articleForm.articleImages);
-      /* console.log(this.articleImageUrlList); */
+      console.log("上传照片墙后的ImageList：",this.ImageList)
     },
     handleRemove(file, fileList) {
-      console.log(file);
-      console.log(fileList);
+      console.log("file",file);
+      this.articleForm.articleImages = this.articleForm.articleImages.filter(url => url !== file.url);
+      this.ImageList=this.ImageList.filter(img=>img.uid !==file.uid)
+      console.log("fileList",fileList)
+      console.log("删除一张照片后的照片墙",this.ImageList,this.articleForm.articleImages);
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
@@ -590,39 +603,26 @@ export default {
         });
       } else {
         this.loading = true;
-        //构建formData
-        let formData = new FormData();
         //文章信息
         let articleInfo = {
+          articleId:this.articleForm.articleId,
           userId: this.user.userId,
           articleTitle: this.articleForm.articleTitle,
+          articleCover: this.articleForm.articleCover,
           articleContent: this.articleForm.articleContent,
           categoryId: this.getCategoryId(this.articleForm.categoryName),
           createTime: this.getNowTime(),
-          tagList: this.getTagIdList(this.articleForm.tagList),
+          tagList: this.articleForm.tagList,
+          imageList:this.articleForm.articleImages,
           videoUrl: this.articleForm.videoUrl,
         };
         console.log("articleInfo", articleInfo);
         //这里包装 可以直接转换成对象
-        formData.append(
-          "articleInfo",
-          new Blob([JSON.stringify(articleInfo)], { type: "application/json" })
-        );
-        //封面
-        console.log("封面:" + this.articleCover);
-        formData.append("articleCover", this.articleCover);
-
-        //文章图片
-        console.log("文章图片：" + this.articleForm.articleImages);
-        for (var i = 0; i < this.articleForm.articleImages.length; i++) {
-          formData.append("articleImages", this.articleForm.articleImages[i]);
-        }
-        console.log("formData", formData);
-        userEditArticle(formData).then((response) => {
+        userEditArticle(articleInfo).then((response) => {
           const { data } = response;
           this.loading = false;
           this.$message({
-            message: "发布笔记成功",
+            message: "修改笔记成功",
             type: "success",
             duration: 2000,
           });
@@ -670,14 +670,6 @@ export default {
           return this.categoryList[i].categoryId;
         }
       }
-    },
-    getTagIdList(tagNameList) {
-      return tagNameList
-        .map((tagName) => {
-          const tag = this.tagList.find((tag) => tag.tagName === tagName);
-          return tag ? { tagId: tag.tagId.toString() } : null;
-        })
-        .filter((tagId) => tagId != null);
     },
   },
 };
