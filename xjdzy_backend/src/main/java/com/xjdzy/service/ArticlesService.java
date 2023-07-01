@@ -25,6 +25,8 @@ public interface ArticlesService {
 
     List<ArticleSummaryDto>  getAllArticlesByCategoryId(Integer categoryId);
 
+    List<ArticleSummaryDto>  getAllArticlesByTagId(Integer tagId);
+
     ArticleDetailDto getArticlesDataByArticleId(Integer articleId,ArticleDetailDto articleDetailDto);
 
     ArticleDetailDto getArticlesDetailByArticleId(Integer articleId);

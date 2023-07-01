@@ -45,6 +45,10 @@
         select article_id from article
         where category_id = #{categoryId};
     </select>
+    <select id="getArticleIdByTagId" resultType="java.lang.Integer">
+        select article_id from rel_article_tag
+        where tag_id = #{tagId};
+    </select>
     <select id="getArticleIdByWrite" resultType="java.lang.Integer">
         select article_id from article
         where user_id = #{userId};
