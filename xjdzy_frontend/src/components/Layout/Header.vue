@@ -14,6 +14,7 @@
 
       <template slot="end">
         <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item>
+        <b-navbar-item tag="router-link" :to="{path:'/chat'}"> 聊天 </b-navbar-item>
         <b-navbar-item
           tag="router-link"
           :to="{ name: 'publish_center' }"

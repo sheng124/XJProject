@@ -2,9 +2,10 @@ package com.xjdzy.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xjdzy.dto.Message;
 import com.xjdzy.entity.UserInfo;
 
-public class JSONUtils {
+public class JsonUtils {
 
     // JSON序列化工具
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -24,13 +25,27 @@ public class JSONUtils {
     }
 
     /**
-     * 将JSON字符串转换为对象
+     * 将JSON字符串转换为UserInfo对象
      * @param jsonString JSON字符串
      * @return 对象
      */
     public static UserInfo JSONStringToUserInfo(String jsonString){
         try {
             return mapper.readValue(jsonString, UserInfo.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 将JSON字符串转换为Message对象
+     * @param jsonString JSON字符串
+     * @return 对象
+     */
+    public static Message JSONStringToMessage(String jsonString){
+        try {
+            return mapper.readValue(jsonString, Message.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return null;

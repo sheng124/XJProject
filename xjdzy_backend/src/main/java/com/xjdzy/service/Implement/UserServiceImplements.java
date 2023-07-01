@@ -9,9 +9,7 @@ import com.xjdzy.service.ArticlesService;
 import com.xjdzy.service.RedisService;
 import com.xjdzy.service.UploadFileService;
 import com.xjdzy.service.UserService;
-import com.xjdzy.utils.FtpUtil;
-import com.xjdzy.utils.ImageToBase64Utils;
-import com.xjdzy.utils.JSONUtils;
+import com.xjdzy.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -155,12 +153,20 @@ public class UserServiceImplements implements UserService {
      * 发布笔记和修改笔记使用：插入笔记图片
      * @param articleImageList 图片列表，MultipartFile形式
      * @param articleId 笔记ID
-     * @return 图片列表，Base64格式
+     * @return 图片URL列表
      */
-    public boolean addArticleImages(MultipartFile[] articleImageList,Integer articleId){
+    public boolean addArticleImagesFile(MultipartFile[] articleImageList,Integer articleId){
         for(MultipartFile file:articleImageList){
             String imageURL = uploadFileService.uploadFile(file);
             ArticleImages articleImages = ArticleImages.builder().articleId(articleId).image(imageURL).build();
+            if(articleImagesMapper.insert(articleImages) != 1)
+                return false;
+        }
+        return true;
+    }
+    public boolean addArticleImagesURL(List<String> articleImageList,Integer articleId){
+        for(String url:articleImageList){
+            ArticleImages articleImages = ArticleImages.builder().articleId(articleId).image(url).build();
             if(articleImagesMapper.insert(articleImages) != 1)
                 return false;
         }
@@ -202,7 +208,7 @@ public class UserServiceImplements implements UserService {
                     return false;
             }
             // 更新ArticleImages表
-            return addArticleImages(articleImageList, articleId);
+            return addArticleImagesFile(articleImageList, articleId);
         }
     }
 
@@ -213,15 +219,11 @@ public class UserServiceImplements implements UserService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
-                                                         MultipartFile articleCover,
-                                                         MultipartFile[] articleImageList) {
-        // 封面图片上传
-        String articleCoverBase = uploadFileService.uploadFile(articleCover);
+    public boolean updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto) {
         // 更新Article表
         Article article=Article.builder().articleId(articleWriteAndUpdateDto.getArticleId())
                 .articleTitle(articleWriteAndUpdateDto.getArticleTitle())
-                .articleCover(articleCoverBase)
+                .articleCover(articleWriteAndUpdateDto.getArticleCover())
                 .articleContent(articleWriteAndUpdateDto.getArticleContent())
                 .categoryId(articleWriteAndUpdateDto.getCategoryId())
                 .createTime(articleWriteAndUpdateDto.getCreateTime())
@@ -250,7 +252,7 @@ public class UserServiceImplements implements UserService {
             map2.put("article_id",articleId);
             articleImagesMapper.deleteByMap(map2);
             // 加入新的图片
-            return addArticleImages(articleImageList,articleId);
+            return addArticleImagesURL(articleWriteAndUpdateDto.getImageList(),articleId);
         }
     }
 
@@ -391,7 +393,7 @@ public class UserServiceImplements implements UserService {
             // 若存在，但是无内容，则返回null
             return null;
         else
-            return JSONUtils.JSONStringToUserInfo(value);
+            return JsonUtils.JSONStringToUserInfo(value);
     }
 
     /**

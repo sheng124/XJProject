@@ -9,6 +9,12 @@ const routes = [
     name: 'home',
     component: () => import('@/views/HomeView')
   },
+  // 聊天室
+  {
+    path: '/chat',
+    name: 'chat',
+    component: () => import('@/views/Chat')
+  },
   // 登录
   {
     path: '/login',

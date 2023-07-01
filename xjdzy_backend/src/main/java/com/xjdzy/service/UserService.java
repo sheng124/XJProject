@@ -22,9 +22,7 @@ public interface UserService {
                                                  MultipartFile articleCover,
                                                  MultipartFile[] articleImages);
 
-    boolean updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto,
-                                                  MultipartFile articleCover,
-                                                  MultipartFile[] articleImageList);
+    boolean updateArticleService(ArticleWriteAndUpdateDto articleWriteAndUpdateDto);
 
     boolean deleteArticleService(Integer articleId);
 

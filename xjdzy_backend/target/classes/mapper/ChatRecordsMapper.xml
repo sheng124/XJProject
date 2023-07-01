@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xjdzy.mapper.ChatRecordsMapper">
+    <update id="setIsReadByUserId">
+        update chat_records
+        set is_read = true
+        where to_user_id = #{userId}
+        and is_read = false
+    </update>
+
+    <select id="getAllMessageByUserId" resultType="com.xjdzy.entity.ChatRecords">
+        select from_user_id,content,send_time from chat_records
+        where to_user_id = #{userId};
+    </select>
+</mapper>

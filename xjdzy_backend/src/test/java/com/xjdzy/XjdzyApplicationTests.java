@@ -1,16 +1,15 @@
 package com.xjdzy;
 
+import com.alibaba.druid.support.ibatis.SqlMapClientImplWrapper;
 import com.alibaba.druid.support.json.JSONUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xjdzy.entity.ArticleImages;
-import com.xjdzy.entity.RelArticleTag;
-import com.xjdzy.entity.UserInfo;
+import com.xjdzy.entity.*;
+import com.xjdzy.mapper.ChatRecordsMapper;
 import com.xjdzy.mapper.RelArticleTagMapper;
 import com.xjdzy.mapper.TesrMapper;
 
-import com.xjdzy.entity.Tesr;
 import com.xjdzy.utils.ImageToBase64Utils;
 import net.minidev.json.JSONUtil;
 import org.apache.catalina.User;
@@ -27,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @MapperScan("com/xjdzy/mapper")
 class XjdzyApplicationTests {
 
@@ -36,6 +35,9 @@ class XjdzyApplicationTests {
 
     @Autowired(required = false)
     RelArticleTagMapper relArticleTagMapper;
+
+    @Autowired(required = false)
+    private ChatRecordsMapper chatRecordsMapper;
 
     @Test
     void insertTest() {
@@ -115,4 +117,5 @@ class XjdzyApplicationTests {
         }
         System.out.println("list:"+list);
     }
+
 }
