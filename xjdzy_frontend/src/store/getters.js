@@ -4,6 +4,9 @@ const getters = {
     },
     user(state){
         return state.user.user;     // 用户对象
+    },
+    editArticleId(state){
+        return state.user.editArticleId
     }
   }
   export default getters

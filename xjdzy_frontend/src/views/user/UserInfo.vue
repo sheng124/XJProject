@@ -9,16 +9,45 @@
       </el-card> -->
 
       <!-- 用户卡片 -->
-      <div class="card">
-        <div class="card-content">
+      <div class="card" style="display: flex;
+  justify-content: center;">
+        <div class="card-content" style="justify-content: center">
           <div class="media">
             <div class="media-left">
-              <img :src="user.userAvatar" class="user-avatar" />
+              <img :src="currentUser.userAvatar" class="user-avatar" />
             </div>
             <div class="media-content ml-3">
-              <p class="title is-4 mx-4 mt-4">{{ user.username }}</p>
+              <div class="level">
+                <span class="title is-4 mx-4 mt-4">{{
+                  currentUser.username
+                }}</span>
+                <span v-if="this.currentUserId != this.user.userId">
+                  <v-btn
+                    color="red"
+                    @click="clickToFollow"
+                    dark
+                    rounded
+                    class="mr-4"
+                    v-if="followFlag == false"
+                  >
+                    <v-icon dark left> mdi-account-multiple-plus </v-icon>关注
+                  </v-btn>
+                  <v-btn
+                    color="red"
+                    @click="clickToUnfollow"
+                    outlined
+                    dark
+                    rounded
+                    class="mr-4"
+                    v-else
+                  >
+                    已关注
+                  </v-btn>
+                </span>
+              </div>
               <p>
                 <i
+                  v-if="this.currentUserId == this.user.userId"
                   class="el-icon-edit ml-4 is-size-7 has-text-grey"
                   style="cursor: pointer"
                   @click="dialogVisible = true"
@@ -87,153 +116,84 @@
       </div>
     </div>
     <!-- 此用户发布、收藏、点赞的笔记列表 -->
-    <section>
+    <section><!--   -->
       <!-- 标签栏 -->
-      <b-tabs
+      <!-- <b-tabs
         type="is-toggle-rounded"
         position="is-centered"
         v-model="activeTab"
         class="mt-3"
       >
-        <template v-for="(tab, index) in tabs">
+        <template v-for="(tab, index) in tabs"
+          >
           <b-tab-item :key="index" :label="tab">
-            <div class="columns is-desktop">
-              <div
-                class="column"
-                v-for="(item, index1) in allDivideArticles[index]"
-                :key="index1"
-              >
-                <!-- 关于笔记作者相关的路由还需更改 -->
-                <el-card
-                  :body-style="{ padding: '0px' }"
-                  v-for="(article, index2) in allDivideArticles[index][index1]"
-                  :key="index2"
-                  class="my-2"
-                  style="border-radius: 20px"
-                >
-                  <!-- 笔记封面 -->
-                  <!-- 可以试着采用类似小红书，点击笔记，弹出窗口显示文章内容 -->
-                  <div style="cursor: pointer;">
-                    <v-hover v-slot="{ hover }" >
-                      <img
-                        :src="article.articleCover"
-                        :class="{ 'image-hover': hover, image: !hover }"
-                        @click="openArticleDialog(article.articleId)"
-                      />
-                    </v-hover>
-                  </div>
-                  <div style="padding: 14px;cursor: pointer;" >
-                      <div class="mb-2 has-text-black has-text-weight-semibold" @click="openArticleDialog(article.articleId)">
-                        {{ article.articleTitle }}
-                      </div>
-                    <!-- 笔记作者头像，名称 -->
-                    <router-link
-                      :to="{
-                        name: 'user_info',
-                        params: { userId: article.userInfo.userId },
-                      }"
-                    >
-                      <div class="level-left">
-                        <img
-                          :src="article.userInfo.userAvatar"
-                          class="user-avatar-article mr-1"
-                        />
-                        {{ article.userInfo.username }}
-                      </div>
-                    </router-link>
-                    <!-- 发表时间 -->
-                    <time class="time"
-                      ><v-icon small class="mb-1 mr-1">mdi-clock-outline</v-icon
-                      >{{ article.createTime }}</time
-                    >
-                    <!-- 笔记分类 -->
-                    <router-link
-                      :to="{
-                        name: 'categories',
-                        params: {
-                          categoryId: article.category.categoryId,
-                        },
-                      }"
-                      style="float: right"
-                    >
-                      <v-icon>mdi-bookmark</v-icon>
-                      {{ article.category.categoryName }}
-                    </router-link>
-                    <!-- 笔记标签 -->
-                    <b-taglist>
-                      <b-tag
-                        rounded
-                        type="is-info is-light"
-                        v-for="tag in article.tagList"
-                        :key="tag.tagId"
-                      >
-                        <router-link
-                          :to="{
-                            name: 'tag',
-                            params: { tagId: tag.tagId },
-                          }"
-                          ><span class="has-text-info">#{{ tag.tagName }}</span>
-                        </router-link></b-tag
-                      >
-                    </b-taglist>
-                  </div>
-                </el-card>
-              </div>
-            </div>
+            <article-list :articles="allArticles[index]"></article-list>
           </b-tab-item>
         </template>
-      </b-tabs>
+      </b-tabs> -->
+      <v-tabs v-model="activeTab" centered><!--   -->
+        <v-tabs-slider color="purple darken-3"></v-tabs-slider>
+        <v-tab v-for="(tab, index) in tabs" :key="index">
+          {{ tab }}
+        </v-tab>
+      </v-tabs>
     </section>
-    <!-- 文章内容弹窗 -->
-    <div data-app="true">
-      <v-dialog v-model="selectedArticleVisible" max-width="1000px" style="height:800px">
-        <article-model
-          :currentArticleId="selectedArticleId"
-          @close="closeArticleDialog"
-        ></article-model>
-      </v-dialog>
-    </div>
+    <v-tabs-items class="mt-3" v-model="activeTab">
+      <v-tab-item v-for="(tab, index) in tabs" :key="index">
+        <article-list :articles="allArticles[index]"></article-list>
+      </v-tab-item>
+    </v-tabs-items>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters } from "vuex"; //store的getter修饰器，用来更方便的拿store里放的数据
 import {
+  getUserInfo,
   getUserData,
   uploadUserAvatar,
   modifyUsername,
   modifyPassword,
   getWrLiCoArticles,
-} from "@/api/user";
-import ArticleModel from "@/components/Article/ArticleModel.vue";
+  doFollow,
+  undoFollow,
+  getFollowStatus,
+} from "@/api/user"; //从“/src/api/user.js”导入发送axios请求的函数
+
+import ArticleList from "@/components/Article/ArticleList.vue";
 export default {
   name: "UserInfo",
   components: {
-    ArticleModel,
+    //声明组件
+    ArticleList,
+  },
+  watch: {
+    //监听一些数据的变化，以做出一些处理
+    LACstatus(val) {
+      this.init();
+      console.log("收到子组件传过来的值后，更新文章列表");
+    },
   },
   data() {
+    //声明数据
     return {
-      carousels: [
-        { text: "Slide 1", color: "primary" },
-        { text: "Slide 2", color: "info" },
-        { text: "Slide 3", color: "success" },
-        { text: "Slide 4", color: "warning" },
-        { text: "Slide 5", color: "danger" },
-      ],
       userData: {
+        //用户数据：关注数、粉丝数、点赞数、收藏数
         following: 0,
         followers: 0,
         likesNum: 0,
         collectionNum: 0,
       },
-      likesANDcollection: 0,
-      dialogVisible: false,
+      likesANDcollection: 0, //获赞与收藏数
+      dialogVisible: false, //编辑资料对话框是否显示
       dialog: false, //测试
       form: {
+        //编辑资料的表单
         username: "",
         password: "",
       },
       rules: {
+        //表单的验证规则
         username: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           {
@@ -253,79 +213,99 @@ export default {
           },
         ],
       },
-      imageFile: null,
+      imageFile: null, //上传头像所需的参数
       imageUrl: "",
-      activeTab: "",
-      tabs: [],
-      wrArticles: [],
-      liArticles: [],
-      coArticles: [],
-      articles: [],
-      wrDivideArticles: [],
-      liDivideArticles: [],
-      coDivideArticles: [],
-      allDivideArticles: [],
-      currentDate: new Date(),
-
-      //选择的文章
-      selectedArticleId: -1,
-      selectedArticleVisible: false,
+      activeTab: "笔记", //当前选中的标签栏
+      tabs: ["笔记", "收藏", "点赞"], //标签栏数组：存放【笔记、收藏、点赞】
+      wrArticles: [], //已发布笔记数组
+      liArticles: [], //已点赞笔记数组
+      coArticles: [], //已收藏数组
+      allArticles: [],
+      //当前用户ID
+      currentUserId: this.$route.params.userId,
+      currentUser: null,
+      followFlag: false, //当前个人首页的用户是否是我关注的
     };
   },
   computed: {
     ...mapGetters(["user", "token"]),
   },
-  mounted() {
+  created() {
     this.init();
   },
-  methods: {
-    init() {
-      getUserData(this.user.userId).then((response) => {
+  watch: {
+    followFlag(val) {
+      getUserData(this.currentUserId).then((response) => {
         const { data } = response;
         this.userData = data;
+        console.log("获取用户信息", this.userData);
+        this.likesANDcollection = data.likesNum + data.collectionNum;
+      });
+    },
+    activeTab(val) {
+      console.log("当前选中的标签栏：", val);
+      console.log(this.activeTab);
+    },
+  },
+  methods: {
+    reset() {
+      this.wrArticles = [];
+      this.liArticles = [];
+      this.coArticles = [];
+      this.allArticles = [];
+    },
+    processArticle(data) {
+      //这里的data就是当前用户所有相关的文章
+      console.log("收到的所有该用户相关笔记数据", data, data.length);
+      //已发布：1，已收藏:2，已喜欢：3
+      for (var i = 0; i < data.length; i++) {
+        console.log("笔记" + i + "的类型为：", data[i].type);
+        //将文章划分归类
+        if (data[i].type == 1) {
+          this.wrArticles.push(data[i]);
+        } else if (data[i].type == 2) {
+          this.coArticles.push(data[i]);
+        } else {
+          this.liArticles.push(data[i]);
+        }
+      }
+      this.allArticles.push(this.wrArticles);
+      this.allArticles.push(this.coArticles);
+      this.allArticles.push(this.liArticles);
+      // 分类为 type 为 1 的文章
+      //this.wrArticles = data.filter((article) => article.type === 1);
+      // 分类为 type 为 2 的文章
+      //this.coArticles = data.filter((article) => article.type === 2);
+      // 分类为 type 为 3 的文章
+      //this.liArticles = data.filter((article) => article.type === 3);
+      console.log("已分类好的笔记：", this.allArticles);
+    },
+    init() {
+      console.log("当前选中的标签栏：", this.activeTab);
+      this.reset();
+      console.log("当前用户ID：", this.currentUserId);
+      getUserInfo(this.currentUserId).then((response) => {
+        const { data } = response;
+        this.currentUser = data;
+        console.log("当前用户信息：", this.currentUser);
+      });
+      getFollowStatus(this.user.userId, this.currentUserId).then((response) => {
+        const { data } = response;
+        this.followFlag = data;
+        console.log("查看当前关注状态：", this.followFlag);
+      });
+      getUserData(this.currentUserId).then((response) => {
+        const { data } = response;
+        this.userData = data;
+        console.log("获取用户信息", this.userData);
         this.likesANDcollection = data.likesNum + data.collectionNum;
         this.form.username = this.user.username;
         this.form.password = this.user.password;
         this.imageUrl = this.user.userAvatar;
       });
-      this.activeTab = "笔记";
-      this.tabs = ["笔记", "收藏", "点赞"];
-      getWrLiCoArticles(this.user.userId).then((response) => {
+      getWrLiCoArticles(this.currentUserId).then((response) => {
         const { data } = response;
-        console.log("收到的所有相关笔记数据", data, data.length);
-        //已发布：1，已收藏:2，已喜欢：3
-        for(var i=0;i<data.length;i++){
-          data[i].createTime=this.replaceTWithSpace(data[i].createTime);
-                  console.log("笔记"+i+"的类型为：",data[i].type)
-                  if(data[i].type==1){
-                    this.wrArticles.push(data[i]);
-                  }
-                  else if(data[i].type==2){
-                    this.coArticles.push(data[i]);
-                  }
-                  else{
-                    this.liArticles.push(data[i]);
-                  }
-                }
-        // 分类为 type 为 1 的文章
-        //this.wrArticles = data.filter((article) => article.type === 1);
-        // 分类为 type 为 2 的文章
-        //this.coArticles = data.filter((article) => article.type === 2);
-        // 分类为 type 为 3 的文章
-        //this.liArticles = data.filter((article) => article.type === 3);
-        console.log("已发布笔记：", this.wrArticles);
-        console.log("已收藏笔记：", this.coArticles);
-        console.log("已喜欢笔记：", this.liArticles);
-        this.articles.push(this.wrArticles);
-        this.articles.push(this.coArticles);
-        this.articles.push(this.liArticles);
-        console.log("所有该用户相关的笔记：", this.articles);
-        this.wrDivideArticles = this.divideArticle2(this.wrArticles);
-        this.liDivideArticles = this.divideArticle2(this.coArticles);
-        this.coDivideArticles = this.divideArticle2(this.liArticles);
-        this.allDivideArticles.push(this.wrDivideArticles);
-        this.allDivideArticles.push(this.coDivideArticles);
-        this.allDivideArticles.push(this.liDivideArticles);
+        this.processArticle(data);
       });
     },
     // 将所有该用户相关的笔记分为4列
@@ -377,6 +357,7 @@ export default {
       });
       return targetArrays;
     },
+    //上传头像的On-change函数
     checkType(file, fileList) {
       //截取文件类型
       let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
@@ -395,6 +376,7 @@ export default {
       console.log(this.imageUrl);
       this.$forceUpdate();
     },
+    //上传头像函数
     uploadAvatar() {
       let formData = new FormData();
       console.log(this.imageFile);
@@ -409,6 +391,7 @@ export default {
         this.$store.dispatch("user/getInfo");
       });
     },
+    //提交编辑资料的表单
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -466,22 +449,39 @@ export default {
         }
       });
     },
-    //打开文章弹窗
-    openArticleDialog(articleId) {
-      this.selectedArticleVisible = true;
-      this.selectedArticleId = articleId;
-      console.log(
-        "打开对话框：",
-        this.selectedArticleVisible,
-        this.selectedArticleId
-      );
+    //处理子组件传过来的值
+    handleChildValuesChange(data) {
+      this.LACstatus = data; // 接收子组件传递的值对象
+      console.log("父组件收到的值", this.LACstatus);
     },
-    closeArticleDialog() {
-      this.electedArticleVisible = false;
-      this.selectedArticleId = null;
+    //关注、取消关注
+    clickToFollow() {
+      const data = {
+        userId: this.user.userId,
+        followingUserId: this.currentUserId,
+      };
+      doFollow(data).then((response) => {
+        this.$message({
+          message: "关注成功",
+          type: "success",
+          duration: 2000,
+        });
+        this.followFlag = true;
+      });
     },
-    replaceTWithSpace(str) {
-      return str.replace("T", " ");
+    clickToUnfollow() {
+      const data = {
+        userId: this.user.userId,
+        followingUserId: this.currentUserId,
+      };
+      undoFollow(data).then((response) => {
+        this.$message({
+          message: "已取消关注",
+          type: "success",
+          duration: 2000,
+        });
+        this.followFlag = false;
+      });
     },
   },
 };
@@ -526,16 +526,6 @@ export default {
   color: #999;
 }
 
-.bottom {
-  margin-top: 13px;
-  line-height: 12px;
-}
-
-.button {
-  padding: 0;
-  float: right;
-}
-
 .image {
   width: 100%;
   display: block;
@@ -548,7 +538,7 @@ export default {
   display: block;
 }
 
-.clearfix:before,
+/* .clearfix:before,
 .clearfix:after {
   display: table;
   content: "";
@@ -556,7 +546,7 @@ export default {
 
 .clearfix:after {
   clear: both;
-}
+} */
 .user-avatar-article {
   cursor: pointer;
   border-radius: 50%;

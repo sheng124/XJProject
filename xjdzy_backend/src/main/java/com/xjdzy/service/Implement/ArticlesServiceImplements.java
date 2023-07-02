@@ -173,6 +173,18 @@ public class ArticlesServiceImplements implements ArticlesService {
         // 查询对应笔记的信息
         return getArticleSummaryByArticleId(articleIdList);
     }
+    /**
+     * 获取指定类别笔记：概要信息
+     * @param tagId 类别ID
+     * @return 指定类别笔记构成的列表
+     */
+    @Override
+    public List<ArticleSummaryDto> getAllArticlesByTagId(Integer tagId) {
+        // 查询属于该分类的笔记的ID
+        List<Integer> articleIdList = articleMapper.getArticleIdByTagId(tagId);
+        // 查询对应笔记的信息
+        return getArticleSummaryByArticleId(articleIdList);
+    }
 
     /**
      * 获取除评论以外的所有笔记详细信息

@@ -9,11 +9,19 @@ const state = {
     username: '',  // 用户名
     password: '', //密码
     userAvatar: ''  // 用户头像
-  }
+  },
+  editArticleId:-1,
+  deleteArticle:-1,
 
 }
 
 const mutations = {
+  setEditArticleIdState(state,id){
+    state.editArticleId=id
+  },
+  clearEditArticleIdState(state) {
+    state.editArticleId=-1
+  },
   setTokenState(state, token) {
     state.token = token
   },

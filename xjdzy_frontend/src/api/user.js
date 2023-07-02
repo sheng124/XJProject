@@ -1,5 +1,12 @@
 import request from '@/utils/request'
 
+//获取用户信息
+export function getUserInfo(userId) {
+  return request({
+    url: `/user/info/${userId}`,
+    method: 'get',
+  })
+}
 // 获取用户关注数、粉丝数、获赞与收藏数
 export function getUserData(userId) {
   return request({
@@ -43,6 +50,14 @@ export function userPublishArticle(formData) {
     data:formData,
   })
 }
+// 修改文章
+export function userEditArticle(data) {
+  return request({
+    url: '/user/articles/edit',
+    method: 'post',
+    data:data,
+  })
+}
 
 //获取已发布、已收藏、已点赞文章
 export function getWrLiCoArticles(userId) {
@@ -62,6 +77,14 @@ export function uploadVideo(formData,fn) {
     //onDownloadProgress: fn
   })
 }
+//上传图片
+export function uploadImage(formData) {
+  return request({
+    url: '/user/uploadImage',
+    method: 'post',
+    data:formData,
+  })
+}
 
 //关注
 export function doFollow(data) {
@@ -78,5 +101,13 @@ export function undoFollow(data) {
     url: '/user/unfollow',
     method: 'delete',
     data:data,
+  })
+}
+
+//查看是否关注
+export function getFollowStatus(userId,fUserId) {
+  return request({
+    url: `/user/getFollowStatus/${userId}/${fUserId}`,
+    method: 'get',
   })
 }

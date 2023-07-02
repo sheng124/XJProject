@@ -154,6 +154,19 @@ public class ArticlesController {
     }
 
     /**
+     * 获取指定类别笔记
+     * @param tagId 类别ID
+     * @return Result：data为指定标签笔记的列表
+     */
+    @GetMapping("/articles/tag/{tagId}")
+    public Result getAllArticlesByTagIdCon(@PathVariable Integer tagId){
+        log.info("获取到的数据："+tagId);
+        List<ArticleSummaryDto> res=articlesService.getAllArticlesByTagId(tagId);
+        log.info("viewsNum："+ res.get(0).getViewsNum());
+        return Result.success(res);
+    }
+
+    /**
      * 获取笔记详细信息
      * @param articleId  笔记ID
      * @return Result：data为数据传送对象ArticleDetailDto

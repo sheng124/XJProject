@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-card style="margin: 0 3%;" v-loading="loading">
-      <p class="is-size-4 has-text-weight-bold mb-4">发布笔记</p>
+    <el-card style="margin: 0 3%" v-loading="loading">
+      <p class="is-size-4 has-text-weight-bold mb-4">修改笔记</p>
       <!-- 文章数据 -->
       <el-form
         ref="articleForm"
@@ -82,13 +82,13 @@
         <!-- 文章标签 -->
         <el-form-item label="文章标签">
           <el-tag
-            v-for="(item, index) of articleForm.tagList"
-            :key="index"
+            v-for="item of articleForm.tagList"
+            :key="item.tagId"
             :closable="true"
             style="margin: 0 1rem 0 0"
             @close="removeTag(item)"
           >
-            {{ item }}
+            {{ item.tagName }}
           </el-tag>
           <!-- 标签选项 -->
           <el-popover
@@ -147,11 +147,19 @@
             <div v-if="articleForm.articleCover == ''" class="el-upload__text">
               将文件拖到此处，或<em>点击上传</em>
             </div>
-            <img v-else :src="articleCoverUrl" style="height: 100%" />
+            <img v-else :src="articleForm.articleCover" style="height: 100%" />
           </el-upload>
         </el-form-item>
         <!-- 上传文章图片 -->
         <el-form-item label="上传图片">
+          <!-- <div v-if="articleForm.articleImages != null">
+            <img
+              v-for="(item, index) in articleForm.articleImages"
+              :key="index"
+              :src="articleForm.articleCover"
+              style="width: 146px; height: 146px"
+            />
+          </div> -->
           <el-upload
             action="none"
             :auto-upload="false"
@@ -159,6 +167,7 @@
             list-type="picture-card"
             :on-preview="handlePictureCardPreview"
             :on-remove="handleRemove"
+            :file-list="ImageList"
           >
             <i class="el-icon-plus"></i>
           </el-upload>
@@ -189,7 +198,7 @@
               style="margin-top: 30px"
             ></el-progress>
             <video
-              v-if="articleForm.videoUrl != null && videoUploadPercent>100"
+              v-if="articleForm.videoUrl != null && videoUploadPercent > 100"
               :src="articleForm.videoUrl"
               style="height: 100%"
               controls="controls"
@@ -214,27 +223,59 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { userPublishArticle, uploadVideo } from "@/api/user";
-import { getCategories, getTags, increaseTag } from "@/api/article";
+import { userEditArticle, uploadVideo ,uploadImage} from "@/api/user";
+import {
+  getCategories,
+  getTags,
+  increaseTag,
+  getArticleDetail,
+} from "@/api/article";
 
 export default {
-  name: "Publish",
+  name: "Edit",
   components: {},
+  watch: {
+    editArticleId(val) {
+      this.articleForm.articleId = val;
+      console.log("监听到要编辑的笔记ID:", this.articleForm.articleId);
+      getArticleDetail(this.articleForm.articleId).then((response) => {
+        const { data } = response;
+        console.log("根据ID查询文章详细内容：", data);
+        this.articleForm.articleTitle = data.articleTitle;
+        this.articleForm.articleContent = data.articleContent;
+        this.articleForm.categoryName = data.category.categoryName;
+        this.articleForm.tagList = data.tagList;
+        this.articleForm.articleCover = data.articleCover;
+        this.articleForm.articleImages = data.articleImages;
+        this.ImageList=[];
+        for (var i = 0; i < this.articleForm.articleImages.length; i++) {
+          this.ImageList.push({name:i.toString(),url:this.articleForm.articleImages[i]})
+        }
+        this.articleForm.videoUrl = data.videoUrl;
+        if (this.articleForm.videoUrl != null) {
+          this.videoFlag = true;
+          this.videoUploadPercent = 101;
+        }
+        console.log(this.articleForm);
+      });
+    },
+  },
   data() {
     return {
-      loading:false,  //是否加载
+      loading: false, //是否加载
       categoryName: "",
       //数据库中的分类列表
       categoryList: [],
       tagName: "",
       //数据库中的标签列表
       tagList: [],
-      articleCoverUrl: "",
+      articleCover: null,
       articleImageUrlList: [],
       dialogImageUrl: "",
       dialogVisible: false,
-      //发布笔记表单
+      //修改笔记表单
       articleForm: {
+        articleId: this.editArticleId,
         articleTitle: "",
         articleContent: "",
         categoryName: "",
@@ -248,10 +289,12 @@ export default {
       Plus: true,
       videoUploadPercent: 0,
       videoFormData: null,
+      //当前编辑笔记ID,从store里拿
+      ImageList: [],
     };
   },
   computed: {
-    ...mapGetters(["user", "token"]),
+    ...mapGetters(["user", "token", "editArticleId"]),
     tagClass() {
       return function (item) {
         const index = this.articleForm.tagList.indexOf(item.tagName);
@@ -306,10 +349,10 @@ export default {
       };
     },
 
-    removeTag(item) {
+    /* removeTag(item) {
       const index = this.article.tagNameList.indexOf(item);
       this.article.tagNameList.splice(index, 1);
-    },
+    }, */
     searchTags(keywords, cb) {
       var tagList = this.tagList;
       var results = keywords
@@ -346,7 +389,7 @@ export default {
     },
     addTag(item) {
       if (this.articleForm.tagList.indexOf(item.tagName) == -1) {
-        this.articleForm.tagList.push(item.tagName);
+        this.articleForm.tagList.push(item);
       }
     },
     removeTag(item) {
@@ -357,8 +400,8 @@ export default {
     checkType1(file, fileList) {
       //截取文件类型
       let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
-      fileType=fileType.toLowerCase();
-      console.log("filetype:",fileType)
+      fileType = fileType.toLowerCase();
+      console.log("filetype:", fileType);
       fileList = [];
       if (fileType !== "jpeg" && fileType !== "jpg" && fileType !== "png") {
         this.$message.error("封面格式不正确");
@@ -368,17 +411,22 @@ export default {
         this.$message.error("上传图片不能超过160MB");
         return false;
       }
-      this.articleForm.articleCover = file.raw;
-      this.articleForm.articleImages.push(file.raw);
-      this.articleCoverUrl = URL.createObjectURL(file.raw);
-      console.log("封面：" + this.articleForm.articleCover);
-      console.log("封面url", this.articleCoverUrl);
+      //构建formData
+      let formData = new FormData();
+      formData.append("image",file.raw);
+      console.log("上传图片的formdata：",formData);
+      uploadImage(formData).then((response)=>{
+        const {data}=response;  //返回的是图片的url
+        this.articleForm.articleCover=data;
+      })
+      this.articleForm.articleImages.push(this.articleForm.articleCover);
+      console.log("封面url：" + this.articleForm.articleCover);
     },
     checkType2(file, fileList) {
       console.log("checkType2工作---");
       //截取文件类型
       let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
-      fileType=fileType.toLowerCase();
+      fileType = fileType.toLowerCase();
       fileList = [];
       if (fileType != "jpeg" && fileType != "jpg" && fileType != "png") {
         this.$message.error("图片格式不正确");
@@ -388,14 +436,24 @@ export default {
         this.$message.error("上传图片不能超过160MB");
         return false;
       }
-      this.articleForm.articleImages.push(file.raw);
-      /* this.articleImageUrlList.push(URL.createObjectURL(file.raw)); */
+      //构建formData
+      let formData = new FormData();
+      formData.append("image",file.raw);
+      console.log("上传图片的formdata：",formData);
+      uploadImage(formData).then((response)=>{
+        const {data}=response;  //返回的是图片的url
+        this.articleForm.articleImages.push(data);
+        this.ImageList.push({name:file.name,url:data})
+      })
       console.log("checktype2处理结果:" + this.articleForm.articleImages);
-      /* console.log(this.articleImageUrlList); */
+      console.log("上传照片墙后的ImageList：",this.ImageList)
     },
     handleRemove(file, fileList) {
-      console.log(file);
-      console.log(fileList);
+      console.log("file",file);
+      this.articleForm.articleImages = this.articleForm.articleImages.filter(url => url !== file.url);
+      this.ImageList=this.ImageList.filter(img=>img.uid !==file.uid)
+      console.log("fileList",fileList)
+      console.log("删除一张照片后的照片墙",this.ImageList,this.articleForm.articleImages);
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
@@ -405,8 +463,9 @@ export default {
     //视频检查格式和大小
     checkType3(file, fileList) {
       //截取文件类型
+      this.videoUploadPercent = 0;
       let fileType = file.name.substring(file.name.lastIndexOf(".") + 1);
-      fileType=fileType.toLowerCase();
+      fileType = fileType.toLowerCase();
       console.log("视频：", file, fileType);
       const isLt160M = file.size / 1024 / 1024 < 160;
       if (
@@ -438,10 +497,9 @@ export default {
           duration: 2000,
         });
         setTimeout(() => {
-          this.videoUploadPercent=101; // 5 秒后将变量变为101
+          this.videoUploadPercent = 101; // 5 秒后将变量变为101
           console.log("当前进度", this.videoUploadPercent); // 输出变量的值
         }, 2000); // 等待 1 秒（1000 毫秒）
-        
       });
       const intervalId = setInterval(() => {
         this.videoUploadPercent++; // 每隔0.1秒加1
@@ -533,62 +591,48 @@ export default {
       // 更新服务器响应的进度条显示
       this.videoUploadPercent = percent;
     },
-
+    //修改后重新发布
     publishArticle() {
       console.log("publishArticle中~~~~~~~~");
-      console.log("是否有分类")
-      if(this.articleForm.categoryName==""){
+      console.log("是否有分类");
+      if (this.articleForm.categoryName == "") {
         this.$message({
           message: "必须指定分类",
           type: "error",
           duration: 2000,
         });
-      }
-      else{
-        this.loading=true;
-      //构建formData
-      let formData = new FormData();
-      //文章信息
-      let articleInfo = {
-        userId: this.user.userId,
-        articleTitle: this.articleForm.articleTitle,
-        articleContent: this.articleForm.articleContent,
-        categoryId: this.getCategoryId(this.articleForm.categoryName),
-        createTime: this.getNowTime(),
-        tagList: this.getTagIdList(this.articleForm.tagList),
-        videoUrl: this.articleForm.videoUrl,
-      };
-      console.log("articleInfo", articleInfo);
-      //这里包装 可以直接转换成对象
-      formData.append(
-        "articleInfo",
-        new Blob([JSON.stringify(articleInfo)], { type: "application/json" })
-      );
-      //封面
-      console.log("封面:" + this.articleForm.articleCover);
-      formData.append("articleCover", this.articleForm.articleCover);
-
-      //文章图片
-      console.log("文章图片：" + this.articleForm.articleImages);
-      for (var i = 0; i < this.articleForm.articleImages.length; i++) {
-        formData.append("articleImages", this.articleForm.articleImages[i]);
-      }
-      console.log("formData", formData);
-      userPublishArticle(formData).then((response) => {
-        const { data } = response;
-        this.loading=false;
-        this.$message({
-          message: "发布笔记成功",
-          type: "success",
-          duration: 2000,
+      } else {
+        this.loading = true;
+        //文章信息
+        let articleInfo = {
+          articleId:this.articleForm.articleId,
+          userId: this.user.userId,
+          articleTitle: this.articleForm.articleTitle,
+          articleCover: this.articleForm.articleCover,
+          articleContent: this.articleForm.articleContent,
+          categoryId: this.getCategoryId(this.articleForm.categoryName),
+          createTime: this.getNowTime(),
+          tagList: this.articleForm.tagList,
+          imageList:this.articleForm.articleImages,
+          videoUrl: this.articleForm.videoUrl,
+        };
+        console.log("articleInfo", articleInfo);
+        //这里包装 可以直接转换成对象
+        userEditArticle(articleInfo).then((response) => {
+          const { data } = response;
+          this.loading = false;
+          this.$message({
+            message: "修改笔记成功",
+            type: "success",
+            duration: 2000,
+          });
+          this.$router.push({
+            name: "user_info",
+            params: {
+              userId: this.user.userId,
+            },
+          });
         });
-        this.$router.push({
-          name: "user_info",
-          params: {
-            userId: this.user.userId,
-          },
-        });
-      });
       }
     },
     cancel() {},
@@ -621,20 +665,11 @@ export default {
       return dateTime;
     },
     getCategoryId(categoryName) {
-      
       for (var i = 0; i < this.categoryList.length; i++) {
         if (categoryName == this.categoryList[i].categoryName) {
           return this.categoryList[i].categoryId;
         }
       }
-    },
-    getTagIdList(tagNameList) {
-      return tagNameList
-        .map((tagName) => {
-          const tag = this.tagList.find((tag) => tag.tagName === tagName);
-          return tag ? { tagId: tag.tagId.toString() } : null;
-        })
-        .filter((tagId) => tagId != null);
     },
   },
 };

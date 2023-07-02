@@ -12,12 +12,12 @@
                   <h1 class="title">{{ carousel.text }}</h1>
                 </div>
               </section> -->
-            <b-carousel-item>
+            <b-carousel-item v-if="article.videoUrl!=null">
               <figure class="image is-2by3">
                 <iframe
                   class="has-ratio"
                   width="100%"
-                  src="http://121.36.202.123:8080/assert/d27794096e604201bd2b9511e8196345.MP4"
+                  :src="article.videoUrl"
                   frameborder="0"
                   allowfullscreen
                 ></iframe
@@ -55,30 +55,47 @@
             <router-link
               :to="{
                 name: 'user_info',
-                params: { userId: user.userId },
+                params: { userId: article.userInfo.userId },
               }"
             >
               <div class="level-left mx-2 my-2">
                 <img
-                  :src="user.userAvatar"
+                  :src="article.userInfo.userAvatar"
                   class="user-avatar-article-detail mr-1"
                 />
-                <span class="ml-2 is-size-4">{{ user.username }}</span>
+                <span class="ml-2 is-size-4">{{ article.userInfo.username }}</span>
               </div>
             </router-link>
-            <v-btn color="red" dark rounded class="mr-4">
-              <v-icon dark left> mdi-account-multiple-plus </v-icon>关注
-            </v-btn>
-            <v-btn color="red" outlined dark rounded class="mr-4">
-              已关注
-            </v-btn>
+            <span v-if="user.userId != article.userInfo.userId">
+              <v-btn
+                color="red"
+                @click="clickToFollow"
+                dark
+                rounded
+                class="mr-4"
+                v-if="followFlag == false"
+              >
+                <v-icon dark left> mdi-account-multiple-plus </v-icon>关注
+              </v-btn>
+              <v-btn
+                color="red"
+                @click="clickToUnfollow"
+                outlined
+                dark
+                rounded
+                class="mr-4"
+                v-else
+              >
+                已关注
+              </v-btn>
+            </span>
           </div>
           <div style="overflow-y: scroll; overflow-x: hidden; height: 600px">
             <!-- <div class="wrapper" ref="wrapper"> -->
             <div>
               <!-- 标题 -->
               <v-card-title>{{ article.articleTitle }}</v-card-title>
-              <v-card-text class="is-size-6">{{
+              <v-card-text style="white-space: pre-wrap;" class="is-size-6">{{
                 article.articleContent
               }}</v-card-text>
               <v-card-text class="py-1">
@@ -91,7 +108,7 @@
                   >
                     <router-link
                       :to="{
-                        name: 'tag',
+                        name: 'articles_of_tag',
                         params: { tagId: tag.tagId },
                       }"
                       ><span class="has-text-info">#{{ tag.tagName }}</span>
@@ -134,6 +151,7 @@
                     @mouseover="
                       checkCurrentUser(comment.userId, comment.commentId)
                     "
+                    @mouseleave="clearHover()"
                   >
                     <router-link
                       :to="{
@@ -146,12 +164,27 @@
                     <v-card-text class="py-0 px-0">{{
                       comment.comment
                     }}</v-card-text>
-                    <p style="display: flex; justify-content: space-between">
-                      <span class="has-text-grey-light my-1">{{
+                    <p
+                      style="display: flex; justify-content: space-between"
+                      class="mb-1"
+                    >
+                      <span class="has-text-grey-light py-2">{{
                         comment.createTime
                       }}</span
-                      ><span style="margin-left: auto"
-                        ><b-icon
+                      ><span style="margin-left: auto">
+                        <v-btn
+                          text
+                          icon
+                          color="red"
+                          @click.native="
+                            clickToDeleteComment(comment.commentId)
+                          "
+                          v-if="
+                            isCurrentUser(comment.userId, comment.commentId)
+                          "
+                          ><v-icon>mdi-trash-can</v-icon></v-btn
+                        >
+                        <!-- <b-icon
                           @click.native="
                             clickToDeleteComment(comment.commentId)
                           "
@@ -162,7 +195,8 @@
                           type="is-danger"
                         >
                         </b-icon
-                      ></span>
+                      > -->
+                      </span>
                     </p>
                     <p>
                       <v-divider class="my-1" light></v-divider>
@@ -178,7 +212,11 @@
           <el-divider class="my-0"></el-divider>
           <v-card-text class="py-1"
             ><span
-              ><v-btn text icon @click="clickToLike" v-if="this.likesNum === 0"
+              ><v-btn
+                text
+                icon
+                @click="clickToLike"
+                v-if="this.likesFlag == false"
                 ><v-icon class="is-size-3"
                   >mdi-cards-heart-outline</v-icon
                 ></v-btn
@@ -190,7 +228,7 @@
                 text
                 icon
                 @click="clickToCollect"
-                v-if="this.collectionNum === 0"
+                v-if="this.collectionFlag == false"
                 ><v-icon class="is-size-3">mdi-star-outline</v-icon></v-btn
               ><v-btn
                 text
@@ -233,8 +271,9 @@ import {
   undoLike,
   doCollection,
   undoCollection,
+  getLACStatus,
 } from "@/api/article";
-import { doFollow, undoFollow } from "@/api/user";
+import { doFollow, undoFollow, getFollowStatus } from "@/api/user";
 /* import IScroll from "iscroll"; // 普通版 */
 export default {
   name: "ArticleModel",
@@ -246,21 +285,15 @@ export default {
   },
   data() {
     return {
-      carousels: [
-        { text: "Slide 1", color: "primary" },
-        { text: "Slide 2", color: "info" },
-        { text: "Slide 3", color: "success" },
-        { text: "Slide 4", color: "warning" },
-        { text: "Slide 5", color: "danger" },
-      ],
       article: null,
       scroll: null,
       commentText: "",
       newCommentNum: 0,
       hoveredUserId: null,
       hoveredCommentId: null,
-      likesNum: 0,
-      collectionNum: 0,
+      likesFlag: false,
+      collectionFlag: false,
+      followFlag: false,
     };
   },
   methods: {
@@ -290,6 +323,26 @@ export default {
           return dateB - dateA;
         }); */
         console.log("处理后的文章详细内容：", this.article);
+        //查看关注，点赞，收藏状态
+        this.getStatus(
+          this.user.userId,
+          this.article.userInfo.userId,
+          this.article.articleId
+        );
+      });
+    },
+    //查看关注，点赞，收藏状态
+    getStatus(userId, fUserId, articleId) {
+      getFollowStatus(userId, fUserId).then((response) => {
+        const { data } = response;
+        this.followFlag = data;
+        console.log("查看当前关注状态：", this.followFlag);
+      });
+      getLACStatus(userId, articleId).then((response) => {
+        const { data } = response;
+        this.likesFlag = data.like;
+        this.collectionFlag = data.collection;
+        console.log("查看当前点赞、收藏状态：", this.followFlag);
       });
     },
     handleComment() {
@@ -371,6 +424,10 @@ export default {
         this.hoveredCommentId === commentId
       );
     },
+    clearHover(){
+      this.hoveredUserId=null;
+      this.hoveredCommentId=null;
+    },
     clickToFollow() {
       const data = {
         userId: this.user.userId,
@@ -382,6 +439,7 @@ export default {
           type: "success",
           duration: 2000,
         });
+        this.followFlag = true;
       });
     },
     clickToUnfollow() {
@@ -395,6 +453,7 @@ export default {
           type: "success",
           duration: 2000,
         });
+        this.followFlag = false;
       });
     },
     clickToLike() {
@@ -410,7 +469,7 @@ export default {
           duration: 2000,
         });
       });
-      this.likesNum = 1;
+      this.likesFlag = true;
     },
     clickToUnlike() {
       const unlike = {
@@ -425,7 +484,7 @@ export default {
           duration: 2000,
         });
       });
-      this.likesNum = 0;
+      this.likesFlag = false;
     },
     clickToCollect() {
       const collection = {
@@ -440,7 +499,7 @@ export default {
           duration: 2000,
         });
       });
-      this.collectionNum = 1;
+      this.collectionFlag = true;
     },
     clickToUncollect() {
       const uncollection = {
@@ -455,7 +514,16 @@ export default {
           duration: 2000,
         });
       });
-      this.collectionNum = 0;
+      this.collectionFlag = false;
+    },
+    //向父组件传值
+    sendValuesToParent() {
+      const values = {
+        Lflag: this.likesFlag,
+        Cflag: this.collectionFlag,
+      }; // 将多个值封装到对象中
+      this.$emit("getLACstatus", values); // 触发自定义事件，并传递值对象
+      console.log("子组件ArticleModel向父组件传值",values)
     },
   },
   computed: {
@@ -471,14 +539,17 @@ export default {
       console.log("newCommentNum", this.newCommentNum);
       this.getArticle();
     },
-    likesNum(val) {
-      console.log("likesNum", this.likesNum);
+    likesFlag(val) {
+      console.log("likesFlag", this.likesFlag);
       this.getArticle();
+      this.sendValuesToParent();
     },
-    collectionNum(val) {
-      console.log("collectionNum", this.collectionNum);
+    collectionFlag(val) {
+      console.log("collectionFlag", this.collectionFlag);
       this.getArticle();
+      this.sendValuesToParent();
     },
+    
   },
   mounted() {
     this.getArticle();
@@ -497,14 +568,16 @@ export default {
   height: 40px; /* 根据需要调整头像的高度 */
 }
 .image-container {
-  height: 700px;
+  height: 745px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .responsive-image {
-  width: 100%;
+  width: auto;
   height: auto;
+  max-height: 100%;
+  max-width:100%
 }
 .video-container {
   height: 700px;
