@@ -10,8 +10,18 @@
         and is_read = false
     </update>
 
-    <select id="getAllMessageByUserId" resultType="com.xjdzy.entity.ChatRecords">
-        select from_user_id,content,send_time from chat_records
-        where to_user_id = #{userId};
+    <select id="getFromUserIdByToUserId" resultType="java.lang.Integer">
+        select distinct from_user_id from chat_records
+        where to_user_id = #{userId}
+        and is_read = false;
     </select>
+
+    <select id="getAllMessageByUserId" resultType="com.xjdzy.entity.ChatRecords">
+        select * from chat_records
+        where to_user_id = #{userId}
+        or from_user_id = #{userId}
+        order by send_time;
+    </select>
+
+
 </mapper>

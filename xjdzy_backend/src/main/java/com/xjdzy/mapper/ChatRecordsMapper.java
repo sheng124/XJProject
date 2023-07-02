@@ -8,7 +8,10 @@ import java.util.List;
 
 @Mapper
 public interface ChatRecordsMapper extends BaseMapper<ChatRecords> {
-    List<ChatRecords> getAllMessageByUserId(Integer userId);
 
     void setIsReadByUserId(Integer userId);
+
+    List<Integer> getFromUserIdByToUserId(Integer userId);
+
+    List<ChatRecords> getAllMessageByUserId(Integer userId);
 }

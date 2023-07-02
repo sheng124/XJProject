@@ -23,5 +23,6 @@ public class ChatRecords {
     private String content;
     private boolean isRead;
     private LocalDateTime sendTime;
+    private int contentType;
 
 }

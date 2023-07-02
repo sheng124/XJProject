@@ -26,7 +26,14 @@ public class Message {
      */
     private Integer userId;
 
+    /**
+     * 消息内容
+     */
     private String content;
+
+    /**
+     * 是否已读：包括对方是否已读、己方是否已读
+     */
     private boolean isRead;
 
     /**
@@ -37,13 +44,14 @@ public class Message {
     private LocalDateTime sendTime;
 
     /**
-     * code为1表明该消息是用户发送的消息，content为消息内容；
-     * code为0表明该消息是服务器发送的控制消息，content为一个用户ID，表明发给该用户的消息已读
+     * code为0表明该消息是服务器发送的控制消息，表明发给userId的用户的消息已读，其它为null
+     * code为1表明该消息是用户发送的消息，content为消息内容，其它为null；
+     * code为2表明该消息是用户接收的消息，content为消息内容，其它为null；
      */
     private int code;
 
     /**
-     * 消息内容类型：1表示图片，content为图片URL；0表示文本，content为文本内容
+     * 消息内容类型：0表示文本，content为文本内容；1表示图片，content为图片URL
      */
-    private int type;
+    private int contentType;
 }
