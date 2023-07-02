@@ -479,7 +479,7 @@ export default {
       console.log("取消点赞信息：", unlike);
       undoLike(unlike).then((response) => {
         this.$message({
-          message: "已取消收藏",
+          message: "已取消点赞",
           type: "success",
           duration: 2000,
         });
@@ -516,18 +516,9 @@ export default {
       });
       this.collectionFlag = false;
     },
-    //向父组件传值
-    sendValuesToParent() {
-      const values = {
-        Lflag: this.likesFlag,
-        Cflag: this.collectionFlag,
-      }; // 将多个值封装到对象中
-      this.$emit("getLACstatus", values); // 触发自定义事件，并传递值对象
-      console.log("子组件ArticleModel向父组件传值",values)
-    },
   },
   computed: {
-    ...mapGetters(["user", "token"]),
+    ...mapGetters(["user", "token","Lflag","Cflag"]),
   },
   watch: {
     // 监听模式
@@ -542,12 +533,27 @@ export default {
     likesFlag(val) {
       console.log("likesFlag", this.likesFlag);
       this.getArticle();
-      this.sendValuesToParent();
+      console.log("commit之前的Lflag：",this.Lflag)
+      if(this.likeFlag==true){
+        this.$store.commit("user/setLflagState",1)
+      }
+      else{
+        this.$store.commit("user/setLflagState",-1)
+      }
+      console.log("commit之后的Lflag：",this.Lflag)
+      
     },
     collectionFlag(val) {
       console.log("collectionFlag", this.collectionFlag);
       this.getArticle();
-      this.sendValuesToParent();
+      console.log("commit之前的Cflag：",this.Cflag)
+      if(this.collectionFlag==true){
+        this.$store.commit("user/setCflagState",1)
+      }
+      else{
+        this.$store.commit("user/setCflagState",-1)
+      }
+      console.log("commit之后的Cflag：",this.Cflag)
     },
     
   },

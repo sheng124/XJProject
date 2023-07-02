@@ -7,6 +7,15 @@ const getters = {
     },
     editArticleId(state){
         return state.user.editArticleId
+    },
+    deleteArticleId(state){
+        return state.user.deleteArticleId
+    },
+    Lflag(state){
+        return state.user.Lflag
+    },
+    Cflag(state){
+        return state.user.Cflag
     }
   }
   export default getters

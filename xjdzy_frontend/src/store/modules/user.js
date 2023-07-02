@@ -10,17 +10,30 @@ const state = {
     password: '', //密码
     userAvatar: ''  // 用户头像
   },
-  editArticleId:-1,
-  deleteArticle:-1,
-
+  editArticleId: -1,
+  deleteArticleId: -1,
+  Lflag: -1,
+  Cflag: -1,
 }
 
 const mutations = {
-  setEditArticleIdState(state,id){
-    state.editArticleId=id
+  setEditArticleIdState(state, id) {
+    state.editArticleId = id
   },
   clearEditArticleIdState(state) {
-    state.editArticleId=-1
+    state.editArticleId = -1
+  },
+  setDeleteArticleIdState(state, id) {
+    state.deleteArticleId = id
+  },
+  clearDeleteArticleIdState(state) {
+    state.deleteArticleId = -1
+  },
+  setLflagState(state, flag) {
+    state.Lflag+=flag;
+  },
+  setCflagState(state, flag) {
+    state.Cflag+=flag;
   },
   setTokenState(state, token) {
     state.token = token
