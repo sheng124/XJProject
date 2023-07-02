@@ -1,16 +1,13 @@
 <template>
     <div>
-        <article class="message column is-two-fifths" v-for="(message,index) in recMessageList" :key="index" >
+        <article class="message column is-two-fifths" v-bind:class="{ ' is-info':message.code == 1}" v-for="(message,index) in messageList" :key="index" >
             <div class="message-body">
-                <div><strong>来自：{{ message.userId }}</strong></div>
-                <div><strong>消息内容{{ message.content }}</strong></div>
-                <div><strong>发送时间{{ message.sendTime }}</strong></div>
-            </div>
-        </article>
-        <article class="message is-info column is-two-fifths" v-for="(message,index) in sendMessageList" :key="index" >
-            <div class="message-body">
-                <strong>{{ message.userId }}</strong>
-                <strong>{{ message.content }}</strong>
+                <div><strong>code:{{ message.code }}</strong></div>
+                <div><strong>userId:{{ message.userId }}</strong></div>
+                <div><strong>content:{{ message.content }}</strong></div>
+                <div><strong>contentType:{{ message.contentType }}</strong></div>
+                <div><strong>sendTime:{{ message.sendTime }}</strong></div>
+                <div><strong>isread:{{ message.read }}</strong></div>
             </div>
         </article>
         <el-input v-model="sendMsg" placeholder="发送的消息"></el-input>
@@ -27,8 +24,7 @@ export default {
     data() {
         return {
             ws: null,
-            recMessageList:[],
-            sendMessageList:[],
+            messageList:[],
             sendMsg:'',
             sendUserId:-1
         }
@@ -40,6 +36,12 @@ export default {
         //初始化websocket
         this.ws = new WebSocket("ws://localhost:8080/chat/"+this.user.userId);
         this.wsInit();
+        
+    },
+    destroyed(){
+        console.log("用户下线！")
+        // 关闭连接
+        this.ws.close()
     },
     methods: {
         wsInit() {
@@ -53,9 +55,20 @@ export default {
             }
             this.ws.onmessage = (message) => {
                 console.log("收到服务器消息")
-                console.log(JSON.parse(message.data))
+                var msgInfo = JSON.parse(message.data)
+                console.log(msgInfo)
                 console.log(this.ws.readyState)
-                this.recMessageList.push(JSON.parse(message.data))
+                if(msgInfo.code === 0){
+                    // 修改已经收到的消息状态
+                    for(var i=0;i<this.messageList.length;i++){
+                        if(this.messageList[i].code === 1 && this.messageList[i].userId === msgInfo.userId){
+                            this.messageList[i].read = true
+                        }
+                    }
+                } else{
+                    this.messageList.push(msgInfo)
+                }
+                console.log(this.messageList)
             }
             this.ws.onerror = (error) => {
                 console.log("websocket错误!")
@@ -65,11 +78,14 @@ export default {
         },
         sendMessage(userId,message){
             var msg = {
-                "userId":userId,
-                "content":message
+                "code":1,
+                "userId":Number(userId),
+                "content":message,
+                "contentType":0,
+                "read":false
             }
             this.ws.send(JSON.stringify(msg))
-            this.sendMessageList.push(msg)
+            this.messageList.push(msg)
         }
     }
 }
