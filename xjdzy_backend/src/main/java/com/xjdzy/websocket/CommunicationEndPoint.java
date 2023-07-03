@@ -4,7 +4,6 @@ import com.xjdzy.dto.Message;
 import com.xjdzy.entity.ChatRecords;
 import com.xjdzy.mapper.ChatRecordsMapper;
 import com.xjdzy.utils.JsonUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -58,14 +57,18 @@ public class CommunicationEndPoint {
                     .isRead(chatRecords.isRead())
                     .contentType(chatRecords.getContentType())
                     .build();
+            Integer userId;
             if(chatRecords.getToUserId().equals(this.userId)){
-                message.setUserId(chatRecords.getFromUserId());
+                userId = chatRecords.getFromUserId();
                 message.setCode(2);
             }
             else{
-                message.setUserId(chatRecords.getToUserId());
+                userId = chatRecords.getToUserId();
                 message.setCode(1);
             }
+            message.setUserId(userId);
+            message.setUsername(chatRecordsMapper.getUserNameByUserId(userId));
+            message.setUserAvatar(chatRecordsMapper.getUserAvatarByUserId(userId));
             try {
                 this.session.getBasicRemote().sendText(JsonUtils.objectToJSONString(message));
             } catch (IOException e) {
@@ -150,9 +153,6 @@ public class CommunicationEndPoint {
                                 .sendTime(sendTime)
                                 .isRead(true)
                                 .build();
-                        System.out.println("------------------------");
-                        System.out.println(messageObj2);
-                        System.out.println("------------------------");
                         communicationUsers.get(toUserId).session.getBasicRemote().sendText(JsonUtils.objectToJSONString(messageObj2));
                     } catch (IOException e) {
                         e.printStackTrace();
