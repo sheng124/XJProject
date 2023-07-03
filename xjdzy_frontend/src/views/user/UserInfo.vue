@@ -9,8 +9,7 @@
       </el-card> -->
 
       <!-- 用户卡片 -->
-      <div class="card" style="display: flex;
-  justify-content: center;">
+      <div class="card" style="display: flex; justify-content: center">
         <div class="card-content" style="justify-content: center">
           <div class="media">
             <div class="media-left">
@@ -21,7 +20,7 @@
                 <span class="title is-4 mx-4 mt-4">{{
                   currentUser.username
                 }}</span>
-                <span v-if="this.currentUserId != this.user.userId">
+                <span v-if="currentUserId != this.user.userId">
                   <v-btn
                     color="red"
                     @click="clickToFollow"
@@ -47,7 +46,7 @@
               </div>
               <p>
                 <i
-                  v-if="this.currentUserId == this.user.userId"
+                  v-if="currentUserId == this.user.userId"
                   class="el-icon-edit ml-4 is-size-7 has-text-grey"
                   style="cursor: pointer"
                   @click="dialogVisible = true"
@@ -114,26 +113,24 @@
                 title="关注列表"
                 :visible.sync="gzVisible"
                 width="30%"
-                center>
+                center
+              >
                 <v-list subheader>
                   <v-list-item
-                  v-for="(Onefollowing, index) in FollowingDataList" 
-                  :key="index"
+                    v-for="(Onefollowing, index) in FollowingDataList"
+                    :key="index"
                   >
                     <v-list-item-avatar>
-                      <v-img
-                        :src="Onefollowing.userAvatar"
-                      ></v-img>
+                      <v-img :src="Onefollowing.userAvatar"></v-img>
                     </v-list-item-avatar>
 
                     <v-list-item-content>
-                      <v-list-item-title v-text="Onefollowing.username"></v-list-item-title>
+                      <v-list-item-title>{{
+                        Onefollowing.username
+                      }}</v-list-item-title>
                     </v-list-item-content>
 
-                    <v-list-item-button>
-                      111
-                    </v-list-item-button>
-
+                    <v-list-item-button> 111 </v-list-item-button>
                   </v-list-item>
                 </v-list>
                 <!-- <div v-for="(Onefollowing, index) in FollowingDataList" :key="index">
@@ -148,37 +145,39 @@
                   </div>
                 </div> -->
                 <span slot="footer" class="dialog-footer">
-                  <el-button type="primary" @click="gzVisible = false">关 闭</el-button>
+                  <el-button type="primary" @click="gzVisible = false"
+                    >关 闭</el-button
+                  >
                 </span>
               </el-dialog>
               <el-dialog
                 title="粉丝列表"
                 :visible.sync="fsVisible"
                 width="30%"
-                center>
+                center
+              >
                 <v-list subheader>
                   <v-list-item
-                  v-for="(Onefollower, index) in FollowerDataList" 
-                  :key="index"
+                    v-for="(Onefollower, index) in FollowerDataList"
+                    :key="index"
                   >
                     <v-list-item-avatar>
-                      <v-img
-                        :src="Onefollower.userAvatar"
-                      ></v-img>
+                      <v-img :src="Onefollower.userAvatar"></v-img>
                     </v-list-item-avatar>
 
                     <v-list-item-content>
-                      <v-list-item-title v-text="Onefollower.username"></v-list-item-title>
+                      <v-list-item-title>{{
+                        Onefollower.username
+                      }}</v-list-item-title>
                     </v-list-item-content>
 
-                    <v-list-item-button>
-                      111
-                    </v-list-item-button>
-
+                    <v-list-item-button> 111 </v-list-item-button>
                   </v-list-item>
                 </v-list>
                 <span slot="footer" class="dialog-footer">
-                  <el-button type="primary" @click="fsVisible = false">关 闭</el-button>
+                  <el-button type="primary" @click="fsVisible = false"
+                    >关 闭</el-button
+                  >
                 </span>
               </el-dialog>
             </div>
@@ -187,7 +186,8 @@
       </div>
     </div>
     <!-- 此用户发布、收藏、点赞的笔记列表 -->
-    <section><!--   -->
+    <section>
+      <!--   -->
       <!-- 标签栏 -->
       <!-- <b-tabs
         type="is-toggle-rounded"
@@ -202,7 +202,8 @@
           </b-tab-item>
         </template>
       </b-tabs> -->
-      <v-tabs v-model="activeTab" centered><!--   -->
+      <v-tabs v-model="activeTab" centered
+        ><!--   -->
         <v-tabs-slider color="purple darken-3"></v-tabs-slider>
         <v-tab v-for="(tab, index) in tabs" :key="index">
           {{ tab }}
@@ -296,18 +297,21 @@ export default {
       allArticles: [],
       //当前用户ID
       currentUserId: this.$route.params.userId,
-      currentUser: null,
+      currentUser: {
+        username: "",
+        userAvatar: "",
+      },
       followFlag: false, //当前个人首页的用户是否是我关注的
-      gzVisible:false,
-      fsVisible:false,
-      FollowingDataList:[],  //当前用户的关注列表
-      FollowerDataList:[],   //当前用户的粉丝列表
+      gzVisible: false,
+      fsVisible: false,
+      FollowingDataList: [], //当前用户的关注列表
+      FollowerDataList: [], //当前用户的粉丝列表
     };
   },
   computed: {
-    ...mapGetters(["user", "token","Lflag","Cflag"]),
+    ...mapGetters(["user", "token", "Lflag", "Cflag"]),
   },
-  created() {
+  mounted() {
     this.init();
   },
   watch: {
@@ -323,14 +327,14 @@ export default {
       console.log("当前选中的标签栏：", val);
       console.log(this.activeTab);
     },
-    Lflag(val){
-      console.log("监听Lflag的变化",val)
+    Lflag(val) {
+      console.log("监听Lflag的变化", val);
       this.init();
     },
-    Cflag(val){
-      console.log("监听Cflag的变化",val)
+    Cflag(val) {
+      console.log("监听Cflag的变化", val);
       this.init();
-    }
+    },
   },
   methods: {
     reset() {
@@ -338,8 +342,8 @@ export default {
       this.liArticles = [];
       this.coArticles = [];
       this.allArticles = [];
-      this.FollowingDataList=[];
-      this.FollowerDataList=[];
+      this.FollowingDataList = [];
+      this.FollowerDataList = [];
     },
     processArticle(data) {
       //这里的data就是当前用户所有相关的文章
@@ -373,7 +377,8 @@ export default {
       console.log("当前用户ID：", this.currentUserId);
       getUserInfo(this.currentUserId).then((response) => {
         const { data } = response;
-        this.currentUser = data;
+        this.currentUser.username = data.username;
+        this.currentUser.userAvatar = data.userAvatar;
         console.log("当前用户信息：", this.currentUser);
       });
       getFollowStatus(this.user.userId, this.currentUserId).then((response) => {
@@ -485,6 +490,12 @@ export default {
           type: "success",
           duration: 2000,
         });
+        getUserInfo(this.currentUserId).then((response) => {
+          const { data } = response;
+          this.currentUser.username = data.username;
+          this.currentUser.userAvatar = data.userAvatar;
+          console.log("当前用户信息：", this.currentUser);
+        });
         this.$store.dispatch("user/getInfo");
       });
     },
@@ -516,6 +527,12 @@ export default {
                 type: "success",
                 duration: 2000,
               });
+              getUserInfo(this.currentUserId).then((response) => {
+                const { data } = response;
+                this.currentUser.username = data.username;
+                this.currentUser.userAvatar = data.userAvatar;
+                console.log("当前用户信息：", this.currentUser);
+              });
             }); /* .catch(() => {
                         }); */
           }
@@ -531,6 +548,12 @@ export default {
                 message: "修改密码成功",
                 type: "success",
                 duration: 2000,
+              });
+              getUserInfo(this.currentUserId).then((response) => {
+                const { data } = response;
+                this.currentUser.username = data.username;
+                this.currentUser.userAvatar = data.userAvatar;
+                console.log("当前用户信息：", this.currentUser);
               });
             }); /* .catch(() => {
                         }); */
@@ -581,14 +604,13 @@ export default {
       });
     },
     //展示关注列表的函数
-    showgz(){
-      this.gzVisible=true;
-
+    showgz() {
+      this.gzVisible = true;
     },
     //展示粉丝列表的函数
-    showfs(){
-      this.fsVisible=true;
-    }
+    showfs() {
+      this.fsVisible = true;
+    },
   },
 };
 </script>
