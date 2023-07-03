@@ -44,7 +44,7 @@
             <span style="margin: 0 40%">Chat</span>
           </v-toolbar> -->
           <v-list width="260px" flat v-if="activeTab == 1">
-            <v-subheader @click="windowOfUserId=-1">CHATS</v-subheader>
+            <v-subheader @click="windowOfUserId = -1">CHATS</v-subheader>
             <v-list-item-group v-model="selectedItem" color="primary">
               <v-list-item
                 v-for="(item, index) in handledMessageList"
@@ -81,7 +81,7 @@
             </v-list-item-group>
           </v-list>
         </div>
-        <div v-if="windowOfUserId!=-1">聊天界面</div>
+        <div v-if="windowOfUserId != -1">聊天界面</div>
       </div>
     </v-card>
   </div>
@@ -97,7 +97,7 @@ export default {
   data() {
     return {
       activeTab: 1, // 选中显示消息列表还是联系人列表
-      selectedItem: 1, //选中具体一条消息或联系人
+      selectedItem: -1, //选中具体一条消息或联系人
       FollowingDataList: [], // 当前用户的关注列表
       FollowerDataList: [], // 当前用户的粉丝列表
 
@@ -107,7 +107,7 @@ export default {
       sendUserId: -1,
 
       handledMessageList: [],
-      windowOfUserId:-1,  //关于关闭聊天，初步设置在点击头像后
+      windowOfUserId: -1, //关于关闭聊天，初步设置在点击头像后
     };
   },
   created() {
@@ -154,8 +154,8 @@ export default {
           console.log(`消息内容：${message.content}`);
         });
       }
-      const keys=Object.keys(this.handledMessageList);
-      console.log("键：",keys);
+      const keys = Object.keys(this.handledMessageList);
+      console.log("键：", keys);
     },
     wsInit() {
       this.ws.onopen = () => {
@@ -186,12 +186,24 @@ export default {
         }
         console.log("每收到服务器一条消息后的messageList", this.messageList);
         this.handleMessages();
+        if(this.windowOfUserId!=-1){
+          this.sendControlMessage(this.windowOfUserId)
+          console.log("已发送控制消息给用户",this.windowOfUserId);
+        }
       };
       this.ws.onerror = (error) => {
         console.log("websocket错误!");
         console.log(error);
         console.log(this.ws.readyState);
       };
+    },
+    // 进入聊天界面要发一个控制消息，聊天界面打开状态，每收到一条消息，都会发一个控制消息
+    sendControlMessage(chatUserId) {
+      var msg = {
+        code:0,
+        userId:chatUserId
+      };
+      this.ws.send(JSON.stringify(msg));
     },
     sendMessage(userId, message) {
       var msg = {
@@ -224,21 +236,11 @@ export default {
         console.log("选中的分栏：", this.activeTab, "联系人");
       }
     },
-    showChatWindow(chatUserId){
-      this.windowOfUserId=chatUserId
-      console.log("对话的用户ID",this.windowOfUserId);
-
-    },
-    //传进来一个消息数组
-    getMeassageItem(key) {
-      getUserInfo(key).then((response) => {
-        const { data } = response;
-        this.messageItem = {
-          username: data.username,
-          userAvatar: data.userAvatar,
-          handledMeassge: this.handledMessageList[key],
-        };
-      });
+    showChatWindow(chatUserId) {
+      this.windowOfUserId = chatUserId;
+      console.log("对话的用户ID", this.windowOfUserId);
+      this.sendControlMessage(this.windowOfUserId);
+      console.log("已发送控制消息给用户",this.windowOfUserId);
     },
     getNowTime: function () {
       let dateTime;

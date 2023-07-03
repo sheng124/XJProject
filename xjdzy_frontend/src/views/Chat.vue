@@ -95,6 +95,7 @@ export default {
                 console.log(this.ws.readyState)
             }
         },
+        
         sendMessage(userId,message){
             var msg = {
                 "code":1,
