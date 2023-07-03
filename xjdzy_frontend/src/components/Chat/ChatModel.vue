@@ -1,10 +1,108 @@
 <template>
   <div>
     <!-- 文章内容 -->
-    <v-card elevation="1" max-width="1000px" style="border-radius: 20px">
-      <v-toolbar color="gray" dark flat>
+    <v-card elevation="1" max-width="1500px" style="border-radius: 20px">
+      <!-- <v-toolbar color="gray" dark flat>
         <v-toolbar-title>Chat</v-toolbar-title>
-      </v-toolbar>
+      </v-toolbar> -->
+      <div class="level-left">
+        <v-navigation-drawer permanent expand-on-hover class="is-align-self-flex-start">
+          <v-list-item class="px-2">
+            <v-list-item-avatar>
+              <v-img :src="user.userAvatar"></v-img>
+            </v-list-item-avatar>
+            <v-list-item-title>{{ user.username }}</v-list-item-title>
+          </v-list-item>
+          <v-divider class="my-1"></v-divider>
+          <v-list nav>
+            <v-list-item link @click="navigateTo('/messages')">
+              <v-list-item-icon>
+                <v-icon>mdi-chat</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Messages</v-list-item-title>
+            </v-list-item>
+            <v-list-item link @click="navigateTo('/accounts')">
+              <v-list-item-icon>
+                <v-icon>mdi-account-group</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>联系人</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-navigation-drawer>
+        <div class="is-align-self-flex-start">
+          <!-- <v-toolbar
+            flat
+            absolute
+            width="260px"
+            height="61px"
+            color="grey lighten-5"
+          >
+            <span style="margin: 0 40%">Chat</span>
+          </v-toolbar> -->
+          <v-list max-width="260px" flat>
+            <v-subheader>CHATS</v-subheader>
+            <v-list-item-group v-model="selectedItem" color="primary">
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-img :src="user.userAvatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>是打算电话</v-list-item-title>
+                  <v-list-item-subtitle>分身乏术东方说？</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-img :src="user.userAvatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>测试</v-list-item-title>
+                  <v-list-item-subtitle>你吃啥？</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-img :src="user.userAvatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>测试</v-list-item-title>
+                  <v-list-item-subtitle>你吃啥？</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-img :src="user.userAvatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>测试</v-list-item-title>
+                  <v-list-item-subtitle>你吃啥？</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-img :src="user.userAvatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>测试</v-list-item-title>
+                  <v-list-item-subtitle>你吃啥？</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-avatar>
+                  <v-img :src="user.userAvatar"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>测试</v-list-item-title>
+                  <v-list-item-subtitle>你吃啥？</v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </div>
+        <div>
+          聊天界面
+        </div>
+      </div>
     </v-card>
   </div>
 </template>
@@ -16,7 +114,10 @@ export default {
   name: "ChatModel",
   props: {},
   data() {
-    return {};
+    return {
+      activeTab: 1,
+      selectedItem: 1,
+    };
   },
   methods: {
     formatDate1(dateString) {
@@ -26,6 +127,16 @@ export default {
     formatDate2(dateString) {
       const date = dateString.replace("T", " ");
       return date;
+    },
+    navigateTo(routePath) {
+      if (routePath === "/messages") {
+        this.activeTab = 1;
+        console.log("选中的分栏：",this.activeTab,"聊天")
+      } else {
+        this.activeTab = 2;
+        console.log("选中的分栏：",this.activeTab,"联系人")
+      }
+      
     },
     getNowTime: function () {
       let dateTime;
@@ -57,40 +168,14 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["user", "token", "Lflag", "Cflag"]),
+    ...mapGetters(["user", "token"]),
   },
   watch: {
     // 监听模式
-    currentArticleId(val) {
-      console.log("currentArticleId", this.currentArticleId);
-      this.getArticle();
-    },
-    newCommentNum(val) {
-      console.log("newCommentNum", this.newCommentNum);
-      this.getArticle();
-    },
-    likesFlag(val) {
-      console.log("likesFlag", this.likesFlag);
-      this.getArticle();
-      console.log("commit之前的Lflag：", this.Lflag);
-      if (this.likeFlag == true) {
-        this.$store.commit("user/setLflagState", 1);
-      } else {
-        this.$store.commit("user/setLflagState", -1);
-      }
-      console.log("commit之后的Lflag：", this.Lflag);
-    },
-    collectionFlag(val) {
-      console.log("collectionFlag", this.collectionFlag);
-      this.getArticle();
-      console.log("commit之前的Cflag：", this.Cflag);
-      if (this.collectionFlag == true) {
-        this.$store.commit("user/setCflagState", 1);
-      } else {
-        this.$store.commit("user/setCflagState", -1);
-      }
-      console.log("commit之后的Cflag：", this.Cflag);
-    },
+    selectedItem(val){
+      console.log("选中的聊天：",val)
+    }
+    
   },
   mounted() {
     this.getArticle();

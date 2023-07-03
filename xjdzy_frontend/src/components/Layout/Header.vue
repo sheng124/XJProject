@@ -14,7 +14,8 @@
 
       <template slot="end">
         <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item>
-        <b-navbar-item tag="router-link" :to="{path:'/chat'}"> 聊天 </b-navbar-item>
+        <b-navbar-item tag="router-link" :to="{path:'/chat'}"> 聊天1 </b-navbar-item>
+        <b-navbar-item @click="openChatDialog"> 聊天 </b-navbar-item>
         <b-navbar-item
           tag="router-link"
           :to="{ name: 'publish_center' }"
@@ -119,6 +120,16 @@
         </b-navbar-dropdown> -->
       </template>
     </b-navbar>
+    <!-- 聊天弹窗 -->
+    <div data-app="true">
+      <v-dialog
+        v-model="chatDialogVisible"
+        max-width="1500px"
+        style="height: 800px"
+      >
+        <chat-model @close="closeChatDialog"></chat-model>
+      </v-dialog>
+    </div>
   </header>
 </template>
   
@@ -128,14 +139,20 @@ import {
   enable as enableDarkMode,
 } from "darkreader";
 import { mapGetters } from "vuex";
+import ChatModel from "@/components/Chat/ChatModel.vue"; 
 import { removeAll, getDarkMode, setDarkMode } from "@/utils/js_cookie";
 export default {
   name: "Header",
+  components: {
+    //声明组件
+    ChatModel,
+  },
   data() {
     return {
       logoUrl: require("@/assets/logo.png"),
       doubaoImg: require("@/assets/image/doubao.png"),
       darkMode: false,
+      chatDialogVisible:false,
     };
   },
   computed: {
@@ -163,6 +180,12 @@ export default {
     }
   },
   methods: {
+    openChatDialog(){
+      this.chatDialogVisible=true;
+    },
+    closeChatDialog() {
+      this.chatDialogVisible=false;
+    },
     async logout() {
       this.$store.dispatch("user/userLogout").then(() => {
         this.$message.info("退出登录成功");

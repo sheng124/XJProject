@@ -199,7 +199,7 @@ export default {
       );
     },
     closeArticleDialog() {
-      this.electedArticleVisible = false;
+      this.selectedArticleVisible = false;
       this.selectedArticleId = null;
     },
     //处理文章详情子组件传过来的值
