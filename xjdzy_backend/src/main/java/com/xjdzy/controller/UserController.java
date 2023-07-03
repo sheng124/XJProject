@@ -277,5 +277,41 @@ public class UserController {
         log.info("Service处理的结果："+ res);
         return Result.success(res);
     }
+
+    /**
+     * 获取关注列表
+     * @param userId 用户ID
+     * @return List<UserInfo>
+     */
+    @GetMapping("/user/getFollowing/{userId}")
+    public Result getFollowingCon(@PathVariable Integer userId){
+        log.info("获取到的数据："+ userId + " " + userId);
+        List<UserInfo> res = userService.getFollowingService(userId);
+        log.info("Service处理的结果："+ res);
+        if(res != null){
+            return Result.success(res);
+        }
+        else{
+            return Result.error("获取失败!");
+        }
+    }
+
+    /**
+     * 获取粉丝列表
+     * @param userId 用户ID
+     * @return List<UserInfo>
+     */
+    @GetMapping("/user/getFollower/{userId}")
+    public Result getFollowerCon(@PathVariable Integer userId){
+        log.info("获取到的数据："+ userId + " " + userId);
+        List<UserInfo> res = userService.getFollowerService(userId);
+        log.info("Service处理的结果："+ res);
+        if(res != null){
+            return Result.success(res);
+        }
+        else{
+            return Result.error("获取失败!");
+        }
+    }
 }
 
