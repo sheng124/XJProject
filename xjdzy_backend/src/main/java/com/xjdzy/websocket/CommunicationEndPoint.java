@@ -122,7 +122,7 @@ public class CommunicationEndPoint {
         if (messageObj1 != null) {
             Integer toUserId = messageObj1.getUserId();
             String content = messageObj1.getContent();
-            LocalDateTime sendTime = LocalDateTime.now();
+            LocalDateTime sendTime = messageObj1.getSendTime();
             // 查看对方是否在线
             if(communicationUsers.containsKey(toUserId)){
                 // 对方在线，构造并发送发送Message

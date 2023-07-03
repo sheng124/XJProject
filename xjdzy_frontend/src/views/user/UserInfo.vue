@@ -228,7 +228,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["user", "token"]),
+    ...mapGetters(["user", "token","Lflag","Cflag"]),
   },
   created() {
     this.init();
@@ -246,6 +246,14 @@ export default {
       console.log("当前选中的标签栏：", val);
       console.log(this.activeTab);
     },
+    Lflag(val){
+      console.log("监听Lflag的变化",val)
+      this.init();
+    },
+    Cflag(val){
+      console.log("监听Cflag的变化",val)
+      this.init();
+    }
   },
   methods: {
     reset() {

@@ -93,16 +93,20 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["token", "user"]),
+    ...mapGetters(["token", "user","deleteArticleId"]),
   },
   mounted() {
     this.init();
   },
   watch: {
-    // 监听模式
+    deleteArticleId(val){
+      console.log("监听到要删除的笔记ID：",val)
+      this.init();
+    }
   },
   methods: {
     init() {
+      
       getUserData(this.user.userId).then((response) => {
         const { data } = response;
         this.userData = data;
@@ -114,6 +118,7 @@ export default {
       getWrLiCoArticles(this.user.userId).then((response) => {
         const { data } = response;
         console.log("收到的所有相关笔记数据", data, data.length);
+        this.wrArticles=[];//先清空已发布数组
         //已发布：1，已收藏:2，已喜欢：3
         for (var i = 0; i < data.length; i++) {
           console.log("笔记" + i + "的类型为：", data[i].type);

@@ -111,3 +111,11 @@ export function getFollowStatus(userId,fUserId) {
     method: 'get',
   })
 }
+
+//删除文章
+export function deleteArticle(articleId){
+  return request({
+    url: `/user/articles/${articleId}`,
+    method: 'delete',
+  })
+}
