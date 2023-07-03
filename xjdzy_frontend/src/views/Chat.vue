@@ -1,19 +1,38 @@
 <template>
-    <div>
-        <article class="message column is-two-fifths" v-bind:class="{ ' is-info':message.code == 1}" v-for="(message,index) in messageList" :key="index" >
-            <div class="message-body">
-                <div><strong>code:{{ message.code }}</strong></div>
-                <div><strong>userId:{{ message.userId }}</strong></div>
-                <div><strong>content:{{ message.content }}</strong></div>
-                <div><strong>contentType:{{ message.contentType }}</strong></div>
-                <div><strong>sendTime:{{ message.sendTime }}</strong></div>
-                <div><strong>isread:{{ message.read }}</strong></div>
-            </div>
-        </article>
-        <el-input v-model="sendMsg" placeholder="发送的消息"></el-input>
-        <el-input v-model="sendUserId" placeholder="对方ID"></el-input>
-        <el-button type="primary" @click="sendMessage(sendUserId,sendMsg)">提交</el-button>
-    </div>
+  <div>
+    <article
+      class="message column is-two-fifths"
+      v-bind:class="{ ' is-info': message.code == 1 }"
+      v-for="(message, index) in messageList"
+      :key="index"
+    >
+      <div class="message-body">
+        <div>
+          <strong>code:{{ message.code }}</strong>
+        </div>
+        <div>
+          <strong>userId:{{ message.userId }}</strong>
+        </div>
+        <div>
+          <strong>content:{{ message.content }}</strong>
+        </div>
+        <div>
+          <strong>contentType:{{ message.contentType }}</strong>
+        </div>
+        <div>
+          <strong>sendTime:{{ message.sendTime }}</strong>
+        </div>
+        <div>
+          <strong>isread:{{ message.read }}</strong>
+        </div>
+      </div>
+    </article>
+    <el-input v-model="sendMsg" placeholder="发送的消息"></el-input>
+    <el-input v-model="sendUserId" placeholder="对方ID"></el-input>
+    <el-button type="primary" @click="sendMessage(sendUserId, sendMsg)"
+      >提交</el-button
+    >
+  </div>
 </template>
   
 <script>
@@ -82,11 +101,40 @@ export default {
                 "userId":Number(userId),
                 "content":message,
                 "contentType":0,
-                "read":false
+                "read":false,
+                "sendTime":this.getNowTime(),
             }
             this.ws.send(JSON.stringify(msg))
             this.messageList.push(msg)
-        }
+        },
+        getNowTime: function () {
+            let dateTime;
+            let yy = new Date().getFullYear();
+            let mm =
+                new Date().getMonth() + 1 < 10
+                ? "0" + (new Date().getMonth() + 1)
+                : new Date().getMonth() + 1;
+            let dd =
+                new Date().getDate() < 10
+                ? "0" + new Date().getDate()
+                : new Date().getDate();
+            let hh =
+                new Date().getHours() < 10
+                ? "0" + new Date().getHours()
+                : new Date().getHours();
+            let mf =
+                new Date().getMinutes() < 10
+                ? "0" + new Date().getMinutes()
+                : new Date().getMinutes();
+            let ss =
+                new Date().getSeconds() < 10
+                ? "0" + new Date().getSeconds()
+                : new Date().getSeconds();
+            dateTime =
+                yy + "-" + mm + "-" + dd + "T" + hh + ":" + mf + ":" + ss + ".000Z";
+            console.log(dateTime);
+            return dateTime;
+        },
     }
 }
 </script>

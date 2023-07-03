@@ -21,6 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,17 +106,8 @@ class XjdzyApplicationTests {
 
     @Test
     void TestArticle(){
-        List<Integer> stringList = new ArrayList<>();
-        stringList.add(1);
-        stringList.add(2);
-        stringList.add(3);
-        stringList.add(4);
-        List<String> list = new ArrayList<>();
-        for(Integer i:stringList){
-            String s=i.toString();
-            list.add(s);
-        }
-        System.out.println("list:"+list);
+        LocalDateTime sendTime = LocalDateTime.now();
+        System.out.println(sendTime);
     }
 
 }
