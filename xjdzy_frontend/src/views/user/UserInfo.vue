@@ -102,14 +102,34 @@
               <p class="subtitle is-6 mt-6">
                 <span class="has-text-weight-semibold ml-2"
                   >{{ userData.following }} </span
-                ><span class="has-text-weight-light">关注</span
+                ><span class="has-text-weight-light" @click="showgz">关注</span
                 ><span class="has-text-weight-semibold ml-2"
                   >{{ userData.followers }} </span
-                ><span class="has-text-weight-light">粉丝</span
+                ><span class="has-text-weight-light" @click="showfs">粉丝</span
                 ><span class="has-text-weight-semibold ml-2"
                   >{{ likesANDcollection }} </span
                 ><span class="has-text-weight-light">获赞与收藏</span>
               </p>
+              <el-dialog
+                title="关注列表"
+                :visible.sync="gzVisible"
+                width="30%"
+                center>
+                <span>需要注意的是内容是默认不居中的</span>
+                <span slot="footer" class="dialog-footer">
+                  <el-button type="primary" @click="gzVisible = false">关 闭</el-button>
+                </span>
+              </el-dialog>
+              <el-dialog
+                title="粉丝列表"
+                :visible.sync="fsVisible"
+                width="30%"
+                center>
+                <span>需要注意的是内容是默认不居中的</span>
+                <span slot="footer" class="dialog-footer">
+                  <el-button type="primary" @click="fsVisible = false">关 闭</el-button>
+                </span>
+              </el-dialog>
             </div>
           </div>
         </div>
@@ -225,6 +245,8 @@ export default {
       currentUserId: this.$route.params.userId,
       currentUser: null,
       followFlag: false, //当前个人首页的用户是否是我关注的
+      gzVisible:false,
+      fsVisible:false,
     };
   },
   computed: {
@@ -491,6 +513,15 @@ export default {
         this.followFlag = false;
       });
     },
+    //展示关注列表的函数
+    showgz(){
+      this.gzVisible=true;
+
+    },
+    //展示粉丝列表的函数
+    showfs(){
+      this.fsVisible=true;
+    }
   },
 };
 </script>
