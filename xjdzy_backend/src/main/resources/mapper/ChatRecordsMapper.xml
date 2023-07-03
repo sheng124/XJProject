@@ -6,8 +6,9 @@
     <update id="setIsReadByUserId">
         update chat_records
         set is_read = true
-        where to_user_id = #{userId}
-        and is_read = false
+        where is_read = false
+        and to_user_id = #{toUserId}
+        and from_user_id = #{fromUserId}
     </update>
 
     <select id="getFromUserIdByToUserId" resultType="java.lang.Integer">

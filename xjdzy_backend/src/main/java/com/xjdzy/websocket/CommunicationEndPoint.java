@@ -74,23 +74,19 @@ public class CommunicationEndPoint {
     /**
      * 将接收到的消息状态改为已读
      */
-    private void setReadStatus(){
-        // 检索向该用户发送消息的用户的userId
-        List<Integer> userList = chatRecordsMapper.getFromUserIdByToUserId(this.userId);
+    private void controlMessageHandle(Integer userId){
         // 修改数据库中消息状态
-        chatRecordsMapper.setIsReadByUserId(this.userId);
+        chatRecordsMapper.setIsReadByUserId(this.userId,userId);
         // 判断消息的发送方是否在线，若在线需要立即向其反馈
-        for(Integer uId:userList){
-            if(communicationUsers.containsKey(uId)){
-                try {
-                    Message systemMsg = Message.builder()
-                            .code(0)
-                            .userId(this.userId)
-                            .build();
-                    communicationUsers.get(uId).session.getBasicRemote().sendText(JsonUtils.objectToJSONString(systemMsg));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        if(communicationUsers.containsKey(userId)){
+            try {
+                Message systemMsg = Message.builder()
+                        .code(0)
+                        .userId(this.userId)
+                        .build();
+                communicationUsers.get(userId).session.getBasicRemote().sendText(JsonUtils.objectToJSONString(systemMsg));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -106,11 +102,9 @@ public class CommunicationEndPoint {
         System.out.println("用户 "+this.userId+" 已上线！");
         // 将当前通信站点存入站点集合
         communicationUsers.put(this.userId,this);
-        // 查看是否有聊天记录，如果有，将聊天记录发送给该用户
+        // 查看聊天记录（发送的和接收的），将聊天记录发送给该用户
         List<ChatRecords> allMessageList = chatRecordsMapper.getAllMessageByUserId(this.userId);
         sendChatRecords(allMessageList);
-        // 发送完毕后将未读消息改为已读
-        setReadStatus();
     }
 
     // 接收到消息时执行
@@ -120,32 +114,16 @@ public class CommunicationEndPoint {
         Message messageObj1 = JsonUtils.JSONStringToMessage(message);
         System.out.println("收到消息："+messageObj1);
         if (messageObj1 != null) {
-            Integer toUserId = messageObj1.getUserId();
-            String content = messageObj1.getContent();
-            LocalDateTime sendTime = messageObj1.getSendTime();
-            // 查看对方是否在线
-            if(communicationUsers.containsKey(toUserId)){
-                // 对方在线，构造并发送发送Message
-                try {
-                    Message messageObj2 = Message.builder()
-                            .code(2)
-                            .userId(this.userId)
-                            .content(content)
-                            .contentType(0)
-                            .sendTime(sendTime)
-                            .isRead(true)
-                            .build();
-                    communicationUsers.get(toUserId).session.getBasicRemote().sendText(JsonUtils.objectToJSONString(messageObj2));
-                    // 告知发送方，消息已读
-                    Message systemMsg = Message.builder()
-                            .code(0)
-                            .userId(toUserId)
-                            .build();
-                    communicationUsers.get(this.userId).session.getBasicRemote().sendText(JsonUtils.objectToJSONString(systemMsg));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                // 构造ChatRecords，将聊天记录存入数据库，标记为已读
+            if(messageObj1.getCode() == 0){
+                // 控制消息处理
+                controlMessageHandle(messageObj1.getUserId());
+            }
+            else {
+                // 用户消息处理
+                Integer toUserId = messageObj1.getUserId();
+                String content = messageObj1.getContent();
+                LocalDateTime sendTime = messageObj1.getSendTime();
+                // 1.将聊天记录存入数据库，标记为未读
                 ChatRecords chatRecords = ChatRecords.builder()
                         .toUserId(toUserId)
                         .fromUserId(this.userId)
@@ -154,17 +132,22 @@ public class CommunicationEndPoint {
                         .sendTime(sendTime)
                         .build();
                 chatRecordsMapper.insert(chatRecords);
-            }
-            else{
-                // 对方不在线，构造ChatRecords，将聊天记录存入数据库，标记为未读
-                ChatRecords chatRecords = ChatRecords.builder()
-                        .toUserId(toUserId)
-                        .fromUserId(this.userId)
-                        .content(content)
-                        .isRead(false)
-                        .sendTime(sendTime)
-                        .build();
-                chatRecordsMapper.insert(chatRecords);
+                // 2.判断对方是否在线，若在线，将消息发送给对方，标记为未读
+                if(communicationUsers.containsKey(toUserId)) {
+                    try {
+                        Message messageObj2 = Message.builder()
+                                .code(2)
+                                .userId(this.userId)
+                                .content(content)
+                                .contentType(0)
+                                .sendTime(sendTime)
+                                .isRead(true)
+                                .build();
+                        communicationUsers.get(toUserId).session.getBasicRemote().sendText(JsonUtils.objectToJSONString(messageObj2));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
