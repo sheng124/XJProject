@@ -45,6 +45,12 @@ public class ArticlesServiceImplements implements ArticlesService {
     private TagMapper tagMapper;
 
     /**
+     * 常量
+     */
+    private static final String PRE_KEYWORD = "<span style='color:#e32a2a;font-weight:bold'>";
+    private static final String AFTER_KEYWORD = "</span>";
+
+    /**
      * 点赞
      * @param likes 点赞实体类
      * @return 点赞成功true,点赞失败false
@@ -298,5 +304,20 @@ public class ArticlesServiceImplements implements ArticlesService {
         lacStatusDTO.setLike(likesMapper.getByUserIdAndArticleId(userId,articleId).size() != 0);
         lacStatusDTO.setCollection(collectionMapper.getByUserIdAndArticleId(userId,articleId).size() != 0);
         return lacStatusDTO;
+    }
+
+    /**
+     * 搜索笔记
+     * @param keyword 关键词
+     * @return 笔记列表，关键高亮
+     */
+    @Override
+    public List<Article> getArticlesByKeywordService(String keyword) {
+        List<Article> articles = articleMapper.getArticlesByKeyword('%'+keyword+'%');
+        for(Article article:articles){
+            article.setArticleTitle(article.getArticleTitle().replaceAll(keyword,PRE_KEYWORD+keyword+AFTER_KEYWORD));
+            article.setArticleContent(article.getArticleContent().replaceAll(keyword,PRE_KEYWORD+keyword+AFTER_KEYWORD));
+        }
+        return articles;
     }
 }

@@ -38,4 +38,6 @@ public interface ArticlesService {
     boolean addTagsService(Tag tag);
 
     LACStatusDTO getLACStatusService(Integer userId, Integer articleId);
+
+    List<Article> getArticlesByKeywordService(String keyword);
 }
