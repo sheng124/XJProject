@@ -27,6 +27,12 @@ public class Message {
     private Integer userId;
 
     /**
+     * 用户名、头像
+     */
+    private String username;
+    private String userAvatar;
+
+    /**
      * 消息内容
      */
     private String content;

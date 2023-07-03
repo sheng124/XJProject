@@ -14,4 +14,8 @@ public interface ChatRecordsMapper extends BaseMapper<ChatRecords> {
     List<Integer> getFromUserIdByToUserId(Integer userId);
 
     List<ChatRecords> getAllMessageByUserId(Integer userId);
+
+    String getUserNameByUserId(Integer userId);
+
+    String getUserAvatarByUserId(Integer userId);
 }

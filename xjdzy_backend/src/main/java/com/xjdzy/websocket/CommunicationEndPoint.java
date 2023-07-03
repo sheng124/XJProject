@@ -33,6 +33,9 @@ public class CommunicationEndPoint {
 
     // 用户ID
     private Integer userId;
+    // 用户名、头像
+    private String username;
+    private String userAvatar;
 
     // ChatRecordsMapper，用于存储记录(不能自动注入)
     private ChatRecordsMapper chatRecordsMapper;
@@ -98,6 +101,8 @@ public class CommunicationEndPoint {
         this.session = session;
         this.userId = userId;
         this.chatRecordsMapper = applicationContext.getBean(ChatRecordsMapper.class);
+        this.username = chatRecordsMapper.getUserNameByUserId(userId);
+        this.userAvatar = chatRecordsMapper.getUserAvatarByUserId(userId);
         // 输出上线提示
         System.out.println("用户 "+this.userId+" 已上线！");
         // 将当前通信站点存入站点集合
@@ -128,7 +133,7 @@ public class CommunicationEndPoint {
                         .toUserId(toUserId)
                         .fromUserId(this.userId)
                         .content(content)
-                        .isRead(true)
+                        .isRead(false)
                         .sendTime(sendTime)
                         .build();
                 chatRecordsMapper.insert(chatRecords);
@@ -138,11 +143,16 @@ public class CommunicationEndPoint {
                         Message messageObj2 = Message.builder()
                                 .code(2)
                                 .userId(this.userId)
+                                .username(this.username)
+                                .userAvatar(this.userAvatar)
                                 .content(content)
                                 .contentType(0)
                                 .sendTime(sendTime)
                                 .isRead(true)
                                 .build();
+                        System.out.println("------------------------");
+                        System.out.println(messageObj2);
+                        System.out.println("------------------------");
                         communicationUsers.get(toUserId).session.getBasicRemote().sendText(JsonUtils.objectToJSONString(messageObj2));
                     } catch (IOException e) {
                         e.printStackTrace();

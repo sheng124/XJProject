@@ -23,6 +23,14 @@
         or from_user_id = #{userId}
         order by send_time;
     </select>
+    <select id="getUserNameByUserId" resultType="java.lang.String">
+        select username from user_info
+        where user_id = #{userId};
+    </select>
+    <select id="getUserAvatarByUserId" resultType="java.lang.String">
+        select user_avatar from user_info
+        where user_id = #{userId};
+    </select>
 
 
 </mapper>

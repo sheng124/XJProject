@@ -6,8 +6,9 @@
     <update id="setIsReadByUserId">
         update chat_records
         set is_read = true
-        where to_user_id = #{userId}
-        and is_read = false
+        where is_read = false
+        and to_user_id = #{toUserId}
+        and from_user_id = #{fromUserId}
     </update>
 
     <select id="getFromUserIdByToUserId" resultType="java.lang.Integer">
@@ -21,6 +22,14 @@
         where to_user_id = #{userId}
         or from_user_id = #{userId}
         order by send_time;
+    </select>
+    <select id="getUserNameByUserId" resultType="java.lang.String">
+        select username from user_info
+        where user_id = #{userId};
+    </select>
+    <select id="getUserAvatarByUserId" resultType="java.lang.String">
+        select user_avatar from user_info
+        where user_id = #{userId};
     </select>
 
 
