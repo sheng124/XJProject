@@ -22,4 +22,7 @@ public interface UserMapper extends BaseMapper<UserInfo> {
 
     List<UserInfo> getUserInfoCon(String userId);
 
+    List<UserInfo> getFollowingByUserId(Integer userId);
+
+    List<UserInfo> getFollowerByUserId(Integer userId);
 }
