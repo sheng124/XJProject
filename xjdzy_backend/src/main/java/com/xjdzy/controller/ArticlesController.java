@@ -226,4 +226,22 @@ public class ArticlesController {
             return Result.error("获取失败！");
         }
     }
+
+    /**
+     * 搜索笔记
+     * @param keyword 关键词
+     * @return 笔记列表，关键高亮
+     */
+    @GetMapping("articles/search")
+    public Result getArticlesByKeywordCon(String keyword){
+        log.info("获取到的数据："+ keyword);
+        List<Article> res = articlesService.getArticlesByKeywordService(keyword);
+        log.info("Service处理的结果："+ res);
+        if(res != null){
+            return Result.success(res);
+        }
+        else{
+            return Result.error("获取失败！");
+        }
+    }
 }

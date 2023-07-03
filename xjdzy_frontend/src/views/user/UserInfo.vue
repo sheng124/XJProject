@@ -102,14 +102,85 @@
               <p class="subtitle is-6 mt-6">
                 <span class="has-text-weight-semibold ml-2"
                   >{{ userData.following }} </span
-                ><span class="has-text-weight-light">关注</span
+                ><span class="has-text-weight-light" @click="showgz">关注</span
                 ><span class="has-text-weight-semibold ml-2"
                   >{{ userData.followers }} </span
-                ><span class="has-text-weight-light">粉丝</span
+                ><span class="has-text-weight-light" @click="showfs">粉丝</span
                 ><span class="has-text-weight-semibold ml-2"
                   >{{ likesANDcollection }} </span
                 ><span class="has-text-weight-light">获赞与收藏</span>
               </p>
+              <el-dialog
+                title="关注列表"
+                :visible.sync="gzVisible"
+                width="30%"
+                center>
+                <v-list subheader>
+                  <v-list-item
+                  v-for="(Onefollowing, index) in FollowingDataList" 
+                  :key="index"
+                  >
+                    <v-list-item-avatar>
+                      <v-img
+                        :src="Onefollowing.userAvatar"
+                      ></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title v-text="Onefollowing.username"></v-list-item-title>
+                    </v-list-item-content>
+
+                    <v-list-item-button>
+                      111
+                    </v-list-item-button>
+
+                  </v-list-item>
+                </v-list>
+                <!-- <div v-for="(Onefollowing, index) in FollowingDataList" :key="index">
+                  <div>
+                    <img :src="Onefollowing.userAvatar" class="user-avatar2" />
+                  </div>
+                  <div>
+                    <p style="font-size: 19px">{{ Onefollowing.username }}</p>
+                  </div>
+                  <div>
+                    <button>111</button>
+                  </div>
+                </div> -->
+                <span slot="footer" class="dialog-footer">
+                  <el-button type="primary" @click="gzVisible = false">关 闭</el-button>
+                </span>
+              </el-dialog>
+              <el-dialog
+                title="粉丝列表"
+                :visible.sync="fsVisible"
+                width="30%"
+                center>
+                <v-list subheader>
+                  <v-list-item
+                  v-for="(Onefollower, index) in FollowerDataList" 
+                  :key="index"
+                  >
+                    <v-list-item-avatar>
+                      <v-img
+                        :src="Onefollower.userAvatar"
+                      ></v-img>
+                    </v-list-item-avatar>
+
+                    <v-list-item-content>
+                      <v-list-item-title v-text="Onefollower.username"></v-list-item-title>
+                    </v-list-item-content>
+
+                    <v-list-item-button>
+                      111
+                    </v-list-item-button>
+
+                  </v-list-item>
+                </v-list>
+                <span slot="footer" class="dialog-footer">
+                  <el-button type="primary" @click="fsVisible = false">关 闭</el-button>
+                </span>
+              </el-dialog>
             </div>
           </div>
         </div>
@@ -158,6 +229,8 @@ import {
   doFollow,
   undoFollow,
   getFollowStatus,
+  getFollowingList,
+  getFollowerList,
 } from "@/api/user"; //从“/src/api/user.js”导入发送axios请求的函数
 
 import ArticleList from "@/components/Article/ArticleList.vue";
@@ -225,6 +298,10 @@ export default {
       currentUserId: this.$route.params.userId,
       currentUser: null,
       followFlag: false, //当前个人首页的用户是否是我关注的
+      gzVisible:false,
+      fsVisible:false,
+      FollowingDataList:[],  //当前用户的关注列表
+      FollowerDataList:[],   //当前用户的粉丝列表
     };
   },
   computed: {
@@ -261,6 +338,8 @@ export default {
       this.liArticles = [];
       this.coArticles = [];
       this.allArticles = [];
+      this.FollowingDataList=[];
+      this.FollowerDataList=[];
     },
     processArticle(data) {
       //这里的data就是当前用户所有相关的文章
@@ -314,6 +393,16 @@ export default {
       getWrLiCoArticles(this.currentUserId).then((response) => {
         const { data } = response;
         this.processArticle(data);
+      });
+      getFollowingList(this.currentUserId).then((response) => {
+        const { data } = response;
+        this.FollowingDataList = data;
+        console.log("获取用户关注列表", this.FollowingDataList);
+      });
+      getFollowerList(this.currentUserId).then((response) => {
+        const { data } = response;
+        this.FollowerDataList = data;
+        console.log("获取用户粉丝列表", this.FollowerDataList);
       });
     },
     // 将所有该用户相关的笔记分为4列
@@ -491,6 +580,15 @@ export default {
         this.followFlag = false;
       });
     },
+    //展示关注列表的函数
+    showgz(){
+      this.gzVisible=true;
+
+    },
+    //展示粉丝列表的函数
+    showfs(){
+      this.fsVisible=true;
+    }
   },
 };
 </script>
@@ -524,6 +622,13 @@ export default {
   border-radius: 50%;
   width: 170px; /* 根据需要调整头像的宽度 */
   height: 170px; /* 根据需要调整头像的高度 */
+}
+
+.user-avatar2 {
+  cursor: pointer;
+  border-radius: 50%;
+  width: 60px; /* 根据需要调整头像的宽度 */
+  height: 60px; /* 根据需要调整头像的高度 */
 }
 
 .my-wrapper {

@@ -119,3 +119,19 @@ export function deleteArticle(articleId){
     method: 'delete',
   })
 }
+
+//获取关注列表
+export function getFollowingList(userId){
+  return request({
+    url: `/user/getFollowing/${userId}`,
+    method: 'get',
+  })
+}
+
+//获取粉丝列表
+export function getFollowerList(userId){
+  return request({
+    url: `/user/getFollower/${userId}`,
+    method: 'get',
+  })
+}

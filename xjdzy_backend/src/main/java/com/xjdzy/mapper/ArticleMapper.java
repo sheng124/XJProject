@@ -42,4 +42,5 @@ public interface ArticleMapper extends BaseMapper<Article> {
 
     boolean updateViewsNumByArticleId(Integer articleId);
 
+    List<Article> getArticlesByKeyword(String keywordWithT);
 }
