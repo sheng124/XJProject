@@ -39,4 +39,8 @@ public interface UserService {
     UserInfo getUserInfoService(Integer userId);
 
     boolean getFollowStatusService(Integer userId, Integer fUserId);
+
+    List<UserInfo> getFollowingService(Integer userId);
+
+    List<UserInfo> getFollowerService(Integer userId);
 }

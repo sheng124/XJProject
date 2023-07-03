@@ -26,5 +26,13 @@
         select  * from user_info
         where user_id = #{userId}
     </select>
+    <select id="getFollowingByUserId" resultType="com.xjdzy.entity.UserInfo">
+        select * from user_info
+        where user_id in (select follow.following_user_id from follow where follow.user_id = #{userId});
+    </select>
+    <select id="getFollowerByUserId" resultType="com.xjdzy.entity.UserInfo">
+        select * from user_info
+        where user_id in (select follow.user_id from follow where follow.following_user_id = #{userId});
+    </select>
 
 </mapper>

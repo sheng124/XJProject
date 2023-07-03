@@ -406,4 +406,24 @@ public class UserServiceImplements implements UserService {
     public boolean getFollowStatusService(Integer userId, Integer fUserId) {
         return followMapper.getByUserIdAndFUserId(userId,fUserId).size() != 0;
     }
+
+    /**
+     * 获取关注列表
+     * @param userId 用户ID
+     * @return List<UserInfo>
+     */
+    @Override
+    public List<UserInfo> getFollowingService(Integer userId) {
+        return userMapper.getFollowingByUserId(userId);
+    }
+
+    /**
+     * 获取粉丝列表
+     * @param userId 用户ID
+     * @return List<UserInfo>
+     */
+    @Override
+    public List<UserInfo> getFollowerService(Integer userId) {
+        return userMapper.getFollowerByUserId(userId);
+    }
 }
