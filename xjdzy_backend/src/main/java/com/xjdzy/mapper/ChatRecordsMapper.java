@@ -9,9 +9,13 @@ import java.util.List;
 @Mapper
 public interface ChatRecordsMapper extends BaseMapper<ChatRecords> {
 
-    void setIsReadByUserId(Integer userId);
+    void setIsReadByUserId(Integer toUserId,Integer fromUserId);
 
     List<Integer> getFromUserIdByToUserId(Integer userId);
 
     List<ChatRecords> getAllMessageByUserId(Integer userId);
+
+    String getUserNameByUserId(Integer userId);
+
+    String getUserAvatarByUserId(Integer userId);
 }
