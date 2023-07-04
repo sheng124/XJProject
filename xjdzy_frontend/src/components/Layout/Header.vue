@@ -13,7 +13,43 @@
       </template>
 
       <template slot="end">
-        <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item>
+
+        <div class="searchdiv">
+          <input v-model="keywords" placeholder="搜索..."/>
+          <v-icon>mdi-magnify</v-icon>
+        </div>
+
+        <!-- <el-autocomplete
+          class="inline-input"
+          v-model="keywords"
+          :fetch-suggestions="querySearch"
+          placeholder="搜索..."
+          @select=""
+        ></el-autocomplete>
+        
+        <v-icon>mdi-magnify</v-icon> -->
+        <!-- <div class="search-result-wrapper">
+        <hr class="divider"/>
+        <ul>
+          <li v-for="item of articleList" :key="item.id" class="search-reslut">
+        
+            <a @click="goTo(item.id)" v-html="item.articleTitle"/>
+   
+            <p
+              class="search-reslut-content text-justify"
+              v-html="item.articleContent"
+            />
+          </li>
+        </ul>
+
+        <div
+            v-show="flag && articleList.length == 0"
+            style="font-size:0.875rem"
+        >
+         找不到您查询的内容：{{ keywords }}
+        </div>
+      </div> -->
+        <!-- <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item> -->
         <b-navbar-item tag="router-link" :to="{path:'/chat'}"> 聊天 </b-navbar-item>
         <b-navbar-item
           tag="router-link"
