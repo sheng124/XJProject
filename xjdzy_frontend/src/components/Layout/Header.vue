@@ -14,6 +14,8 @@
 
       <template slot="end">
         <el-autocomplete
+          style="width: 500px"
+          class="mt-1"
           popper-class="my-autocomplete"
           v-model="keywords"
           :fetch-suggestions="querySearch"
@@ -212,6 +214,7 @@ import {
 } from "darkreader";
 import { mapGetters } from "vuex";
 import ChatModel from "@/components/Chat/ChatModel.vue";
+import ArticleModel from "@/components/Article/ArticleModel.vue"; //导入子组件文章模型
 import { removeAll, getDarkMode, setDarkMode } from "@/utils/js_cookie";
 import { search } from "@/api/article";
 export default {
@@ -219,6 +222,7 @@ export default {
   components: {
     //声明组件
     ChatModel,
+    ArticleModel,
   },
   data() {
     return {
@@ -227,9 +231,9 @@ export default {
       darkMode: false,
       chatDialogVisible: false,
 
-      selectedArticleId:-1,
+      selectedArticleId: -1,
       selectedArticleVisible: false, //查看文章详细内容的对话框
-      keywords:"",
+      keywords: "",
     };
   },
   computed: {
@@ -275,22 +279,24 @@ export default {
       });
     },
     querySearch(keywords, cb) {
-      search(keywords).then((response) => {
-        const { data } = response;
-        cb(data);
-      });
+      search(keywords)
+        .then((response) => {
+          const { data } = response;
+          cb(data);
+        })
+        .catch((error) => {
+          console.log("找不到");
+        });
     },
-    handleSelect(item){
-      this.selectedArticleId=item.articleId
-      this.selectedArticleVisible=true;
+    handleSelect(item) {
+      this.selectedArticleId = item.articleId;
+      this.selectedArticleVisible = true;
     },
     closeArticleDialog() {
       this.selectedArticleVisible = false;
       this.selectedArticleId = null;
     },
-    handleIconSearch(){
-
-    },
+    handleIconSearch() {},
   },
 };
 </script>
