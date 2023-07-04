@@ -15,7 +15,7 @@
       <template slot="end">
         <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item>
         <b-navbar-item tag="router-link" :to="{path:'/chat'}"> 聊天1 </b-navbar-item>
-        <b-navbar-item @click="openChatDialog"> 聊天 </b-navbar-item>
+        <b-navbar-item @click="openChatDialog"><i class="el-icon-chat-dot-round">聊天</i></b-navbar-item>
         <b-navbar-item
           tag="router-link"
           :to="{ name: 'publish_center' }"
@@ -124,7 +124,7 @@
     <div data-app="true">
       <v-dialog
         v-model="chatDialogVisible"
-        max-width="1500px"
+        max-width="1200px"
         style="height: 800px"
       >
         <chat-model @close="closeChatDialog"></chat-model>

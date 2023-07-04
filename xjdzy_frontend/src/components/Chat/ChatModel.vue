@@ -1,10 +1,7 @@
 <template>
   <div>
     <!-- 文章内容 -->
-    <v-card elevation="1" max-width="1500px" style="border-radius: 20px">
-      <!-- <v-toolbar color="gray" dark flat>
-        <v-toolbar-title>Chat</v-toolbar-title>
-      </v-toolbar> -->
+    <v-card elevation="1" max-width="1200px" style="border-radius: 20px">
       <div class="level-left">
         <v-navigation-drawer
           permanent
@@ -45,17 +42,21 @@
           </v-toolbar> -->
           <v-list width="260px" flat v-if="activeTab == 1">
             <v-subheader @click="windowOfUserId = -1">CHATS</v-subheader>
-            <v-list-item-group v-model="selectedItem" color="primary">
+            <v-list-item-group
+              v-model="selectedItem"
+              color="primary"
+              style="overflow-y: scroll; overflow-x: hidden; height: 700px"
+            >
               <v-list-item
                 v-for="(item, index) in handledMessageList"
                 :key="index"
                 @click="showChatWindow(item[0].userId)"
               >
                 <v-list-item-avatar>
-                  <v-img :src="user.userAvatar"></v-img>
+                  <v-img :src="item[0].userAvatar"></v-img>
                 </v-list-item-avatar>
                 <v-list-item-content>
-                  <v-list-item-title>{{ item }}</v-list-item-title>
+                  <v-list-item-title>{{ item[0].username }}</v-list-item-title>
                   <v-list-item-subtitle>...........</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -63,10 +64,15 @@
           </v-list>
           <v-list width="260px" flat v-else>
             <v-subheader>ACCOUNTS</v-subheader>
-            <v-list-item-group v-model="selectedItem" color="primary">
+            <v-list-item-group
+              v-model="selectedItem"
+              color="primary"
+              style="overflow-y: scroll; overflow-x: hidden; height: 700px"
+            >
               <v-list-item
                 v-for="(Onefollowing, index) in FollowingDataList"
                 :key="index"
+                @click="showChatUserCard(Onefollowing.userId)"
               >
                 <v-list-item-avatar>
                   <v-img :src="Onefollowing.userAvatar"></v-img>
@@ -81,7 +87,147 @@
             </v-list-item-group>
           </v-list>
         </div>
-        <div v-if="windowOfUserId != -1">聊天界面</div>
+        <div
+          class="is-align-self-flex-start"
+          style="width: 75%"
+          v-if="windowOfUserId != -1 && cardOfUserId == -1"
+        >
+          <!-- <v-text class="is-size-4">{{ handledMessageList[windowOfUserId][0].username }}</v-text> -->
+          <v-toolbar height="55px" color="grey lighten-5" flat>
+            <v-toolbar-title>{{ cardUser.username }}</v-toolbar-title>
+          </v-toolbar>
+          <el-divider class="my-0"></el-divider>
+          <div
+            class="px-2 py-1"
+            style="height: 500px; overflow-y: scroll; overflow-x: hidden"
+          >
+            <!-- 聊天内容 -->
+            <div
+              v-for="(item, index) in handledMessageList[windowOfUserId]"
+              :key="index"
+              class="mt-3"
+            >
+              <div v-if="item.code == 2" class="my-2">
+                <b-tooltip
+                  :label="item.content"
+                  position="is-right"
+                  always
+                  type="is-light"
+                >
+                  <v-avatar size="36">
+                    <img :src="item.userAvatar" :alt="item.username" />
+                  </v-avatar>
+                </b-tooltip>
+              </div>
+              <div style="display: flex; justify-content: flex-end" v-else>
+                <b-tooltip
+                  type="is-info"
+                  class="is-align-self-flex-end"
+                  :label="item.content"
+                  position="is-left"
+                  always
+                >
+                  <v-avatar size="36">
+                    <img :src="user.userAvatar" :alt="user.username" />
+                  </v-avatar>
+                </b-tooltip>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  justify-content: flex-end;
+                  margin-right: 50px;
+                "
+                v-if="item.code == 1"
+              >
+                <div class="is-size-7" v-if="item.read == true">已读</div>
+                <div class="is-size-7" v-else>未读</div>
+              </div>
+            </div>
+          </div>
+          <el-divider class="my-0"></el-divider>
+          <div class="mx-2">
+            <!-- 输入框 -->
+            <el-popover
+              placement="bottom"
+              title="标题"
+              width="500"
+              height="700"
+              trigger="click"
+              v-model="emojiShow"
+            >
+              <b-button slot="reference" type="is-light">😀</b-button>
+              <div class="browBox">
+                <ul class="ul_in_browBox">
+                  <li
+                    class="li_in_browBox"
+                    v-for="(item, index) in faceList"
+                    :key="index"
+                    @click="getBrow(index)"
+                  >
+                    {{ item }}
+                  </li>
+                </ul>
+              </div>
+            </el-popover>
+
+            <el-input
+              :rows="5"
+              type="textarea"
+              placeholder="请输入内容"
+              v-model="content"
+            >
+            </el-input>
+            <el-button
+              class="submit-btn"
+              type="primary"
+              @click="sendMessage(windowOfUserId, content)"
+              :disabled="content == ''"
+              >发送
+            </el-button>
+          </div>
+        </div>
+        <div
+          v-if="windowOfUserId == -1 && cardOfUserId != -1"
+          style="width: 75%; display: flex; justify-content: center"
+        >
+          <v-card
+            width="450"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 100%;
+            "
+            class="py-5"
+          >
+            <div>
+              <v-avatar size="200">
+                <img :src="cardUser.userAvatar" :alt="cardUser.username" />
+              </v-avatar>
+            </div>
+            <div class="my-3">{{ cardUser.username }}</div>
+            <div>
+              <span class="is-size-7">笔记</span
+              ><v-avatar
+                size="40"
+                class="mx-1"
+                tile
+                v-for="(item, index) in wrArticlesOfCardUser"
+                :key="index"
+              >
+                <img :src="item.articleCover" />
+              </v-avatar>
+            </div>
+            <div class="mt-4">
+              <v-btn color="success" @click="createChat(cardOfUserId)">
+                发消息
+                <v-icon right> mdi-chat-processing </v-icon>
+              </v-btn>
+            </div>
+          </v-card>
+        </div>
       </div>
     </v-card>
   </div>
@@ -89,7 +235,12 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { getFollowingList, getFollowerList, getUserInfo } from "@/api/user";
+import {
+  getFollowingList,
+  getFollowerList,
+  getUserInfo,
+  getWrLiCoArticles,
+} from "@/api/user";
 
 export default {
   name: "ChatModel",
@@ -107,10 +258,26 @@ export default {
       sendUserId: -1,
 
       handledMessageList: [],
-      windowOfUserId: -1, //关于关闭聊天，初步设置在点击头像后
+      windowOfUserId: -1, //关于关闭聊天，初步设置在点击Chat后
+
+      cardOfUserId: -1,
+      cardUser: null,
+      wrArticlesOfCardUser: [],
+      count: 0,
+      chatUsername: "",
+
+      //聊天输入内容
+      content: "",
+      //表情框是否展示
+      emojiShow: false,
+      //表情列表
+      faceList: [],
+      //表情文本
+      getBrowString: "",
     };
   },
   created() {
+    this.loadEmojis();
     //初始化websocket
     this.ws = new WebSocket("ws://localhost:8080/chat/" + this.user.userId);
     this.wsInit();
@@ -120,6 +287,22 @@ export default {
     ...mapGetters(["user", "token"]),
   },
   methods: {
+    //加载表情，存放到表情列表中
+    loadEmojis() {
+      const appData = require("@/assets/image/emojis.json");
+      for (let i in appData) {
+        this.faceList.push(appData[i].char);
+      }
+    },
+    getBrow(index) {
+      for (let i in this.faceList) {
+        if (index == i) {
+          this.getBrowString = this.faceList[index];
+          this.content += this.getBrowString;
+        }
+      }
+      this.emojiShow = false;
+    },
     init() {
       getFollowingList(this.user.userId).then((response) => {
         const { data } = response;
@@ -142,8 +325,12 @@ export default {
         return result;
       }, {});
       console.log("handledMessageList:", this.handledMessageList);
-      console.log("handledMessageList[2]:", this.handledMessageList[2]);
+      /* console.log("handledMessageList[2]:", this.handledMessageList[2]);
       console.log("handledMessageList[4]:", this.handledMessageList[4]);
+      console.log(
+        "handledMessageList[2]的用户名：",
+        this.handledMessageList[2][0].username
+      ); */
       console.log("循环遍历handledMessageList");
       //重置数组
       for (const userId in this.handledMessageList) {
@@ -158,6 +345,7 @@ export default {
       console.log("键：", keys);
     },
     wsInit() {
+      this.messageList = [];
       this.ws.onopen = () => {
         console.log("服务器连接");
         console.log(this.ws.readyState);
@@ -183,13 +371,16 @@ export default {
           }
         } else {
           this.messageList.push(msgInfo);
+          if (this.windowOfUserId != -1 && msgInfo.read == false) {
+            this.sendControlMessage(this.windowOfUserId);
+            console.log(
+              "当前收到新消息，已发送控制消息给用户",
+              this.windowOfUserId
+            );
+          }
         }
         console.log("每收到服务器一条消息后的messageList", this.messageList);
         this.handleMessages();
-        if(this.windowOfUserId!=-1){
-          this.sendControlMessage(this.windowOfUserId)
-          console.log("已发送控制消息给用户",this.windowOfUserId);
-        }
       };
       this.ws.onerror = (error) => {
         console.log("websocket错误!");
@@ -200,8 +391,8 @@ export default {
     // 进入聊天界面要发一个控制消息，聊天界面打开状态，每收到一条消息，都会发一个控制消息
     sendControlMessage(chatUserId) {
       var msg = {
-        code:0,
-        userId:chatUserId
+        code: 0,
+        userId: chatUserId,
       };
       this.ws.send(JSON.stringify(msg));
     },
@@ -209,6 +400,8 @@ export default {
       var msg = {
         code: 1,
         userId: Number(userId),
+        userAvatar: this.user.userAvatar,
+        username: this.user.username,
         content: message,
         contentType: 0,
         read: false,
@@ -218,6 +411,8 @@ export default {
       this.messageList.push(msg);
       console.log("每发送一条消息后的messageList", this.messageList);
       this.handleMessages();
+      //清空输入框
+      this.content = "";
     },
     formatDate1(dateString) {
       const datePart = dateString.split("T")[0];
@@ -237,10 +432,52 @@ export default {
       }
     },
     showChatWindow(chatUserId) {
+      this.cardOfUserId=-1
       this.windowOfUserId = chatUserId;
       console.log("对话的用户ID", this.windowOfUserId);
+      getUserInfo(this.windowOfUserId).then((response) => {
+        const { data } = response;
+        this.cardUser = data;
+        console.log("选中消息的联系人信息", this.cardUser);
+      });
       this.sendControlMessage(this.windowOfUserId);
-      console.log("已发送控制消息给用户",this.windowOfUserId);
+      console.log("已发送控制消息给用户", this.windowOfUserId);
+    },
+    showChatUserCard(chatUserId) {
+      this.windowOfUserId=-1;
+      this.cardOfUserId = chatUserId;
+      getUserInfo(this.cardOfUserId).then((response) => {
+        const { data } = response;
+        this.cardUser = data;
+        console.log("选中的联系人", this.cardUser);
+        getWrLiCoArticles(this.cardOfUserId).then((response) => {
+          const { data } = response;
+          console.log("收到的所有卡片用户相关笔记数据", data, data.length);
+          this.wrArticlesOfCardUser = []; //先清空已发布数组
+          this.count = 0;
+          //已发布：1，已收藏:2，已喜欢：3
+          for (var i = 0; i < data.length; i++) {
+            console.log("笔记" + i + "的类型为：", data[i].type);
+            if (data[i].type == 1 && this.count < 6) {
+              //只展示6篇笔记
+              //处理数据
+              this.wrArticlesOfCardUser.push(data[i]);
+              this.count++;
+            }
+          }
+          console.log(
+            "卡片用户：",
+            this.cardOfUserId,
+            "的展示笔记：",
+            this.wrArticlesOfCardUser
+          );
+        });
+      });
+    },
+    createChat(cardOfUserId) {
+      this.cardOfUserId = -1;
+      this.windowOfUserId = cardOfUserId;
+      this.activeTab = 1;
     },
     getNowTime: function () {
       let dateTime;
@@ -288,11 +525,11 @@ export default {
 </script>
 
 <style scoped>
-.user-avatar-article-detail {
+.user-avatar-chat {
   cursor: pointer;
   border-radius: 50%;
-  width: 40px; /* 根据需要调整头像的宽度 */
-  height: 40px; /* 根据需要调整头像的高度 */
+  width: 50px; /* 根据需要调整头像的宽度 */
+  height: 50px; /* 根据需要调整头像的高度 */
 }
 .image-container {
   height: 745px;
@@ -348,4 +585,31 @@ a {
   height: 600px;
   overflow: hidden;
 }*/
+
+.browBox {
+  width: 100%;
+  height: 200px;
+  background: #e6e6e6;
+  position: absolute;
+  z-index: 100;
+  bottom: 0px;
+  overflow: scroll;
+}
+.ul_in_browBox {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+.li_in_browBox {
+  cursor: pointer;
+  width: 10%;
+  font-size: 26px;
+  list-style: none;
+  text-align: center;
+}
+
+.submit-btn {
+  margin: 0 15px 10px 0;
+  float: right;
+}
 </style>
