@@ -70,7 +70,9 @@ export default {
   watch:{
     editArticleId(val){
       console.log("监听到要编辑的笔记ID:",val)
-      this.activeTab=3;
+      if(val!=-1){
+        this.activeTab=3;
+      }
     },
   },
   methods: {

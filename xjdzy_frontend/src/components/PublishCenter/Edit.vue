@@ -223,7 +223,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { userEditArticle, uploadVideo ,uploadImage} from "@/api/user";
+import { userEditArticle, uploadVideo, uploadImage } from "@/api/user";
 import {
   getCategories,
   getTags,
@@ -236,28 +236,33 @@ export default {
   components: {},
   watch: {
     editArticleId(val) {
-      this.articleForm.articleId = val;
-      console.log("监听到要编辑的笔记ID:", this.articleForm.articleId);
-      getArticleDetail(this.articleForm.articleId).then((response) => {
-        const { data } = response;
-        console.log("根据ID查询文章详细内容：", data);
-        this.articleForm.articleTitle = data.articleTitle;
-        this.articleForm.articleContent = data.articleContent;
-        this.articleForm.categoryName = data.category.categoryName;
-        this.articleForm.tagList = data.tagList;
-        this.articleForm.articleCover = data.articleCover;
-        this.articleForm.articleImages = data.articleImages;
-        this.ImageList=[];
-        for (var i = 0; i < this.articleForm.articleImages.length; i++) {
-          this.ImageList.push({name:i.toString(),url:this.articleForm.articleImages[i]})
-        }
-        this.articleForm.videoUrl = data.videoUrl;
-        if (this.articleForm.videoUrl != null) {
-          this.videoFlag = true;
-          this.videoUploadPercent = 101;
-        }
-        console.log(this.articleForm);
-      });
+      if (val != -1) {
+        this.articleForm.articleId = val;
+        console.log("监听到要编辑的笔记ID:", this.articleForm.articleId);
+        getArticleDetail(this.articleForm.articleId).then((response) => {
+          const { data } = response;
+          console.log("根据ID查询文章详细内容：", data);
+          this.articleForm.articleTitle = data.articleTitle;
+          this.articleForm.articleContent = data.articleContent;
+          this.articleForm.categoryName = data.category.categoryName;
+          this.articleForm.tagList = data.tagList;
+          this.articleForm.articleCover = data.articleCover;
+          this.articleForm.articleImages = data.articleImages;
+          this.ImageList = [];
+          for (var i = 0; i < this.articleForm.articleImages.length; i++) {
+            this.ImageList.push({
+              name: i.toString(),
+              url: this.articleForm.articleImages[i],
+            });
+          }
+          this.articleForm.videoUrl = data.videoUrl;
+          if (this.articleForm.videoUrl != null) {
+            this.videoFlag = true;
+            this.videoUploadPercent = 101;
+          }
+          console.log(this.articleForm);
+        });
+      }
     },
   },
   data() {
@@ -413,13 +418,13 @@ export default {
       }
       //构建formData
       let formData = new FormData();
-      formData.append("image",file.raw);
-      console.log("上传图片的formdata：",formData);
-      uploadImage(formData).then((response)=>{
-        const {data}=response;  //返回的是图片的url
-        this.articleForm.articleCover=data;
-      })
-      this.articleForm.articleImages.push(this.articleForm.articleCover);
+      formData.append("image", file.raw);
+      console.log("上传图片的formdata：", formData);
+      uploadImage(formData).then((response) => {
+        const { data } = response; //返回的是图片的url
+        this.articleForm.articleCover = data;
+        this.articleForm.articleImages.push(this.articleForm.articleCover);
+      });
       console.log("封面url：" + this.articleForm.articleCover);
     },
     checkType2(file, fileList) {
@@ -438,22 +443,28 @@ export default {
       }
       //构建formData
       let formData = new FormData();
-      formData.append("image",file.raw);
-      console.log("上传图片的formdata：",formData);
-      uploadImage(formData).then((response)=>{
-        const {data}=response;  //返回的是图片的url
+      formData.append("image", file.raw);
+      console.log("上传图片的formdata：", formData);
+      uploadImage(formData).then((response) => {
+        const { data } = response; //返回的是图片的url
         this.articleForm.articleImages.push(data);
-        this.ImageList.push({name:file.name,url:data})
-      })
+        this.ImageList.push({ name: file.name, url: data });
+      });
       console.log("checktype2处理结果:" + this.articleForm.articleImages);
-      console.log("上传照片墙后的ImageList：",this.ImageList)
+      console.log("上传照片墙后的ImageList：", this.ImageList);
     },
     handleRemove(file, fileList) {
-      console.log("file",file);
-      this.articleForm.articleImages = this.articleForm.articleImages.filter(url => url !== file.url);
-      this.ImageList=this.ImageList.filter(img=>img.uid !==file.uid)
-      console.log("fileList",fileList)
-      console.log("删除一张照片后的照片墙",this.ImageList,this.articleForm.articleImages);
+      console.log("file", file);
+      this.articleForm.articleImages = this.articleForm.articleImages.filter(
+        (url) => url !== file.url
+      );
+      this.ImageList = this.ImageList.filter((img) => img.uid !== file.uid);
+      console.log("fileList", fileList);
+      console.log(
+        "删除一张照片后的照片墙",
+        this.ImageList,
+        this.articleForm.articleImages
+      );
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
@@ -605,7 +616,7 @@ export default {
         this.loading = true;
         //文章信息
         let articleInfo = {
-          articleId:this.articleForm.articleId,
+          articleId: this.articleForm.articleId,
           userId: this.user.userId,
           articleTitle: this.articleForm.articleTitle,
           articleCover: this.articleForm.articleCover,
@@ -613,7 +624,7 @@ export default {
           categoryId: this.getCategoryId(this.articleForm.categoryName),
           createTime: this.getNowTime(),
           tagList: this.articleForm.tagList,
-          imageList:this.articleForm.articleImages,
+          imageList: this.articleForm.articleImages,
           videoUrl: this.articleForm.videoUrl,
         };
         console.log("articleInfo", articleInfo);
@@ -626,6 +637,7 @@ export default {
             type: "success",
             duration: 2000,
           });
+          this.$store.commit("user/setEditArticleIdState", -1);
           this.$router.push({
             name: "user_info",
             params: {

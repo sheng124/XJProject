@@ -170,8 +170,6 @@
                         Onefollower.username
                       }}</v-list-item-title>
                     </v-list-item-content>
-
-                    <v-list-item-button> 111 </v-list-item-button>
                   </v-list-item>
                 </v-list>
                 <span slot="footer" class="dialog-footer">

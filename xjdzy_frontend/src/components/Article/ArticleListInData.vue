@@ -39,36 +39,44 @@
               </div>
               <!-- 笔记作者头像，名称 -->
 
-              <div class="level-left">
+              <div class="level mb-0">
                 <router-link
                   :to="{
                     name: 'user_info',
                     params: { userId: article.userInfo.userId },
                   }"
                 >
-                <div class="level-left">
-                  <img
-                    :src="article.userInfo.userAvatar"
-                    class="user-avatar-article mr-1"
-                  />
-                  <span class="my-2">{{ article.userInfo.username }}</span>
-                </div>
+                  <div class="level-left">
+                    <img
+                      :src="article.userInfo.userAvatar"
+                      class="user-avatar-article mr-1"
+                    />
+                    <span class="my-2">{{ article.userInfo.username }}</span>
+                  </div>
                 </router-link>
-                <v-btn
-                  text
-                  icon
-                  @click="edit(article.articleId)"
-                  v-show="hoveredArticleId == article.articleId"
-                  ><v-icon>mdi-pencil-circle</v-icon></v-btn
-                >
-                <el-popconfirm title="确定要删除这篇笔记吗？" @confirm="clickToDelete(article.articleId)">
-                <v-btn
-                slot="reference"
-                  text
-                  icon
-                  v-show="hoveredArticleId == article.articleId"
-                  ><v-icon>mdi-delete-circle</v-icon></v-btn
-                ></el-popconfirm>
+                <div class="level-right">
+                  <v-btn
+                  color="purple darken-4"
+                    text
+                    icon
+                    @click="edit(article.articleId)"
+                    v-show="hoveredArticleId == article.articleId"
+                    ><v-icon>mdi-pencil-circle</v-icon></v-btn
+                  >
+                  <el-popconfirm
+                    title="确定要删除这篇笔记吗？"
+                    @confirm="clickToDelete(article.articleId)"
+                  >
+                    <v-btn
+                    color="red"
+                      slot="reference"
+                      text
+                      icon
+                      v-show="hoveredArticleId == article.articleId"
+                      ><v-icon>mdi-delete-circle</v-icon></v-btn
+                    ></el-popconfirm
+                  >
+                </div>
               </div>
 
               <!-- 发表时间 -->
@@ -131,7 +139,7 @@
 <script>
 import { mapGetters } from "vuex";
 import ArticleModel from "@/components/Article/ArticleModel.vue"; //导入子组件文章模型
-import {deleteArticle} from "@/api/user"
+import { deleteArticle } from "@/api/user";
 export default {
   name: "ArticleList",
   components: {
@@ -139,7 +147,7 @@ export default {
     ArticleModel,
   },
   computed: {
-    ...mapGetters(["token", "user", "editArticleId","deleteArticleId"]),
+    ...mapGetters(["token", "user", "editArticleId", "deleteArticleId"]),
   },
   props: {
     //从父组件收到的文章数组
@@ -235,26 +243,38 @@ export default {
     //编辑函数
     edit(selectToEditArticleId) {
       console.log("点击edit按钮后，即将要编辑的笔记：", selectToEditArticleId);
-      console.log("edit函数commit mutations前，editArticleId的值：",this.editArticleId)
+      console.log(
+        "edit函数commit mutations前，editArticleId的值：",
+        this.editArticleId
+      );
       this.$store.commit("user/setEditArticleIdState", selectToEditArticleId); //需要向父组件传值
-      console.log("edit函数commit mutations后，editArticleId的值：", this.editArticleId)
+      console.log(
+        "edit函数commit mutations后，editArticleId的值：",
+        this.editArticleId
+      );
     },
     getHoverArticle(articleId) {
       this.hoveredArticleId = articleId;
     },
-    clickToDelete(articleId){
-      console.log("要删除的笔记ID：",articleId)
-      deleteArticle(articleId).then((response)=>{
+    clickToDelete(articleId) {
+      console.log("要删除的笔记ID：", articleId);
+      deleteArticle(articleId).then((response) => {
         this.$message({
           message: "删除笔记成功",
           type: "success",
           duration: 2000,
         });
-        console.log("clickToDelete函数commit mutations前，deleteArticleId的值：",this.deleteArticleId)
+        console.log(
+          "clickToDelete函数commit mutations前，deleteArticleId的值：",
+          this.deleteArticleId
+        );
         this.$store.commit("user/setDeleteArticleIdState", articleId);
-        console.log("clickToDelete函数commit mutations后，deleteArticleId的值：", this.deleteArticleId)
-      })
-    }
+        console.log(
+          "clickToDelete函数commit mutations后，deleteArticleId的值：",
+          this.deleteArticleId
+        );
+      });
+    },
   },
 };
 </script>
