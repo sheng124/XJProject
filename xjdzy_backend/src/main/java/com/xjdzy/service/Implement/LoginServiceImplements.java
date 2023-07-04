@@ -35,7 +35,7 @@ public class LoginServiceImplements implements LoginService {
             return null;
         // 生成token
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id",u.getUserId());
+        //claims.put("id",u.getUserId());
         claims.put("user_id",u.getUserId());
         claims.put("user_name",u.getUsername());
         claims.put("password",u.getPassword());

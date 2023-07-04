@@ -315,8 +315,16 @@ public class ArticlesServiceImplements implements ArticlesService {
     public List<Article> getArticlesByKeywordService(String keyword) {
         List<Article> articles = articleMapper.getArticlesByKeyword('%'+keyword+'%');
         for(Article article:articles){
+            int i = article.getArticleContent().indexOf(keyword);
+            int j = i+keyword.length();
+            int length = article.getArticleContent().length();
+            int keywordPreIndex = (i>5)?i-5:i;
+            int keywordAfterIndex = (j+15<=length)?j+15:length-1;
+            // 截取第一个关键词前五个文字、关键词、后关键词十五个文字
+            String keywordPart = article.getArticleContent().substring(keywordPreIndex,keywordAfterIndex);
+            // 关键词高亮
+            article.setArticleContent(keywordPart.replaceAll(keyword,PRE_KEYWORD+keyword+AFTER_KEYWORD));
             article.setArticleTitle(article.getArticleTitle().replaceAll(keyword,PRE_KEYWORD+keyword+AFTER_KEYWORD));
-            article.setArticleContent(article.getArticleContent().replaceAll(keyword,PRE_KEYWORD+keyword+AFTER_KEYWORD));
         }
         return articles;
     }
