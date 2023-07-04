@@ -107,3 +107,14 @@ export function getAllArticles(){
     method: 'get',
   })
 }
+
+//搜索
+export function search(keyword){
+  return request({
+    url:'/articles/search',
+    method:'get',
+    params:{
+      keyword:keyword,
+    }
+  })
+}

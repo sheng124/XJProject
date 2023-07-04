@@ -51,6 +51,13 @@ const routes = [
     component: () => import('@/views/HomeView'),
     meta: { title: '分类文章' }
   },
+  // 搜索文章
+  {
+    path: '/articles/search/:articleId',
+    name: 'articles_of_search',
+    component: () => import('@/views/article/ArticlesOfSearch'),
+    meta: { title: '分类文章' }
+  },
   // 标签文章列表
   {
     path: '/articles/tag/:tagId',

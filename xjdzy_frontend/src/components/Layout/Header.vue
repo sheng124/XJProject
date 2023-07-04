@@ -13,11 +13,25 @@
       </template>
 
       <template slot="end">
-
-        <div class="searchdiv">
-          <input v-model="keywords" placeholder="搜索..."/>
-          <v-icon>mdi-magnify</v-icon>
-        </div>
+        <el-autocomplete
+          popper-class="my-autocomplete"
+          v-model="keywords"
+          :fetch-suggestions="querySearch"
+          placeholder="输入文章标题或内容..."
+          @select="handleSelect"
+          :trigger-on-focus="false"
+        >
+          <i
+            class="el-icon-edit el-input__icon"
+            slot="suffix"
+            @click="handleIconSearch"
+            ><!-- 放搜索图标 -->
+          </i>
+          <template slot-scope="{ item }">
+            <div v-html="item.articleTitle"></div>
+            <span v-html="item.articleContent"></span>
+          </template>
+        </el-autocomplete>
 
         <!-- <el-autocomplete
           class="inline-input"
@@ -50,7 +64,12 @@
         </div>
       </div> -->
         <!-- <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item> -->
-        <b-navbar-item tag="router-link" :to="{path:'/chat'}"> 聊天 </b-navbar-item>
+        <b-navbar-item tag="router-link" :to="{ path: '/chat' }">
+          聊天1
+        </b-navbar-item>
+        <b-navbar-item @click="openChatDialog"
+          ><i class="el-icon-chat-dot-round">聊天</i></b-navbar-item
+        >
         <b-navbar-item
           tag="router-link"
           :to="{ name: 'publish_center' }"
@@ -120,7 +139,10 @@
                   },
                 }"
               >
-                <el-dropdown-item><v-icon small class="mb-1">mdi-account</v-icon>个人中心</el-dropdown-item>
+                <el-dropdown-item
+                  ><v-icon small class="mb-1">mdi-account</v-icon
+                  >个人中心</el-dropdown-item
+                >
               </router-link>
               <!-- <router-link
                 :to="{
@@ -130,7 +152,9 @@
                 <el-dropdown-item> 发布中心 </el-dropdown-item>
               </router-link> -->
               <el-dropdown-item divided @click.native="logout">
-                <span style="display: block"><v-icon small class="mb-1">mdi-logout</v-icon>退出登录</span>
+                <span style="display: block"
+                  ><v-icon small class="mb-1">mdi-logout</v-icon>退出登录</span
+                >
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -155,6 +179,29 @@
         </b-navbar-dropdown> -->
       </template>
     </b-navbar>
+    <!-- 聊天弹窗 -->
+    <div data-app="true">
+      <v-dialog
+        v-model="chatDialogVisible"
+        max-width="1200px"
+        style="height: 800px"
+      >
+        <chat-model @close="closeChatDialog"></chat-model>
+      </v-dialog>
+    </div>
+    <!-- 文章内容弹窗 -->
+    <div data-app="true">
+      <v-dialog
+        v-model="selectedArticleVisible"
+        max-width="1000px"
+        style="height: 800px"
+      >
+        <article-model
+          :currentArticleId="selectedArticleId"
+          @close="closeArticleDialog"
+        ></article-model>
+      </v-dialog>
+    </div>
   </header>
 </template>
   
@@ -164,20 +211,32 @@ import {
   enable as enableDarkMode,
 } from "darkreader";
 import { mapGetters } from "vuex";
+import ChatModel from "@/components/Chat/ChatModel.vue";
 import { removeAll, getDarkMode, setDarkMode } from "@/utils/js_cookie";
+import { search } from "@/api/article";
 export default {
   name: "Header",
+  components: {
+    //声明组件
+    ChatModel,
+  },
   data() {
     return {
       logoUrl: require("@/assets/logo.png"),
       doubaoImg: require("@/assets/image/doubao.png"),
       darkMode: false,
+      chatDialogVisible: false,
+
+      selectedArticleId:-1,
+      selectedArticleVisible: false, //查看文章详细内容的对话框
+      keywords:"",
     };
   },
   computed: {
     ...mapGetters(["token", "user"]),
   },
   watch: {
+    keywords(val) {},
     // 监听Theme模式
     darkMode(val) {
       if (val) {
@@ -199,6 +258,12 @@ export default {
     }
   },
   methods: {
+    openChatDialog() {
+      this.chatDialogVisible = true;
+    },
+    closeChatDialog() {
+      this.chatDialogVisible = false;
+    },
     async logout() {
       this.$store.dispatch("user/userLogout").then(() => {
         this.$message.info("退出登录成功");
@@ -209,17 +274,22 @@ export default {
         }, 500);
       });
     },
-    search() {
-      console.log(this.token);
-      if (this.searchKey.trim() === null || this.searchKey.trim() === "") {
-        this.$message.info({
-          showClose: true,
-          message: "请输入关键字搜索！",
-          type: "warning",
-        });
-        return false;
-      }
-      this.$router.push({ path: "/search?key=" + this.searchKey });
+    querySearch(keywords, cb) {
+      search(keywords).then((response) => {
+        const { data } = response;
+        cb(data);
+      });
+    },
+    handleSelect(item){
+      this.selectedArticleId=item.articleId
+      this.selectedArticleVisible=true;
+    },
+    closeArticleDialog() {
+      this.selectedArticleVisible = false;
+      this.selectedArticleId = null;
+    },
+    handleIconSearch(){
+
     },
   },
 };
