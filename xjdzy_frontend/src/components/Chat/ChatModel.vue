@@ -20,7 +20,7 @@
               <v-list-item-icon>
                 <v-icon>mdi-chat</v-icon>
               </v-list-item-icon>
-              <v-list-item-title>Messages</v-list-item-title>
+              <v-list-item-title>消息</v-list-item-title>
             </v-list-item>
             <v-list-item link @click="navigateTo('/accounts')">
               <v-list-item-icon>
@@ -41,7 +41,7 @@
             <span style="margin: 0 40%">Chat</span>
           </v-toolbar> -->
           <v-list width="260px" flat v-if="activeTab == 1">
-            <v-subheader @click="windowOfUserId = -1">CHATS</v-subheader>
+            <v-subheader @click="windowOfUserId = -1">聊天</v-subheader>
             <v-list-item-group
               v-model="selectedItem"
               color="primary"
@@ -57,13 +57,14 @@
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title>{{ item[0].username }}</v-list-item-title>
-                  <v-list-item-subtitle>...........</v-list-item-subtitle>
+                  <v-list-item-subtitle v-if="item[item.length-1].code==2">{{item[item.length-1].username}}: {{ item[item.length-1].content }}</v-list-item-subtitle>
+                  <v-list-item-subtitle v-else>{{user.username}}: {{ item[item.length-1].content }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
           </v-list>
           <v-list width="260px" flat v-else>
-            <v-subheader>ACCOUNTS</v-subheader>
+            <v-subheader>关注的人</v-subheader>
             <v-list-item-group
               v-model="selectedItem"
               color="primary"
@@ -93,9 +94,15 @@
           v-if="windowOfUserId != -1 && cardOfUserId == -1"
         >
           <!-- <v-text class="is-size-4">{{ handledMessageList[windowOfUserId][0].username }}</v-text> -->
-          <v-toolbar height="55px" color="grey lighten-5" flat>
-            <v-toolbar-title>{{ cardUser.username }}</v-toolbar-title>
-          </v-toolbar>
+          <div class="level mb-0">
+            <v-toolbar height="55px" color="grey lighten-5" flat>
+              <v-toolbar-title>{{ cardUser.username }}</v-toolbar-title>
+            </v-toolbar>
+            <v-btn class="ma-2" text icon color="red" @click="windowOfUserId = -1">
+              <v-icon>mdi-close-circle</v-icon>
+            </v-btn>
+          </div>
+
           <el-divider class="my-0"></el-divider>
           <div
             class="px-2 py-1"
@@ -140,8 +147,10 @@
                 "
                 v-if="item.code == 1"
               >
-                <div class="is-size-7" v-if="item.read == true">已读</div>
-                <div class="is-size-7" v-else>未读</div>
+                <div class="is-size-7 has-text-grey" v-if="item.read == true">
+                  已读
+                </div>
+                <div class="is-size-7 has-text-warning-dark" v-else>未读</div>
               </div>
             </div>
           </div>
@@ -360,6 +369,7 @@ export default {
         console.log(msgInfo);
         console.log(this.ws.readyState);
         if (msgInfo.code === 0) {
+          console.log("收到的控制消息：", msgInfo);
           // 修改已经收到的消息状态
           for (var i = 0; i < this.messageList.length; i++) {
             if (
@@ -400,8 +410,8 @@ export default {
       var msg = {
         code: 1,
         userId: Number(userId),
-        userAvatar: this.user.userAvatar,
-        username: this.user.username,
+        userAvatar: this.cardUser.userAvatar,
+        username: this.cardUser.username,
         content: message,
         contentType: 0,
         read: false,
@@ -432,7 +442,7 @@ export default {
       }
     },
     showChatWindow(chatUserId) {
-      this.cardOfUserId=-1
+      this.cardOfUserId = -1;
       this.windowOfUserId = chatUserId;
       console.log("对话的用户ID", this.windowOfUserId);
       getUserInfo(this.windowOfUserId).then((response) => {
@@ -444,7 +454,7 @@ export default {
       console.log("已发送控制消息给用户", this.windowOfUserId);
     },
     showChatUserCard(chatUserId) {
-      this.windowOfUserId=-1;
+      this.windowOfUserId = -1;
       this.cardOfUserId = chatUserId;
       getUserInfo(this.cardOfUserId).then((response) => {
         const { data } = response;
@@ -475,8 +485,8 @@ export default {
       });
     },
     createChat(cardOfUserId) {
-      this.cardOfUserId = -1;
       this.windowOfUserId = cardOfUserId;
+      this.cardOfUserId = -1;
       this.activeTab = 1;
     },
     getNowTime: function () {
@@ -516,7 +526,6 @@ export default {
     },
   },
   mounted() {
-    this.getArticle();
     /* this.scroll = new IScroll(this.$refs.wrapper, {
       mouseWheel: true, // 允许鼠标滚轮
     }); */

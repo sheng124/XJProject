@@ -151,7 +151,7 @@ public class CommunicationEndPoint {
                                 .content(content)
                                 .contentType(0)
                                 .sendTime(sendTime)
-                                .isRead(true)
+                                .isRead(false)
                                 .build();
                         communicationUsers.get(toUserId).session.getBasicRemote().sendText(JsonUtils.objectToJSONString(messageObj2));
                     } catch (IOException e) {

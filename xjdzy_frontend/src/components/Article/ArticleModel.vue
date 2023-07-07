@@ -5,7 +5,7 @@
       <el-row>
         <el-col :span="12">
           <!-- 文章左侧图片、视频 -->
-          <b-carousel :autoplay="false">
+          <b-carousel v-model="carousel" :autoplay="false">
             <!-- <b-carousel-item v-for="(carousel, i) in carousels" :key="i" >
               <section :class="`hero is-medium is-${carousel.color}`">
                 <div class="hero-body has-text-centered">
@@ -285,6 +285,7 @@ export default {
   },
   data() {
     return {
+      carousel:0, //表示默认从第一个幻灯片开始
       article: null,
       scroll: null,
       commentText: "",
@@ -329,6 +330,7 @@ export default {
           this.article.userInfo.userId,
           this.article.articleId
         );
+        this.carousel=0;
       });
     },
     //查看关注，点赞，收藏状态
@@ -342,7 +344,7 @@ export default {
         const { data } = response;
         this.likesFlag = data.like;
         this.collectionFlag = data.collection;
-        console.log("查看当前点赞、收藏状态：", this.followFlag);
+        console.log("查看当前点赞、收藏状态：", this.likesFlag,this.collectionFlag);
       });
     },
     handleComment() {
@@ -524,6 +526,7 @@ export default {
     // 监听模式
     currentArticleId(val) {
       console.log("currentArticleId", this.currentArticleId);
+      /* this.carousel=0; */
       this.getArticle();
     },
     newCommentNum(val) {
@@ -531,8 +534,10 @@ export default {
       this.getArticle();
     },
     likesFlag(val) {
-      console.log("likesFlag", this.likesFlag);
+      console.log("监听likesFlag", this.likesFlag);
       this.getArticle();
+      console.log("监听期间getArticle后的likesFlag", this.likesFlag);
+      console.log("likesFlag", this.likesFlag);
       console.log("commit之前的Lflag：",this.Lflag)
       if(this.likeFlag==true){
         this.$store.commit("user/setLflagState",1)

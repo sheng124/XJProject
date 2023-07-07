@@ -394,7 +394,13 @@ export default {
       /* console.log(this.articleImageUrlList); */
     },
     handleRemove(file, fileList) {
-      console.log(file);
+      console.log(file.raw);
+      for(var i=0;i<this.articleForm.articleImages.length;i++){
+        console.log("articleForm.articleImages数组里的raw：",this.articleForm.articleImages[i])
+      }
+      this.articleForm.articleImages=this.articleForm.articleImages.filter(
+        (raw) => raw !== file.raw
+      );
       console.log(fileList);
     },
     handlePictureCardPreview(file) {

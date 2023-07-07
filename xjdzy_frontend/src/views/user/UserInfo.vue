@@ -130,7 +130,19 @@
                       }}</v-list-item-title>
                     </v-list-item-content>
 
-                    <v-list-item-button> 111 </v-list-item-button>
+                    <v-list-item-action>
+                      <v-btn
+                        color="red"
+                        slot="reference"
+                        outlined
+                        dark
+                        rounded
+                        class="mr-4"
+                        @click="clickToUnfollow2(Onefollowing.userId)"
+                      >
+                        已关注
+                      </v-btn>
+                    </v-list-item-action>
                   </v-list-item>
                 </v-list>
                 <!-- <div v-for="(Onefollowing, index) in FollowingDataList" :key="index">
@@ -599,6 +611,20 @@ export default {
           duration: 2000,
         });
         this.followFlag = false;
+      });
+    },
+    clickToUnfollow2(userId) {
+      const data = {
+        userId: this.user.userId,
+        followingUserId: userId,
+      };
+      undoFollow(data).then((response) => {
+        this.$message({
+          message: "已取消关注",
+          type: "success",
+          duration: 2000,
+        });
+        this.init();
       });
     },
     //展示关注列表的函数

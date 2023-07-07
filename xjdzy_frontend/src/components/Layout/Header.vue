@@ -3,18 +3,18 @@
     <b-navbar class="is-white" :fixed-top="true">
       <template slot="brand">
         <b-navbar-item tag="router-link" :to="{ path: '/' }">
-          <img :src="doubaoImg" alt="logo" />
+          <img :src="noteImg" alt="logo" />
         </b-navbar-item>
       </template>
       <template slot="start">
         <b-navbar-item tag="router-link" :to="{ path: '/' }">
-          🏠首页
+          <i class="el-icon-s-home">首页</i>
         </b-navbar-item>
       </template>
 
       <template slot="end">
         <el-autocomplete
-          style="width: 500px"
+          style="width: 500px;margin:0 100px 0px 50px;"
           class="mt-1"
           popper-class="my-autocomplete"
           v-model="keywords"
@@ -24,14 +24,14 @@
           :trigger-on-focus="false"
         >
           <i
-            class="el-icon-edit el-input__icon"
+            class="el-icon-search el-input__icon"
             slot="suffix"
-            @click="handleIconSearch"
             ><!-- 放搜索图标 -->
           </i>
           <template slot-scope="{ item }">
             <div v-html="item.articleTitle"></div>
-            <span v-html="item.articleContent"></span>
+            <span class="is-size-7" v-html="item.articleContent"></span>
+            <el-divider class="my-0"></el-divider>
           </template>
         </el-autocomplete>
 
@@ -66,9 +66,9 @@
         </div>
       </div> -->
         <!-- <b-navbar-item tag="router-link" :to="{}"> 🔍搜索 </b-navbar-item> -->
-        <b-navbar-item tag="router-link" :to="{ path: '/chat' }">
+        <!-- <b-navbar-item tag="router-link" :to="{ path: '/chat' }">
           聊天1
-        </b-navbar-item>
+        </b-navbar-item> -->
         <b-navbar-item @click="openChatDialog"
           ><i class="el-icon-chat-dot-round">聊天</i></b-navbar-item
         >
@@ -227,7 +227,7 @@ export default {
   data() {
     return {
       logoUrl: require("@/assets/logo.png"),
-      doubaoImg: require("@/assets/image/doubao.png"),
+      noteImg: require("@/assets/image/note.png"),
       darkMode: false,
       chatDialogVisible: false,
 
